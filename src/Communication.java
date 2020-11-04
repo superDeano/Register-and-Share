@@ -1,2 +1,2 @@
-public class Communication {
+public class Communication implements CommunicationInterface {
 }
