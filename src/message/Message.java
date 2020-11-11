@@ -1,4 +1,4 @@
-package server;
+package message;
 
 public class Message implements MessageInterface {
 }
