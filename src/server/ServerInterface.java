@@ -7,13 +7,13 @@ public interface ServerInterface {
     //Server goes to sleep, wakes up the other
     public void stopServing();
 
-    public void registerUser(String requestNumber, String name, String ipAddress, String socketNumber);
+    public void registerUser(String requestNumber, String name, String ipAddress, int socketNumber);
 
     public void deregisterUser(String requestNumber, String name);
 
-    public void updateUserInformation(String requestNumber, String name, String ipAddress, String socketNumber);
+    public void updateUserInformation(String requestNumber, String name, String ipAddress, int socketNumber);
 
     public void updateSubjectOfInterestToUser(String requestNumber, String name, String listOfSubjects);
 
-    public void updateUserPublishedMessage(String requestNumber, String name, String subject, String text);
+    public void userPublishesMessage(String requestNumber, String name, String subject, String text);
 }
