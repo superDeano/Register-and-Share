@@ -1,2 +1,17 @@
-package client;public interface ClientInt {
+package client;
+
+public interface ClientInterface {
+
+    public void registerToServer();
+
+    public void deregisterToServer();
+
+    public void registerToSubjectOfInterest(String subjectOfInterest);
+
+    public void deregisterToSubjectOfInterest(String subjectOfInterest);
+
+    public void updateInformationToServer();
+
+    public void publishMessage(String topic, String message);
+
 }
