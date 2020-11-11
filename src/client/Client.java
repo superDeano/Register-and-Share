@@ -2,11 +2,14 @@ package client;
 
 import communication.Communication;
 
+import java.util.Vector;
+
 public class Client implements ClientInterface{
     private int socketNumber;
     private String name;
     private String ipAddress;
     private Communication communication;
+    private Vector<String> subjectsInterested;
 
     @Override
     public void registerToServer() {
@@ -29,7 +32,7 @@ public class Client implements ClientInterface{
     }
 
     @Override
-    public void updateInformationToServer(String name, String ipAddress, int socketNumber) {
+    public void updateInformationToServer() {
 
     }
 

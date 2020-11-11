@@ -4,6 +4,9 @@ public class RssClient {
 
     public static void main(String[] args) {
         // write your code here
-        System.out.println("I'm from Client");
+        CliClient cliClient = new CliClient();
+//        System.out.println("I'm from Client");
+        cliClient.run();
+
     }
 }
