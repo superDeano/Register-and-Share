@@ -10,7 +10,7 @@ public interface ClientInterface {
 
     public void deregisterToSubjectOfInterest(String subjectOfInterest);
 
-    public void updateInformationToServer();
+    public void updateInformationToServer(String name, String ipAddress, int socketNumber);
 
     public void publishMessage(String topic, String message);
 
