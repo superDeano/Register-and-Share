@@ -1,15 +1,20 @@
 package client;
 
 import communication.Communication;
+import server.ClientModel;
 
 import java.util.Vector;
 
-public class Client implements ClientInterface{
-    private int socketNumber;
-    private String name;
-    private String ipAddress;
+public class Client extends ClientModel implements ClientInterface{
     private Communication communication;
-    private Vector<String> subjectsInterested;
+
+    public Client(){
+        super();
+    }
+
+    public Client(String name, String ipAddress, int socketNumber) {
+        super(name, ipAddress, socketNumber);
+    }
 
     @Override
     public void registerToServer() {
@@ -41,27 +46,4 @@ public class Client implements ClientInterface{
 
     }
 
-    public int getSocketNumber() {
-        return socketNumber;
-    }
-
-    public void setSocketNumber(int socketNumber) {
-        this.socketNumber = socketNumber;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
 }

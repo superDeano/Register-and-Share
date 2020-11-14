@@ -8,6 +8,10 @@ public class ClientModel {
     private int socketNumber;
     private final Vector<String> subjectsOfInterest;
 
+    public ClientModel(){
+        this.subjectsOfInterest = new Vector<>();
+    }
+
     public ClientModel(String name, String ipAddress, int socketNumber) {
         this.name = name;
         this.ipAddress = ipAddress;
