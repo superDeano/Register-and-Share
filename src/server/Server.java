@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class Server extends ServerModel implements ServerInterface {
-    private Logger logger;
+    private final Logger logger;
     List<ClientModel> clients;
     Communication communication;
 
