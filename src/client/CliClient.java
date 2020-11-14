@@ -7,14 +7,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class CliClient {
-    private Client client;
-    private ServerModel[] servers = new ServerModel[2];
+    private final Client client;
+
+    private Thread listeningThread;
+//    private Thread displayMessageThread;
+
     static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
     public CliClient() {
         this.client = new Client();
-        this.servers[0] = new ServerModel("server one");
-        this.servers[1] = new ServerModel("server two");
+
         System.out.println("\nRegister And Share!");
 //        System.out.println("Client");
     }
@@ -23,6 +25,7 @@ public class CliClient {
         try {
             setServerInfo();
             while (true) {
+                this.startListening();
                 mainMenu();
             }
         } catch (IOException e) {
@@ -30,8 +33,20 @@ public class CliClient {
         }
     }
 
+    private void startListening() {
+        listeningThread = new Thread() {
+            public void run() {
+                while (true) {
+                    //TODO: check what is returned and then print
+                    System.out.println("\n==================\n" + client.listen() + "\n==================\n");
+                }
+            }
+        };
+        listeningThread.start();
+    }
+
     private void setServerInfo() throws IOException {
-        for (ServerModel server : this.servers) {
+        for (ServerModel server : this.client.getServers()) {
             System.out.println("\nPlease Enter the following Information for " + server.getName());
             System.out.println("IP Address:");
             server.setIpAddress(reader.readLine());
@@ -41,7 +56,7 @@ public class CliClient {
     }
 
     private void displayServersInfo() {
-        for (ServerModel server : this.servers) {
+        for (ServerModel server : this.client.getServers()) {
             System.out.println(server.getName());
             System.out.println("IP Address: " + server.getIpAddress());
             System.out.println("Port number: " + server.getSocketNumber());
@@ -57,7 +72,9 @@ public class CliClient {
                 "\n3 - Update your information" +
                 "\n4 - Update your list of subjects" +
                 "\n5 - Publish a message to a topic you're subscribed" +
-                "\n6 - Listen to Incoming messages");
+                "\n6 - Listen to Incoming messages" +
+                "\n7 - Check server information" +
+                "\n8 - Modify server information");
     }
 
 
@@ -80,8 +97,15 @@ public class CliClient {
             case "5":
                 publishMessage();
                 break;
+                //TODO Remove this option
             case "6":
                 listenToMessages();
+                break;
+            case "7":
+                displayServersInfo();
+                break;
+            case "8":
+                setServerInfo();
                 break;
             default:
                 break;
