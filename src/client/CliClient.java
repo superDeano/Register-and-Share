@@ -1,28 +1,68 @@
 package client;
 
+import server.ServerModel;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
 public class CliClient {
-    private Client client;
+    private final Client client;
+
+    private Thread listeningThread;
+//    private Thread displayMessageThread;
+
     static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
     public CliClient() {
         this.client = new Client();
+
         System.out.println("\nRegister And Share!");
 //        System.out.println("Client");
     }
 
     public void run() {
-        while (true) {
-            try {
+        try {
+            setServerInfo();
+            while (true) {
+                this.startListening();
                 mainMenu();
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
+
+    private void startListening() {
+        listeningThread = new Thread() {
+            public void run() {
+                while (true) {
+                    //TODO: check what is returned and then print
+                    System.out.println("\n==================\n" + client.listen() + "\n==================\n");
+                }
+            }
+        };
+        listeningThread.start();
+    }
+
+    private void setServerInfo() throws IOException {
+        for (ServerModel server : this.client.getServers()) {
+            System.out.println("\nPlease Enter the following Information for " + server.getName());
+            System.out.println("IP Address:");
+            server.setIpAddress(reader.readLine());
+            System.out.println("Port number:");
+            server.setSocketNumber(Integer.parseInt(reader.readLine()));
+        }
+    }
+
+    private void displayServersInfo() {
+        for (ServerModel server : this.client.getServers()) {
+            System.out.println(server.getName());
+            System.out.println("IP Address: " + server.getIpAddress());
+            System.out.println("Port number: " + server.getSocketNumber());
+        }
+    }
+
 
     private void displayMenuOptions() {
         System.out.println("\n~~~~~~~~~Main Menu~~~~~~~~~");
@@ -32,7 +72,9 @@ public class CliClient {
                 "\n3 - Update your information" +
                 "\n4 - Update your list of subjects" +
                 "\n5 - Publish a message to a topic you're subscribed" +
-                "\n6 - Listen to Incoming messages");
+                "\n6 - Listen to Incoming messages" +
+                "\n7 - Check server information" +
+                "\n8 - Modify server information");
     }
 
 
@@ -55,8 +97,15 @@ public class CliClient {
             case "5":
                 publishMessage();
                 break;
+                //TODO Remove this option
             case "6":
                 listenToMessages();
+                break;
+            case "7":
+                displayServersInfo();
+                break;
+            case "8":
+                setServerInfo();
                 break;
             default:
                 break;
@@ -75,7 +124,7 @@ public class CliClient {
     private void updateClientName() throws IOException {
         System.out.println("Do you want to update your name? (yes/no)");
         String ans = reader.readLine();
-        if(ans.contains("yes")){
+        if (ans.contains("yes")) {
             System.out.println("What is your new name?");
             this.client.setName(reader.readLine());
         }
@@ -84,7 +133,7 @@ public class CliClient {
     private void updateClientIpAddress() throws IOException {
         System.out.println("Do you want to update your ipAddress? (yes/no)");
         String ans = reader.readLine();
-        if(ans.contains("yes")){
+        if (ans.contains("yes")) {
             System.out.println("What is your new ipAddress?");
             this.client.setIpAddress(reader.readLine());
         }
@@ -93,7 +142,7 @@ public class CliClient {
     private void updateClientSocketNumber() throws IOException {
         System.out.println("Do you want to update your port number? (yes/no)");
         String ans = reader.readLine();
-        if(ans.contains("yes")){
+        if (ans.contains("yes")) {
             System.out.println("What is your new port number? ");
             this.client.setSocketNumber(Integer.parseInt(reader.readLine()));
         }
@@ -125,7 +174,7 @@ public class CliClient {
         System.out.println("\nPublish A Message");
     }
 
-    private void listenToMessages(){
+    private void listenToMessages() {
 
 
     }

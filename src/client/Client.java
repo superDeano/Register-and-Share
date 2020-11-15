@@ -1,15 +1,29 @@
 package client;
 
 import communication.Communication;
+import server.ClientModel;
+import server.ServerModel;
 
 import java.util.Vector;
 
-public class Client implements ClientInterface{
-    private int socketNumber;
-    private String name;
-    private String ipAddress;
+public class Client extends ClientModel implements ClientInterface{
     private Communication communication;
-    private Vector<String> subjectsInterested;
+    private final ServerModel[] servers = new ServerModel[2];
+    private int servingServer = -1;
+
+    public Client(){
+        super();
+        this.servers[0] = new ServerModel("server one");
+        this.servers[1] = new ServerModel("server two");
+        this.communication = new Communication("client");
+    }
+
+    public Client(String name, String ipAddress, int socketNumber) {
+        super(name, ipAddress, socketNumber);
+        this.servers[0] = new ServerModel("server one");
+        this.servers[1] = new ServerModel("server two");
+        this.communication = new Communication("client");
+    }
 
     @Override
     public void registerToServer() {
@@ -33,7 +47,7 @@ public class Client implements ClientInterface{
 
     @Override
     public void updateInformationToServer() {
-
+//        communication.sendMessage();
     }
 
     @Override
@@ -41,27 +55,13 @@ public class Client implements ClientInterface{
 
     }
 
-    public int getSocketNumber() {
-        return socketNumber;
+    public ServerModel[] getServers(){
+        return this.servers;
     }
 
-    public void setSocketNumber(int socketNumber) {
-        this.socketNumber = socketNumber;
+    public String listen(){
+        //TODO check what the message is and take appropriate action
+        return communication.waitForMessage();
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getIpAddress() {
-        return ipAddress;
-    }
-
-    public void setIpAddress(String ipAddress) {
-        this.ipAddress = ipAddress;
-    }
 }
