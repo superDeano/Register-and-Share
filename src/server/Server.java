@@ -6,17 +6,58 @@ import logger.Logger;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.SynchronousQueue;
 
 public class Server extends ServerModel implements ServerInterface {
     private final Logger logger;
     List<ClientModel> clients;
     Communication communication;
+    private final SynchronousQueue<String> messageQueue;
 
     public Server(String connectionName) {
         this.clients = new LinkedList<ClientModel>();
         this.logger = new Logger();
         this.communication = new Communication(connectionName);
+        this.messageQueue = new SynchronousQueue<>();
+        listen();
+        serveClients();
     }
+
+    private void serveClients() {
+        Runnable takeCareOfMessages = () -> {
+            while (true) {
+                if (this.messageQueue.isEmpty()) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    //TODO serve
+                }
+            }
+        };
+
+        Thread servingThread = new Thread(takeCareOfMessages);
+        servingThread.start();
+    }
+
+
+    private void listen() {
+        Thread listeningThread = new Thread() {
+            public void run() {
+                while (true) {
+                    try {
+                        messageQueue.put(communication.waitForMessage());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        listeningThread.start();
+    }
+
 
     @Override
     public void startServing() {
