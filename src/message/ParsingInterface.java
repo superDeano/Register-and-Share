@@ -1,6 +1,6 @@
 package message;
 
-public interface parsingInterface {
+public interface ParsingInterface {
 
 
     /**
@@ -9,7 +9,7 @@ public interface parsingInterface {
      * method that when called, the string message will be parsed and returns an object of message
      * @return
      */
-    message parseStringToMsg(String msg);
+    Message parseStringToMsg(String msg);
 
 
     /**
@@ -17,5 +17,5 @@ public interface parsingInterface {
      * @param msg
      * @return
      */
-    String parseMsgToString(message msg);
+    String parseMsgToString(Message msg);
 }

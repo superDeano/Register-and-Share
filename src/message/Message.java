@@ -78,7 +78,7 @@ enum msgType{
     }
 }
 
-public class message {
+public class Message {
 
     String register, registered, register_denied, de_register;
     String update, update_confirmed, update_denied;
@@ -87,7 +87,7 @@ public class message {
     String change_server, update_server;
     String RQ, name, IPaddress, socket, reason, list_of_subjects, subject, text;
 
-    public message() {
+    public Message() {
         this.register = "";
         this.registered = "";
         this.register_denied = "";
