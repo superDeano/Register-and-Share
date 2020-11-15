@@ -2,6 +2,8 @@ package server;
 
 import communication.Communication;
 import logger.Logger;
+import message.Message;
+import message.Parsing;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,8 +12,9 @@ import java.util.concurrent.SynchronousQueue;
 
 public class Server extends ServerModel implements ServerInterface {
     private final Logger logger;
-    List<ClientModel> clients;
-    Communication communication;
+    private List<ClientModel> clients;
+    private Communication communication;
+    private Parsing parser;
     private final SynchronousQueue<String> messageQueue;
 
     public Server(String connectionName) {
@@ -42,6 +45,11 @@ public class Server extends ServerModel implements ServerInterface {
         servingThread.start();
     }
 
+    private void executeMessage(String text){
+        Message message = parser.parseStringToMsg(text);
+//        message.get
+        //TODO determine what the message is about and call the appropriate function
+    }
 
     private void listen() {
         Thread listeningThread = new Thread() {
