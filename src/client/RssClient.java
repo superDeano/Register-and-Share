@@ -10,23 +10,31 @@ public class RssClient implements ActionListener {
     private static JFrame frame;
     private static JPanel clientPanel, serverPanel, topicPanel, messagePannel, logsPanel;
     private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton;
-    private static JLabel clientIpAddress;
-    private static JTextField server1IpAddress, server2IpAddress, server1PortNumber, server2PortNumber, clientPortNumber;
+    private static JLabel actualClientIpAddressLabel;
+    private static JTextField server1IpAddress, server2IpAddress, server1PortNumber, server2PortNumber, clientPortNumberTextField;
     private static JTabbedPane tabbedPane;
+    private static Client client;
 
     public static void main(String[] args) {
         // write your code here
-        CliClient cliClient = new CliClient();
+//        CliClient cliClient = new CliClient();
 //        cliClient.run();
         instantiateGraphicalComponents();
+        startClient();
     }
 
-    public static void instantiateGraphicalComponents() {
+    private static void startClient(){
+        client = new Client();
+        actualClientIpAddressLabel.setText(client.getClientIpAddress());
+        clientPortNumberTextField.setText(client.getClientPortNumber());
+    }
+
+    private static void instantiateGraphicalComponents() {
         //Frame
         frame = new JFrame("Register And Share");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(500, 400);
-//        frame.setLayout(null);
+
         //Buttons
         registerButton = new JButton("Register");
         deregisterButton = new JButton("Deregister");
@@ -34,13 +42,12 @@ public class RssClient implements ActionListener {
 
         //TextFields
         Dimension textFieldDimension = new Dimension(150, 2);
-        clientIpAddress = new JLabel();
-        clientPortNumber = new JTextField();
+        actualClientIpAddressLabel = new JLabel();
+        clientPortNumberTextField = new JTextField();
         server1IpAddress = new JTextField(1);
         server1PortNumber = new JTextField(1);
         server2IpAddress = new JTextField(1);
         server2PortNumber = new JTextField(1);
-        GridBagConstraints c = new GridBagConstraints();
 
         setClientPanel();
         setServerPanel();
@@ -60,24 +67,25 @@ public class RssClient implements ActionListener {
         clientPanel.setLayout(null);
 
 
-        JLabel clientIp = new JLabel("IP Address");
-        clientIp.setBounds(10, 10, 100, 20);
-        clientPanel.add(clientIp);
+        JLabel clientIpAddressLabel = new JLabel("IP Address");
+        clientIpAddressLabel.setBounds(10, 10, 100, 20);
+        clientPanel.add(clientIpAddressLabel);
 
         // Label that shows the client IP Address
-        clientIpAddress.setBounds(160, 10, 100, 20);
-        clientPanel.add(clientIpAddress);
+        actualClientIpAddressLabel.setBounds(160, 10, 100, 20);
+        clientPanel.add(actualClientIpAddressLabel);
 
-        JLabel clientPn = new JLabel("Client Port Number");
-        clientPn.setBounds(10, 40, 150, 20);
-        clientPanel.add(clientPn);
+        JLabel clientPortNumberLabel = new JLabel("Client Port Number");
+        clientPortNumberLabel.setBounds(10, 40, 150, 20);
+        clientPanel.add(clientPortNumberLabel);
 
         // Text Field for client Port Number
-        clientPortNumber.setBounds(160, 40, 50, 20);
-        clientPanel.add(clientPortNumber);
+        clientPortNumberTextField.setBounds(160, 40, 50, 20);
+        clientPanel.add(clientPortNumberTextField);
 
         updateClientPortNumberButton = new JButton("Update Port Number");
         updateClientPortNumberButton.setBounds(10, 75, 150, 20);
+        updateClientPortNumberButton.addActionListener(new RssClient());
         clientPanel.add(updateClientPortNumberButton);
     }
 
@@ -115,9 +123,11 @@ public class RssClient implements ActionListener {
         serverPanel.add(server2PortNumber);
 
         registerButton.setBounds(10, 160, 100, 20);
+        registerButton.addActionListener(new RssClient());
         serverPanel.add(registerButton);
 
         deregisterButton.setBounds(120, 160, 100, 20);
+        deregisterButton.addActionListener(new RssClient());
         serverPanel.add(deregisterButton);
     }
 
@@ -152,6 +162,32 @@ public class RssClient implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("Something happened");
+
+        switch (e.getActionCommand()) {
+            case "Update Port Number":
+                updateClientPortNumber();
+                break;
+            case "Register":
+                registerClient();
+                break;
+            case "Deregister":
+                deregisterClient();
+                break;
+            default:
+                System.out.println("Something else happened!");
+                break;
+        }
+    }
+
+    private void updateClientPortNumber() {
+        System.out.println("Button update client port number pressed");
+    }
+
+    private void registerClient(){
+        System.out.println("Button to register client pressed");
+    }
+
+    private void deregisterClient(){
+        System.out.println("Button to deregister client pressed");
     }
 }

@@ -4,8 +4,6 @@ import communication.Communication;
 import server.ClientModel;
 import server.ServerModel;
 
-import java.util.Vector;
-
 public class Client extends ClientModel implements ClientInterface{
     private Communication communication;
     private final ServerModel[] servers = new ServerModel[2];
@@ -62,6 +60,14 @@ public class Client extends ClientModel implements ClientInterface{
     public String listen(){
         //TODO check what the message is and take appropriate action
         return communication.waitForMessage();
+    }
+
+    public String getClientPortNumber(){
+        return (String.valueOf(this.communication.getPortNumber()));
+    }
+
+    public String getClientIpAddress(){
+        return this.communication.getIpAddress();
     }
 
 }
