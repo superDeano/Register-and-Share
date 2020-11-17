@@ -192,6 +192,18 @@ public class RssClient implements ActionListener {
         tabbedPane.add("Event Logs", logsPanel);
     }
 
+
+    private void startListening() {
+        Thread listeningThread = new Thread() {
+            public void run() {
+                while (true) {
+                    logs.addElement(client.listen());
+                }
+            }
+        };
+        listeningThread.start();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
 
