@@ -1,5 +1,7 @@
 package client;
 
+import server.ServerModel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,11 +11,12 @@ import java.awt.event.ActionListener;
 public class RssClient implements ActionListener {
     private static JFrame frame;
     private static JPanel clientPanel, serverPanel, topicPanel, messagePannel, logsPanel;
-    private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton;
+    private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton, updateClientInfoButton, clearAllLogsButton;
     private static JLabel actualClientIpAddressLabel;
-    private static JTextField server1IpAddress, server2IpAddress, server1PortNumber, server2PortNumber, clientPortNumberTextField;
+    private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientPortNumberTF, clientNameTF;
     private static JTabbedPane tabbedPane;
     private static Client client;
+    private static DefaultListModel<String> logs;
 
     public static void main(String[] args) {
         // write your code here
@@ -23,10 +26,10 @@ public class RssClient implements ActionListener {
         startClient();
     }
 
-    private static void startClient(){
+    private static void startClient() {
         client = new Client();
         actualClientIpAddressLabel.setText(client.getClientIpAddress());
-        clientPortNumberTextField.setText(client.getClientPortNumber());
+        clientPortNumberTF.setText(client.getClientPortNumber());
     }
 
     private static void instantiateGraphicalComponents() {
@@ -43,11 +46,11 @@ public class RssClient implements ActionListener {
         //TextFields
         Dimension textFieldDimension = new Dimension(150, 2);
         actualClientIpAddressLabel = new JLabel();
-        clientPortNumberTextField = new JTextField();
-        server1IpAddress = new JTextField(1);
-        server1PortNumber = new JTextField(1);
-        server2IpAddress = new JTextField(1);
-        server2PortNumber = new JTextField(1);
+        clientPortNumberTF = new JTextField();
+        server1IpAddressTF = new JTextField(1);
+        server1PortNumberTF = new JTextField(1);
+        server2IpAddressTF = new JTextField(1);
+        server2PortNumberTF = new JTextField(1);
 
         setClientPanel();
         setServerPanel();
@@ -66,7 +69,6 @@ public class RssClient implements ActionListener {
         clientPanel = new JPanel();
         clientPanel.setLayout(null);
 
-
         JLabel clientIpAddressLabel = new JLabel("IP Address");
         clientIpAddressLabel.setBounds(10, 10, 100, 20);
         clientPanel.add(clientIpAddressLabel);
@@ -80,13 +82,24 @@ public class RssClient implements ActionListener {
         clientPanel.add(clientPortNumberLabel);
 
         // Text Field for client Port Number
-        clientPortNumberTextField.setBounds(160, 40, 50, 20);
-        clientPanel.add(clientPortNumberTextField);
+        clientPortNumberTF.setBounds(160, 40, 50, 20);
+        clientPanel.add(clientPortNumberTF);
 
-        updateClientPortNumberButton = new JButton("Update Port Number");
-        updateClientPortNumberButton.setBounds(10, 75, 150, 20);
+        JLabel clientNameLabel = new JLabel("Name");
+        clientNameLabel.setBounds(10, 70, 150, 20);
+        clientPanel.add(clientNameLabel);
+
+        clientNameTF = new JTextField();
+        clientNameTF.setBounds(160, 70, 150, 20);
+        clientPanel.add(clientNameTF);
+
+        updateClientPortNumberButton = new JButton("Update Client Info");
+        updateClientPortNumberButton.setBounds(10, 110, 150, 20);
         updateClientPortNumberButton.addActionListener(new RssClient());
         clientPanel.add(updateClientPortNumberButton);
+
+
+//        updateClientInfoButton = new JButton("Save Number");
     }
 
     private static void setServerPanel() {
@@ -98,35 +111,40 @@ public class RssClient implements ActionListener {
         server1IpAddressLabel.setBounds(10, 10, textLabelWidth, 20);
         serverPanel.add(server1IpAddressLabel);
 
-        server1IpAddress.setBounds(textLabelWidth + 20, 10, textLabelWidth + 50, 20);
-        serverPanel.add(server1IpAddress);
+        server1IpAddressTF.setBounds(textLabelWidth + 20, 10, textLabelWidth + 50, 20);
+        serverPanel.add(server1IpAddressTF);
 
         JLabel server1PnLabel = new JLabel("Server 1 Port Number");
         server1PnLabel.setBounds(10, 40, textLabelWidth, 20);
         serverPanel.add(server1PnLabel);
 
-        server1PortNumber.setBounds(textLabelWidth + 20, 40, textLabelWidth + 50, 20);
-        serverPanel.add(server1PortNumber);
+        server1PortNumberTF.setBounds(textLabelWidth + 20, 40, textLabelWidth + 50, 20);
+        serverPanel.add(server1PortNumberTF);
 
         JLabel server2IpAddressLabel = new JLabel("Server 2 IP Address");
         server2IpAddressLabel.setBounds(10, 70, textLabelWidth, 20);
         serverPanel.add(server2IpAddressLabel);
 
-        server2IpAddress.setBounds(textLabelWidth + 20, 70, textLabelWidth + 50, 20);
-        serverPanel.add(server2IpAddress);
+        server2IpAddressTF.setBounds(textLabelWidth + 20, 70, textLabelWidth + 50, 20);
+        serverPanel.add(server2IpAddressTF);
 
         JLabel server2PnLabel = new JLabel("Server 2 Port Number");
         server2PnLabel.setBounds(10, 100, textLabelWidth, 20);
         serverPanel.add(server2PnLabel);
 
-        server2PortNumber.setBounds(20 + textLabelWidth, 100, textLabelWidth + 50, 20);
-        serverPanel.add(server2PortNumber);
+        server2PortNumberTF.setBounds(20 + textLabelWidth, 100, textLabelWidth + 50, 20);
+        serverPanel.add(server2PortNumberTF);
 
-        registerButton.setBounds(10, 160, 100, 20);
+        JButton saveServersInfoButton = new JButton("Save Servers");
+        saveServersInfoButton.setBounds(10, 140, 100, 20);
+        saveServersInfoButton.addActionListener(new RssClient());
+        serverPanel.add(saveServersInfoButton);
+
+        registerButton.setBounds(10, 220, 100, 20);
         registerButton.addActionListener(new RssClient());
         serverPanel.add(registerButton);
 
-        deregisterButton.setBounds(120, 160, 100, 20);
+        deregisterButton.setBounds(120, 220, 100, 20);
         deregisterButton.addActionListener(new RssClient());
         serverPanel.add(deregisterButton);
     }
@@ -147,7 +165,21 @@ public class RssClient implements ActionListener {
 
     private static void setLogsPanel() {
         //Logs Panel
+        logs = new DefaultListModel<>();
+//        logs.addElement("");
         logsPanel = new JPanel();
+        logsPanel.setLayout(null);
+        clearAllLogsButton = new JButton("Clear");
+        clearAllLogsButton.addActionListener(new RssClient());
+        clearAllLogsButton.setBounds(10, 1, 50, 20);
+        logsPanel.add(clearAllLogsButton);
+        JList<String> jList = new JList<>(logs);
+        int width = frame.getWidth();
+        int height = frame.getHeight();
+//        jList.setBounds(0, 40, 400, 400);
+        JScrollPane scrollPane = new JScrollPane(jList);
+        scrollPane.setBounds(1, 30, frame.getWidth() - 30, frame.getHeight() - 120);
+        logsPanel.add(scrollPane);
     }
 
     private static void setTabbedPane() {
@@ -164,7 +196,7 @@ public class RssClient implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         switch (e.getActionCommand()) {
-            case "Update Port Number":
+            case "Update Client Info":
                 updateClientPortNumber();
                 break;
             case "Register":
@@ -173,21 +205,42 @@ public class RssClient implements ActionListener {
             case "Deregister":
                 deregisterClient();
                 break;
+            case "Save Servers":
+                saveServersInfo();
+                break;
+            case "Clear":
+                clearAllLogs();
+                break;
             default:
                 System.out.println("Something else happened!");
                 break;
         }
     }
 
+    private void saveServersInfo() {
+        ServerModel[] servers = client.getServers();
+        servers[0].setIpAddress(server1IpAddressTF.getText());
+        servers[0].setSocketNumber(Integer.parseInt(server1PortNumberTF.getText()));
+        servers[1].setIpAddress(server2IpAddressTF.getText());
+        servers[1].setSocketNumber(Integer.parseInt(server2PortNumberTF.getText()));
+        logs.addElement("Servers Info saved!");
+    }
+
+    private void clearAllLogs(){
+        logs.clear();
+    }
+
     private void updateClientPortNumber() {
         System.out.println("Button update client port number pressed");
+        logs.addElement("Button update client port number pressed");
     }
 
-    private void registerClient(){
+    private void registerClient() {
         System.out.println("Button to register client pressed");
+        logs.addElement("Button to register client pressed");
     }
 
-    private void deregisterClient(){
+    private void deregisterClient() {
         System.out.println("Button to deregister client pressed");
     }
 }
