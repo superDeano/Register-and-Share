@@ -143,7 +143,7 @@ public class RssClient implements ActionListener {
         serverPanel.add(server2PortNumberTF);
 
         JButton saveServersInfoButton = new JButton("Save Servers");
-        saveServersInfoButton.setBounds(10, 140, 100, 20);
+        saveServersInfoButton.setBounds(10, 140, 200, 20);
         saveServersInfoButton.addActionListener(new RssClient());
         serverPanel.add(saveServersInfoButton);
 
@@ -210,7 +210,7 @@ public class RssClient implements ActionListener {
         topicPanel.add(topicsSendingLabel);
 
         JButton sendTopicButton = new JButton("Send Topic");
-        sendTopicButton.setBounds(390, 280, 80, 20);
+        sendTopicButton.setBounds(350, 280, 120, 20);
         sendTopicButton.addActionListener(new RssClient());
         topicPanel.add(sendTopicButton);
     }
@@ -230,9 +230,12 @@ public class RssClient implements ActionListener {
 
         publishMessageTA = new JTextArea();
         publishMessageTA.setBounds(10, 45, frame.getWidth() - 40, frame.getHeight() - 160);
+        publishMessageTA.setWrapStyleWord(true);
+        publishMessageTA.setLineWrap(true);
+        publishMessageTA.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK),BorderFactory.createEmptyBorder(1, 1, 1, 1)));
         messagePannel.add(publishMessageTA);
 
-        publishButton.setBounds(frame.getWidth()-120, frame.getHeight() - 100, 80, 20);
+        publishButton.setBounds(frame.getWidth() - 120, frame.getHeight() - 100, 80, 20);
         messagePannel.add(publishButton);
     }
 
@@ -243,7 +246,7 @@ public class RssClient implements ActionListener {
         logsPanel.setLayout(null);
         clearAllLogsButton = new JButton("Clear");
         clearAllLogsButton.addActionListener(new RssClient());
-        clearAllLogsButton.setBounds(10, 1, 50, 20);
+        clearAllLogsButton.setBounds(10, 1, 80, 20);
         logsPanel.add(clearAllLogsButton);
         JList<String> jList = new JList<>(logs);
         JScrollPane scrollPane = new JScrollPane(jList);
@@ -297,6 +300,7 @@ public class RssClient implements ActionListener {
             case "Subscribe", "Unsubscribe", "Education", "Politics", "Pop", "Technology", "Science", "Sports", "World" -> {
                 setTopicMessage();
             }
+            case "Publish" -> publishMessage();
             default -> System.out.println("Something else happened!");
         }
     }
@@ -327,6 +331,10 @@ public class RssClient implements ActionListener {
         logs.addElement("Servers Info saved!");
     }
 
+    private void publishMessage() {
+        client.publishMessage(topics[topicsComboBox.getSelectedIndex()], publishMessageTA.getText());
+        publishMessageTA.setText("");
+    }
 
     private void checkAllTopicBoxes(boolean enabled) {
         Arrays.stream(topicCheckBoxes).forEach(checkBox -> {
