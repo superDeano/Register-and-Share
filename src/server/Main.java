@@ -43,42 +43,55 @@ public class Main implements ActionListener {
 
         //TextFields
         actualServerIpAddressLabel = new JLabel();
-//        clientPortNumberTF = new JTextField();
         otherServerIpAddressTF = new JTextField(1);
         currentServerPortNumberTF = new JTextField(1);
         otherServerIpAddressTF = new JTextField(1);
         otherServerPortNumberTF = new JTextField(1);
+        JLabel currentServerLabel = new JLabel("Current Server");
+        currentServerLabel.setBounds(10, 0, textLabelWidth,20);
+        serverPanel.add(currentServerLabel);
 
-        JLabel currentServerIpAddressLabel = new JLabel("Current Server IP Address");
-        currentServerIpAddressLabel.setBounds(10, 10, textLabelWidth, 20);
+        JLabel currentServerIpAddressLabel = new JLabel("IP Address");
+        currentServerIpAddressLabel.setBounds(10, 30, textLabelWidth, 20);
         serverPanel.add(currentServerIpAddressLabel);
 
-        actualServerIpAddressLabel.setBounds(textLabelWidth + 20, 10, textLabelWidth + 50, 20);
+        actualServerIpAddressLabel.setBounds(textLabelWidth + 20, 30, textLabelWidth + 50, 20);
         serverPanel.add(actualServerIpAddressLabel);
 
-        JLabel currentServerPnLabel = new JLabel("Current Server Port Number");
-        currentServerPnLabel.setBounds(10, 40, textLabelWidth, 20);
-        serverPanel.add(currentServerPnLabel);
+        JLabel currentServerPortNumberLabel = new JLabel("Port Number");
+        currentServerPortNumberLabel.setBounds(10, 60, textLabelWidth, 20);
+        serverPanel.add(currentServerPortNumberLabel);
 
-        currentServerPortNumberTF.setBounds(textLabelWidth + 20, 40, textLabelWidth + 50, 20);
+        currentServerPortNumberTF.setBounds(textLabelWidth + 20, 60, textLabelWidth + 50, 20);
         serverPanel.add(currentServerPortNumberTF);
 
-        JLabel otherServerIpAddressLabel = new JLabel("Other Server IP Address");
-        otherServerIpAddressLabel.setBounds(10, 70, textLabelWidth, 20);
+        JButton setCurrentPortNumberButton = new JButton("Set Port");
+        setCurrentPortNumberButton.setBounds(10, 90, 140, 20);
+        serverPanel.add(setCurrentPortNumberButton);
+
+        JButton startServerButton = new JButton("Start Server");
+        startServerButton.setBounds(160, 90, 140, 20);
+        serverPanel.add(startServerButton);
+
+        JLabel otherServerLabel = new JLabel("Other Server");
+        otherServerLabel.setBounds(10, 150, textLabelWidth + 20, 20);
+        serverPanel.add(otherServerLabel);
+        JLabel otherServerIpAddressLabel = new JLabel("IP Address");
+        otherServerIpAddressLabel.setBounds(10, 180, textLabelWidth, 20);
         serverPanel.add(otherServerIpAddressLabel);
 
-        otherServerIpAddressTF.setBounds(textLabelWidth + 20, 70, textLabelWidth + 50, 20);
+        otherServerIpAddressTF.setBounds(textLabelWidth + 20, 180, textLabelWidth + 50, 20);
         serverPanel.add(otherServerIpAddressTF);
 
-        JLabel otherServerPnLabel = new JLabel("Other Server Port Number");
-        otherServerPnLabel.setBounds(10, 100, textLabelWidth, 20);
+        JLabel otherServerPnLabel = new JLabel("Port Number");
+        otherServerPnLabel.setBounds(10, 210, textLabelWidth, 20);
         serverPanel.add(otherServerPnLabel);
 
-        otherServerPortNumberTF.setBounds(20 + textLabelWidth, 100, textLabelWidth + 50, 20);
+        otherServerPortNumberTF.setBounds(20 + textLabelWidth, 210, textLabelWidth + 50, 20);
         serverPanel.add(otherServerPortNumberTF);
 
         JButton saveServersInfoButton = new JButton("Save Server");
-        saveServersInfoButton.setBounds(10, 140, 200, 20);
+        saveServersInfoButton.setBounds(10, 240, 140, 20);
         saveServersInfoButton.addActionListener(new RssClient());
         serverPanel.add(saveServersInfoButton);
 
