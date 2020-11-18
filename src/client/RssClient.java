@@ -153,7 +153,23 @@ public class RssClient implements ActionListener {
     private static void setTopicPanel() {
         //Topic Panel
         topicPanel = new JPanel();
+        topicPanel.setLayout(null);
         topicPanel.add(new JLabel("Topics you're subscribed"));
+        topicCheckBoxes = new JCheckBox[topics.length];
+        JButton checkAllButton = new JButton("Check All");
+        checkAllButton.setBounds(10,10,100,20);
+        topicPanel.add(checkAllButton);
+        JButton unCheckAllButton = new JButton("Uncheck All");
+        unCheckAllButton.setBounds(120, 10, 100, 20);
+        topicPanel.add(unCheckAllButton);
+
+        for (int i = 0; i < topics.length; i++) {
+            topicCheckBoxes[i] = new JCheckBox(topics[i]);
+            topicCheckBoxes[i].setBounds(10, (i * 20) + 40, 150, 20);
+            topicPanel.add(topicCheckBoxes[i]);
+        }
+
+
     }
 
 
