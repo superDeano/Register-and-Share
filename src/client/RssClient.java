@@ -14,9 +14,9 @@ public class RssClient implements ActionListener {
     private static JFrame frame;
     private static JPanel clientPanel, serverPanel, topicPanel, messagePannel, logsPanel;
     private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton, updateClientInfoButton, clearAllLogsButton;
-    private static JLabel actualClientIpAddressLabel, topicsSendingLabel;
+    private static JLabel actualClientIpAddressLabel;
     private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientPortNumberTF, clientNameTF;
-    private static JTextArea publishMessageTA;
+    private static JTextArea publishMessageTA, topicsSendingLabel;
     private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
     private static JCheckBox[] topicCheckBoxes;
     private static JTabbedPane tabbedPane;
@@ -76,7 +76,7 @@ public class RssClient implements ActionListener {
         clientPanel.setLayout(null);
 
         JLabel clientIpAddressLabel = new JLabel("IP Address");
-        clientIpAddressLabel.setBounds(10, 10, 100, 20);
+        clientIpAddressLabel.setBounds(10, 10, 300, 20);
         clientPanel.add(clientIpAddressLabel);
 
         // Label that shows the client IP Address
@@ -173,7 +173,7 @@ public class RssClient implements ActionListener {
 
         for (int i = 0; i < topics.length; i++) {
             topicCheckBoxes[i] = new JCheckBox(topics[i]);
-            topicCheckBoxes[i].setBounds(10, (i * 20) + 40, 150, 20);
+            topicCheckBoxes[i].setBounds(10, (i * 20) + 50, 150, 20);
             topicCheckBoxes[i].addActionListener(new RssClient());
             topicPanel.add(topicCheckBoxes[i]);
         }
@@ -183,7 +183,7 @@ public class RssClient implements ActionListener {
         subscribeRadioButton.setMnemonic(KeyEvent.VK_B);
         subscribeRadioButton.setActionCommand("Subscribe");
         subscribeRadioButton.setSelected(true);
-        subscribeRadioButton.setBounds(10, 220, 100, 20);
+        subscribeRadioButton.setBounds(10, 220, 200, 20);
         subscribeRadioButton.addActionListener(new RssClient());
         topicPanel.add(subscribeRadioButton);
         buttonGroup.add(subscribeRadioButton);
@@ -193,18 +193,23 @@ public class RssClient implements ActionListener {
         unsubscribeRadioButton.setActionCommand("Unsubscribe");
 //        unsubscribeRadioButton.setSelected(false);
         unsubscribeRadioButton.addActionListener(new RssClient());
-        unsubscribeRadioButton.setBounds(10, 240, 100, 20);
+        unsubscribeRadioButton.setBounds(10, 240, 200, 20);
         topicPanel.add(unsubscribeRadioButton);
 
         buttonGroup.add(unsubscribeRadioButton);
 //        topicPanel.add(buttonGroup);
 
-        topicsSendingLabel = new JLabel();
-        topicsSendingLabel.setBounds(10, 260, 390, 20);
+        topicsSendingLabel = new JTextArea();
+        topicsSendingLabel.setBounds(10, 280, 350, 40);
+        topicsSendingLabel.setWrapStyleWord(true);
+        topicsSendingLabel.setLineWrap(true);
+        topicsSendingLabel.setOpaque(false);
+        topicsSendingLabel.setEditable(false);
+        topicsSendingLabel.setFocusable(false);
         topicPanel.add(topicsSendingLabel);
 
         JButton sendTopicButton = new JButton("Send Topic");
-        sendTopicButton.setBounds(400, 260, 80, 20);
+        sendTopicButton.setBounds(390, 280, 80, 20);
         sendTopicButton.addActionListener(new RssClient());
         topicPanel.add(sendTopicButton);
     }
