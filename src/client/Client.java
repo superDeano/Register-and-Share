@@ -5,7 +5,7 @@ import server.ClientModel;
 import server.ServerModel;
 
 public class Client extends ClientModel implements ClientInterface{
-    private Communication communication;
+    private final Communication communication;
     private final ServerModel[] servers = new ServerModel[2];
     private int servingServer = -1;
 
