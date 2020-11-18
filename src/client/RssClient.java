@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Arrays;
 //import java.awt.*;
 
 public class RssClient implements ActionListener {
@@ -14,9 +15,12 @@ public class RssClient implements ActionListener {
     private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton, updateClientInfoButton, clearAllLogsButton;
     private static JLabel actualClientIpAddressLabel;
     private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientPortNumberTF, clientNameTF;
+    private static JTextArea publishMessageTA;
+    private static JCheckBox[] topicCheckBoxes;
     private static JTabbedPane tabbedPane;
     private static Client client;
     private static DefaultListModel<String> logs;
+    private static String[] topics = {"Education", "Politics", "Pop", "Technology", "Science", "Sports", "World"};
 
     public static void main(String[] args) {
         // write your code here
@@ -158,9 +162,11 @@ public class RssClient implements ActionListener {
         topicCheckBoxes = new JCheckBox[topics.length];
         JButton checkAllButton = new JButton("Check All");
         checkAllButton.setBounds(10,10,100,20);
+        checkAllButton.addActionListener(new RssClient());
         topicPanel.add(checkAllButton);
         JButton unCheckAllButton = new JButton("Uncheck All");
         unCheckAllButton.setBounds(120, 10, 100, 20);
+        unCheckAllButton.addActionListener(new RssClient());
         topicPanel.add(unCheckAllButton);
 
         for (int i = 0; i < topics.length; i++) {
@@ -182,7 +188,6 @@ public class RssClient implements ActionListener {
     private static void setLogsPanel() {
         //Logs Panel
         logs = new DefaultListModel<>();
-//        logs.addElement("");
         logsPanel = new JPanel();
         logsPanel.setLayout(null);
         clearAllLogsButton = new JButton("Clear");
@@ -190,9 +195,6 @@ public class RssClient implements ActionListener {
         clearAllLogsButton.setBounds(10, 1, 50, 20);
         logsPanel.add(clearAllLogsButton);
         JList<String> jList = new JList<>(logs);
-        int width = frame.getWidth();
-        int height = frame.getHeight();
-//        jList.setBounds(0, 40, 400, 400);
         JScrollPane scrollPane = new JScrollPane(jList);
         scrollPane.setBounds(1, 30, frame.getWidth() - 30, frame.getHeight() - 120);
         logsPanel.add(scrollPane);
@@ -209,6 +211,10 @@ public class RssClient implements ActionListener {
     }
 
 
+    /**
+     * Starts a separate thread that listens for incoming messages
+     * Then updates the list of Logs
+     */
     private void startListening() {
         Thread listeningThread = new Thread() {
             public void run() {
@@ -239,6 +245,12 @@ public class RssClient implements ActionListener {
             case "Clear":
                 clearAllLogs();
                 break;
+            case "Check All":
+                checkAllTopicBoxes(true);
+                break;
+            case "Uncheck All":
+                checkAllTopicBoxes(false);
+                break;
             default:
                 System.out.println("Something else happened!");
                 break;
@@ -254,12 +266,22 @@ public class RssClient implements ActionListener {
         logs.addElement("Servers Info saved!");
     }
 
-    private void clearAllLogs(){
+
+
+    private void checkAllTopicBoxes(boolean enabled){
+        Arrays.stream(topicCheckBoxes).forEach(checkBox -> {
+            checkBox.setSelected(enabled);
+        });
+    }
+
+    private void clearAllLogs() {
         logs.clear();
     }
 
     private void updateClientPortNumber() {
-        System.out.println("Button update client port number pressed");
+        client.setSocketNumber(Integer.parseInt(clientPortNumberTF.getText()));
+        client.setName(clientNameTF.getText());
+        client.updateInformationToServer();
         logs.addElement("Button update client port number pressed");
     }
 
@@ -269,6 +291,6 @@ public class RssClient implements ActionListener {
     }
 
     private void deregisterClient() {
-        System.out.println("Button to deregister client pressed");
+        client.deregisterToServer();
     }
 }
