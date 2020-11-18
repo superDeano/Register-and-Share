@@ -101,4 +101,11 @@ public interface CommunicationInterface {
      */
     void setReceiveByte(byte[] receiveByte);
 
+    /**
+     * Setter for the port of the datagram socket
+     *
+     * @param port int
+     */
+    void setPort (int port);
+
 }

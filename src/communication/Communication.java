@@ -1,5 +1,7 @@
 package communication;
 
+import logger.Logger;
+
 import java.io.IOException;
 import java.net.*;
 
@@ -9,6 +11,7 @@ public class Communication implements CommunicationInterface {
     private DatagramSocket serverDatagramSocket;
     private byte [] receiveByte;
     private DatagramPacket receivedDatagramPacket;
+    private Logger logger;
 
     /**
      * Default constructor for a communication object
@@ -17,10 +20,10 @@ public class Communication implements CommunicationInterface {
      */
     public Communication(String connectionName){
         try {
-            this.serverDatagramSocket = new DatagramSocket();
-        } catch (SocketException e) {
+            this.serverDatagramSocket = new DatagramSocket(2313,InetAddress.getLocalHost());
+        } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
-            System.out.println("Exception Caught in Communication Constructor: " + e.toString());
+            logger.log("Exception Caught in Communication Constructor: " + e.toString());
         }
         this.connectionName = connectionName;
         this.receiveByte = new byte[byteSize];
@@ -35,10 +38,10 @@ public class Communication implements CommunicationInterface {
      */
     public Communication (int port , String connectionName){
         try {
-            this.serverDatagramSocket = new DatagramSocket(port);
-        } catch (SocketException e) {
+            this.serverDatagramSocket = new DatagramSocket(port, InetAddress.getLocalHost());
+        } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
-            System.out.println("Exception Caught in Communication Constructor: " + e.toString());
+            logger.log("Exception Caught in Communication Constructor: " + e.toString());
         }
         this.connectionName = connectionName;
         this.receiveByte = new byte[byteSize];
@@ -59,7 +62,7 @@ public class Communication implements CommunicationInterface {
                 return toStringBuilder(receiveByte).toString();
             } catch (IOException e) {
                 e.printStackTrace();
-                System.out.println("Exception Caught in Communication Constructor: " + e.toString());
+                logger.log("Exception Caught in Communication wait for message: " + e.toString());
             }
         }
     }
@@ -79,7 +82,7 @@ public class Communication implements CommunicationInterface {
             serverDatagramSocket.send(messagePacket);
         } catch (IOException e) {
             e.printStackTrace();
-            System.out.println("Exception Caught in Message Sender: " + e.toString());
+            logger.log("Exception Caught in Message Sender: " + e.toString());
         }
     }
 
@@ -149,7 +152,7 @@ public class Communication implements CommunicationInterface {
      * @return String IpAddress
      */
     @Override
-    public String getIpAddress (){ return serverDatagramSocket.getInetAddress().toString(); }
+    public String getIpAddress (){ return serverDatagramSocket.getLocalSocketAddress().toString(); }
 
     /**
      * Getter for the PortNumber
@@ -157,7 +160,7 @@ public class Communication implements CommunicationInterface {
      * @return int PortNumber
      */
     @Override
-    public int getPortNumber (){ return (serverDatagramSocket.getPort()); }
+    public int getPortNumber (){ return (serverDatagramSocket.getLocalPort()); }
 
     /**
      * Setter for the ConnectionName
@@ -190,5 +193,19 @@ public class Communication implements CommunicationInterface {
      */
     @Override
     public void setReceiveByte(byte[] receiveByte) { this.receiveByte = receiveByte; }
+
+    /**
+     * Setter for the port of the datagram socket
+     *
+     * @param port int
+     */
+    @Override
+    public void setPort (int port){
+        try {
+        this.serverDatagramSocket = new DatagramSocket(port, InetAddress.getLocalHost());
+        } catch (SocketException | UnknownHostException e) {
+        e.printStackTrace();
+        logger.log("Exception Caught in Communication Port Setter: " + e.toString());
+    }}
 
 }
