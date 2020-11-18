@@ -35,6 +35,7 @@ public class RssClient implements ActionListener {
 
     private static void startClient() {
         client = new Client();
+        String ip = client.getClientIpAddress();
         actualClientIpAddressLabel.setText(client.getClientIpAddress());
         clientPortNumberTF.setText(client.getClientPortNumber());
     }
@@ -51,7 +52,6 @@ public class RssClient implements ActionListener {
         publishButton = new JButton("Publish");
 
         //TextFields
-        Dimension textFieldDimension = new Dimension(150, 2);
         actualClientIpAddressLabel = new JLabel();
         clientPortNumberTF = new JTextField();
         server1IpAddressTF = new JTextField(1);
@@ -77,11 +77,11 @@ public class RssClient implements ActionListener {
         clientPanel.setLayout(null);
 
         JLabel clientIpAddressLabel = new JLabel("IP Address");
-        clientIpAddressLabel.setBounds(10, 10, 300, 20);
+        clientIpAddressLabel.setBounds(10, 10, 200, 20);
         clientPanel.add(clientIpAddressLabel);
 
         // Label that shows the client IP Address
-        actualClientIpAddressLabel.setBounds(160, 10, 100, 20);
+        actualClientIpAddressLabel.setBounds(160, 10, 300, 20);
         clientPanel.add(actualClientIpAddressLabel);
 
         JLabel clientPortNumberLabel = new JLabel("Client Port Number");
