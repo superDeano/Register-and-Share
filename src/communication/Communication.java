@@ -152,7 +152,7 @@ public class Communication implements CommunicationInterface {
      * @return String IpAddress
      */
     @Override
-    public String getIpAddress (){ return serverDatagramSocket.getInetAddress().toString(); }
+    public String getIpAddress (){ return serverDatagramSocket.getLocalSocketAddress().toString(); }
 
     /**
      * Getter for the PortNumber
@@ -160,7 +160,7 @@ public class Communication implements CommunicationInterface {
      * @return int PortNumber
      */
     @Override
-    public int getPortNumber (){ return (serverDatagramSocket.getPort()); }
+    public int getPortNumber (){ return (serverDatagramSocket.getLocalPort()); }
 
     /**
      * Setter for the ConnectionName
