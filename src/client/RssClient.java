@@ -274,8 +274,8 @@ public class RssClient implements ActionListener {
                 checkAllTopicBoxes(false);
                 setTopicMessage();
             }
-            case "Subscribe", "Unsubscribe","" -> {
-
+            case "Subscribe", "Unsubscribe", "Education", "Politics", "Pop", "Technology", "Science", "Sports", "World"  -> {
+                setTopicMessage();
             }
             default -> System.out.println("Something else happened!");
         }
