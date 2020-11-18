@@ -20,6 +20,7 @@ public class RssClient implements ActionListener {
     private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
     private static JCheckBox[] topicCheckBoxes;
     private static JTabbedPane tabbedPane;
+    private static JComboBox<String> topicsComboBox;
     private static Client client;
     private static DefaultListModel<String> logs;
     private static String[] topics = {"Education", "Politics", "Pop", "Technology", "Science", "Sports", "World"};
@@ -218,6 +219,20 @@ public class RssClient implements ActionListener {
     private static void setMessagePanel() {
         //Messages Panel
         messagePannel = new JPanel();
+        messagePannel.setLayout(null);
+        JLabel selectTopicLabel = new JLabel("Select a Topic");
+        selectTopicLabel.setBounds(10, 5, 100, 25);
+        messagePannel.add(selectTopicLabel);
+
+        topicsComboBox = new JComboBox<>(topics);
+        topicsComboBox.setBounds(110, 5, frame.getWidth() - 140, 25);
+        messagePannel.add(topicsComboBox);
+
+        publishMessageTA = new JTextArea();
+        publishMessageTA.setBounds(10, 45, frame.getWidth() - 40, frame.getHeight() - 160);
+        messagePannel.add(publishMessageTA);
+
+        publishButton.setBounds(frame.getWidth()-120, frame.getHeight() - 100, 80, 20);
         messagePannel.add(publishButton);
     }
 
@@ -279,7 +294,7 @@ public class RssClient implements ActionListener {
                 checkAllTopicBoxes(false);
                 setTopicMessage();
             }
-            case "Subscribe", "Unsubscribe", "Education", "Politics", "Pop", "Technology", "Science", "Sports", "World"  -> {
+            case "Subscribe", "Unsubscribe", "Education", "Politics", "Pop", "Technology", "Science", "Sports", "World" -> {
                 setTopicMessage();
             }
             default -> System.out.println("Something else happened!");
