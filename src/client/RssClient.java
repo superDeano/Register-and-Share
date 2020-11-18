@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.util.Arrays;
 //import java.awt.*;
 
@@ -13,9 +14,10 @@ public class RssClient implements ActionListener {
     private static JFrame frame;
     private static JPanel clientPanel, serverPanel, topicPanel, messagePannel, logsPanel;
     private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton, updateClientInfoButton, clearAllLogsButton;
-    private static JLabel actualClientIpAddressLabel;
+    private static JLabel actualClientIpAddressLabel, topicsSendingLabel;
     private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientPortNumberTF, clientNameTF;
     private static JTextArea publishMessageTA;
+    private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
     private static JCheckBox[] topicCheckBoxes;
     private static JTabbedPane tabbedPane;
     private static Client client;
@@ -161,7 +163,7 @@ public class RssClient implements ActionListener {
         topicPanel.add(new JLabel("Topics you're subscribed"));
         topicCheckBoxes = new JCheckBox[topics.length];
         JButton checkAllButton = new JButton("Check All");
-        checkAllButton.setBounds(10,10,100,20);
+        checkAllButton.setBounds(10, 10, 100, 20);
         checkAllButton.addActionListener(new RssClient());
         topicPanel.add(checkAllButton);
         JButton unCheckAllButton = new JButton("Uncheck All");
@@ -172,10 +174,39 @@ public class RssClient implements ActionListener {
         for (int i = 0; i < topics.length; i++) {
             topicCheckBoxes[i] = new JCheckBox(topics[i]);
             topicCheckBoxes[i].setBounds(10, (i * 20) + 40, 150, 20);
+            topicCheckBoxes[i].addActionListener(new RssClient());
             topicPanel.add(topicCheckBoxes[i]);
         }
 
+        ButtonGroup buttonGroup = new ButtonGroup();
+        subscribeRadioButton = new JRadioButton("Subscribe");
+        subscribeRadioButton.setMnemonic(KeyEvent.VK_B);
+        subscribeRadioButton.setActionCommand("Subscribe");
+        subscribeRadioButton.setSelected(true);
+        subscribeRadioButton.setBounds(10, 220, 100, 20);
+        subscribeRadioButton.addActionListener(new RssClient());
+        topicPanel.add(subscribeRadioButton);
+        buttonGroup.add(subscribeRadioButton);
 
+        unsubscribeRadioButton = new JRadioButton("Unsubscribe");
+        unsubscribeRadioButton.setMnemonic(KeyEvent.VK_B);
+        unsubscribeRadioButton.setActionCommand("Unsubscribe");
+//        unsubscribeRadioButton.setSelected(false);
+        unsubscribeRadioButton.addActionListener(new RssClient());
+        unsubscribeRadioButton.setBounds(10, 240, 100, 20);
+        topicPanel.add(unsubscribeRadioButton);
+
+        buttonGroup.add(unsubscribeRadioButton);
+//        topicPanel.add(buttonGroup);
+
+        topicsSendingLabel = new JLabel();
+        topicsSendingLabel.setBounds(10, 260, 390, 20);
+        topicPanel.add(topicsSendingLabel);
+
+        JButton sendTopicButton = new JButton("Send Topic");
+        sendTopicButton.setBounds(400, 260, 80, 20);
+        sendTopicButton.addActionListener(new RssClient());
+        topicPanel.add(sendTopicButton);
     }
 
 
@@ -230,31 +261,41 @@ public class RssClient implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         switch (e.getActionCommand()) {
-            case "Update Client Info":
-                updateClientPortNumber();
-                break;
-            case "Register":
-                registerClient();
-                break;
-            case "Deregister":
-                deregisterClient();
-                break;
-            case "Save Servers":
-                saveServersInfo();
-                break;
-            case "Clear":
-                clearAllLogs();
-                break;
-            case "Check All":
+            case "Update Client Info" -> updateClientPortNumber();
+            case "Register" -> registerClient();
+            case "Deregister" -> deregisterClient();
+            case "Save Servers" -> saveServersInfo();
+            case "Clear" -> clearAllLogs();
+            case "Check All" -> {
                 checkAllTopicBoxes(true);
-                break;
-            case "Uncheck All":
+                setTopicMessage();
+            }
+            case "Uncheck All" -> {
                 checkAllTopicBoxes(false);
-                break;
-            default:
-                System.out.println("Something else happened!");
-                break;
+                setTopicMessage();
+            }
+            case "Subscribe", "Unsubscribe","" -> {
+
+            }
+            default -> System.out.println("Something else happened!");
         }
+    }
+
+    private void setTopicMessage() {
+        String message;
+        if (subscribeRadioButton.isSelected()) {
+            message = "SUBSCRIBE to " + getSelectedTopicAsString();
+        } else {
+            //Unsubscribe
+            message = "UNSUBSCRIBE TO " + getSelectedTopicAsString();
+        }
+        topicsSendingLabel.setText(message);
+    }
+
+    private String getSelectedTopicAsString() {
+        StringBuilder topic = new StringBuilder();
+        Arrays.stream(topicCheckBoxes).filter(t -> t.isSelected()).forEach(t -> topic.append(t.getActionCommand() + ", "));
+        return topic.toString();
     }
 
     private void saveServersInfo() {
@@ -267,8 +308,7 @@ public class RssClient implements ActionListener {
     }
 
 
-
-    private void checkAllTopicBoxes(boolean enabled){
+    private void checkAllTopicBoxes(boolean enabled) {
         Arrays.stream(topicCheckBoxes).forEach(checkBox -> {
             checkBox.setSelected(enabled);
         });
@@ -286,6 +326,7 @@ public class RssClient implements ActionListener {
     }
 
     private void registerClient() {
+        client.registerToServer();
         System.out.println("Button to register client pressed");
         logs.addElement("Button to register client pressed");
     }
