@@ -232,7 +232,7 @@ public class RssClient implements ActionListener {
         publishMessageTA.setBounds(10, 45, frame.getWidth() - 40, frame.getHeight() - 160);
         publishMessageTA.setWrapStyleWord(true);
         publishMessageTA.setLineWrap(true);
-        publishMessageTA.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.BLACK),BorderFactory.createEmptyBorder(1, 1, 1, 1)));
+        publishMessageTA.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.blue),BorderFactory.createEmptyBorder(1, 1, 1, 1)));
         messagePannel.add(publishMessageTA);
 
         publishButton.setBounds(frame.getWidth() - 120, frame.getHeight() - 100, 80, 20);
