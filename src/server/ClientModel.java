@@ -1,10 +1,13 @@
 package server;
 
+import java.net.InetAddress;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 public class ClientModel {
     private String name;
-    private String ipAddress;
+    private InetAddress ipAddress;
     private int socketNumber;
     private final Vector<String> subjectsOfInterest;
 
@@ -12,7 +15,7 @@ public class ClientModel {
         this.subjectsOfInterest = new Vector<>();
     }
 
-    public ClientModel(String name, String ipAddress, int socketNumber) {
+    public ClientModel(String name, InetAddress ipAddress, int socketNumber) {
         this.name = name;
         this.ipAddress = ipAddress;
         this.socketNumber = socketNumber;
@@ -35,11 +38,13 @@ public class ClientModel {
         this.name = name;
     }
 
-    public String getIpAddress() {
+    public InetAddress getIpAddress() {
         return ipAddress;
     }
 
-    public void setIpAddress(String ipAddress) {
+    public List<String> getSubjectsOfInterest() { return Collections.list(subjectsOfInterest.elements()); }
+
+    public void setIpAddress(InetAddress ipAddress) {
         this.ipAddress = ipAddress;
     }
 

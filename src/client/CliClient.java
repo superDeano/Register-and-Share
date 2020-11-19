@@ -5,6 +5,7 @@ import server.ServerModel;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
 
 public class CliClient {
     private final Client client;
@@ -135,7 +136,7 @@ public class CliClient {
         String ans = reader.readLine();
         if (ans.contains("yes")) {
             System.out.println("What is your new ipAddress?");
-            this.client.setIpAddress(reader.readLine());
+            this.client.setIpAddress(InetAddress.getByName(reader.readLine()));
         }
     }
 

@@ -1,5 +1,8 @@
 package server;
 
+import java.net.InetAddress;
+import java.util.List;
+
 public interface ServerInterface {
     //Server starts serving clients
     public void startServing();
@@ -7,13 +10,22 @@ public interface ServerInterface {
     //Server goes to sleep, wakes up the other
     public void stopServing();
 
-    public void registerUser(String requestNumber, String name, String ipAddress, int socketNumber);
+    public void register(int requestNumber, String name, InetAddress ipAddress, int socketNumber);
 
-    public void deregisterUser(String requestNumber, String name);
+    public void registered( int requestNumber, String name, InetAddress ipAddress, int socket);
 
-    public void updateUserInformation(String requestNumber, String name, String ipAddress, int socketNumber);
+    public void deRegister(int requestNumber, String name);
 
-    public void updateSubjectOfInterestToUser(String requestNumber, String name, String listOfSubjects);
+    public void update(int requestNumber, String name, InetAddress ipAddress, int socketNumber);
 
-    public void userPublishesMessage(String requestNumber, String name, String subject, String text);
+    public void updateConfirmed(int requestNumber, String name, InetAddress ipAddress, int socketNumber);
+
+    public void subjects(int requestNumber, String name, List<String> listOfSubjects);
+
+    public void subjectsUpdated(int requestNumber, String name, List<String> subjectsList);
+
+    public void publish(int requestNumber, String name, String subject, String text);
+
+    public void switchServer();
+
 }
