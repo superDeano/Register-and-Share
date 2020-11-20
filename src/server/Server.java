@@ -6,11 +6,10 @@ import message.Message;
 import message.Parsing;
 
 import java.net.InetAddress;
-import java.time.LocalTime;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.SynchronousQueue;
+
 import static message.msgType.*;
 
 public class Server extends ServerModel implements ServerInterface {
@@ -70,40 +69,18 @@ public class Server extends ServerModel implements ServerInterface {
 
         String msgType= msg.getMsgType();
 
-        switch(msgType)
-        {
-            case "REGISTER":
-                register(msg.getRequestNumber(),msg.getName(),msg.getIpAddress(),msg.getSocketNumber());
-                break;
-            case "REGISTERED":
-                registered(msg.getRequestNumber(),msg.getName(),msg.getIpAddress(),msg.getSocketNumber());
-                break;
-            case "REGISTER-DENIED":
-                logger.log("Server received register deny for user: "+ msg.getName());
-                break;
-            case "DE-REGISTER":
-                deRegister(msg.getRequestNumber(),msg.getName());
-                break;
-            case "UPDATE":
-                update(msg.getRequestNumber(),msg.getName(),msg.getIpAddress(),msg.getSocketNumber());
-                break;
-            case "UPDATE-CONFIRMED":
-                updateConfirmed(msg.getRequestNumber(),msg.getName(),msg.getIpAddress(),msg.getSocketNumber());
-                break;
-            case "SUBJECTS":
-                subjects(msg.getRequestNumber(),msg.getName(),msg.getSubjectsList());
-                break;
-            case "SUBJECTS-UPDATED":
-                subjectsUpdated(msg.getRequestNumber(),msg.getName(),msg.getSubjectsList());
-                break;
-            case "PUBLISH":
-                publish(msg.getRequestNumber(),msg.getName(), msg.getSubject(), msg.getText());
-                break;
-            case "SWITCH-SERVER":
-                switchServer();
-                break;
-            default:
-                logger.log("Unknown message has been received");
+        switch (msgType) {
+            case "REGISTER" -> register(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+            case "REGISTERED" -> registered(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+            case "REGISTER-DENIED" -> logger.log("Server received register deny for user: " + msg.getName());
+            case "DE-REGISTER" -> deRegister(msg.getRequestNumber(), msg.getName());
+            case "UPDATE" -> update(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+            case "UPDATE-CONFIRMED" -> updateConfirmed(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+            case "SUBJECTS" -> subjects(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
+            case "SUBJECTS-UPDATED" -> subjectsUpdated(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
+            case "PUBLISH" -> publish(msg.getRequestNumber(), msg.getName(), msg.getSubject(), msg.getText());
+            case "SWITCH-SERVER" -> switchServer();
+            default -> logger.log("Unknown message has been received");
         }
 
     }
@@ -269,7 +246,7 @@ public class Server extends ServerModel implements ServerInterface {
 
             for (ClientModel client : clients
             ) {
-                if (client.getName() == name) {
+                if (client.getName().equals(name)) {
                     client.setIpAddress(ipAddress);
                     client.setSocketNumber(socketNumber);
                 }
@@ -308,7 +285,7 @@ public class Server extends ServerModel implements ServerInterface {
     public void updateConfirmed(int requestNumber, String name, InetAddress ipAddress, int socketNumber) {
         for (ClientModel client : clients
         ) {
-            if (client.getName() == name) {
+            if (client.getName().equals(name)) {
                 client.setIpAddress(ipAddress);
                 client.setSocketNumber(socketNumber);
             }
@@ -325,7 +302,7 @@ public class Server extends ServerModel implements ServerInterface {
 
             for (ClientModel client : clients
             ) {
-                if (client.getName() == name) {
+                if (client.getName().equals(name)) {
                     for (String subject:listOfSubjects
                          ) {
                         if(client.addSubject(subject)){
@@ -378,7 +355,7 @@ public class Server extends ServerModel implements ServerInterface {
     public void subjectsUpdated(int requestNumber, String name, List<String> subjectsList) {
         for (ClientModel client : clients
         ) {
-            if (client.getName() == name) {
+            if (client.getName().equals(name)) {
                 for (String subject : subjectsList
                 ) {
                     if (client.addSubject(subject)) {
@@ -399,16 +376,16 @@ public class Server extends ServerModel implements ServerInterface {
 
             for (ClientModel client : clients
             ) {
-                if (client.getName() == name) {
+                if (client.getName().equals(name)) {
                     for (String sub: client.getSubjectsOfInterest()
                          ) {
-                        if (sub == subject){
+                        if (sub.equals(subject)){
                             subjectFound = true;
                             for (ClientModel cli : clients
                                  ) {
                                 for (String subj: cli.getSubjectsOfInterest()
                                      ) {
-                                    if (subj == subject){
+                                    if (subj.equals(subject)){
                                         messageSent = true;
                                         Message clientPublish = new Message();
                                         clientPublish.setMsgType(MESSAGE.toString());
@@ -432,7 +409,7 @@ public class Server extends ServerModel implements ServerInterface {
             if (!subjectFound){
                 for (ClientModel client : clients
                 ) {
-                    if (client.getName() == name) {
+                    if (client.getName().equals(name)) {
                         Message clientDeny = new Message();
                         clientDeny.setMsgType(PUBLISH_DENIED.toString());
                         clientDeny.setRequestNumber(requestNumber);
