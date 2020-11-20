@@ -4,6 +4,9 @@ import communication.Communication;
 import server.ClientModel;
 import server.ServerModel;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 public class Client extends ClientModel implements ClientInterface{
     private final Communication communication;
     private final ServerModel[] servers = new ServerModel[2];
@@ -16,8 +19,8 @@ public class Client extends ClientModel implements ClientInterface{
         this.communication = new Communication("client");
     }
 
-    public Client(String name, String ipAddress, int socketNumber) {
-        super(name, ipAddress, socketNumber);
+    public Client(String name, String ipAddress, int socketNumber) throws UnknownHostException {
+        super(name, InetAddress.getByName(ipAddress), socketNumber);
         this.servers[0] = new ServerModel("server one");
         this.servers[1] = new ServerModel("server two");
         this.communication = new Communication("client");
