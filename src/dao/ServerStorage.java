@@ -96,12 +96,31 @@ public class ServerStorage implements ServerStorageInterface {
 
     @Override
     public void clientSubscribeToSubjects(String clientName, List<String> subjects) {
-
+        try {
+            preparedStatement = connection.prepareStatement("INSERT INTO client-subjects(clientName, serverName, subject) VALUES (?,?,?)");
+            preparedStatement.setString(1, clientName);
+            preparedStatement.setString(2, currentServerName);
+            for (String subject : subjects) {
+                preparedStatement.setString(3, subject);
+                preparedStatement.addBatch();
+            }
+            preparedStatement.executeBatch();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     @Override
     public void clientUnsubscribeToSubjects(String clientName, List<String> subjects) {
-
+        try {
+            preparedStatement = connection.prepareStatement("DELETE FROM client-subjects cs where (cs.clientName = ? and cs.serverName = ?) and cs.subject in ? ");
+            preparedStatement.setString(1, clientName);
+            preparedStatement.setString(2, currentServerName);
+            preparedStatement.setArray(3, (Array) subjects);
+            preparedStatement.executeUpdate();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
     }
 
     @Override
