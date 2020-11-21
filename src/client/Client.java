@@ -14,8 +14,8 @@ public class Client extends ClientModel implements ClientInterface{
 
     public Client(){
         super();
-        this.servers[0] = new ServerModel("server one");
-        this.servers[1] = new ServerModel("server two");
+        this.servers[0] = new ServerModel("server A");
+        this.servers[1] = new ServerModel("server B");
         this.communication = new Communication("client");
     }
 
