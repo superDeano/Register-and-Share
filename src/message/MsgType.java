@@ -1,6 +1,6 @@
 package message;
 
-public enum msgType{
+public enum MsgType {
     REGISTER{
         public String toString() {
             return "REGISTER";
@@ -74,6 +74,11 @@ public enum msgType{
     UPDATE_SERVER{
         public String toString() {
             return "UPDATE-SERVER";
+        }
+    },
+    SWITCH_SERVER{
+        public String toString() {
+            return "SWITCH-SERVER";
         }
     }
 }

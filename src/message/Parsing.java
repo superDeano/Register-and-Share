@@ -4,13 +4,12 @@ import logger.Logger;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
-import static message.msgType.*;
-import static message.msgType.MESSAGE;
+import static message.MsgType.*;
 
 public class Parsing {
 
@@ -19,48 +18,35 @@ public class Parsing {
     public static String parseMsgToString(Message msg) {
         String parsedString = "";
 
-        if (msg.getMsgType() == REGISTERED.toString() && msg.getName() == "") {
+
+        if (msg.getMsgType().equals(REGISTERED.toString()) && Objects.equals(msg.getName(), "")) {
             parsedString = REGISTERED.toString() + ";" + msg.getRequestNumber();
-        }
-        if (msg.getMsgType() == REGISTER_DENIED.toString() && msg.getName() == "") {
+        } else if (msg.getMsgType().equals(REGISTER_DENIED.toString()) && Objects.equals(msg.getName(), "")) {
             parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
-        }
-
-        if (msg.getMsgType() == REGISTERED.toString() && msg.getName() != "") {
+        } else if (msg.getMsgType().equals(REGISTERED.toString()) && !Objects.equals(msg.getName(), "")) {
             parsedString = REGISTERED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        }
-
-        if (msg.getMsgType() == REGISTER_DENIED.toString() && msg.getName() != "") {
+        } else if (msg.getMsgType().equals(REGISTER_DENIED.toString()) && !Objects.equals(msg.getName(), "")) {
             parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        }
-
-        if (msg.getMsgType() == DE_REGISTER.toString()) {
+        } else if (msg.getMsgType().equals(DE_REGISTER.toString())) {
             parsedString = DE_REGISTER.toString() + ";" + msg.getName();
-        }
-
-        if (msg.getMsgType() == UPDATE_CONFIRMED.toString()) {
+        } else if (msg.getMsgType().equals(UPDATE_CONFIRMED.toString())) {
             parsedString = UPDATE_CONFIRMED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        }
-        if (msg.getMsgType() == UPDATE_DENIED.toString()) {
+        } else if (msg.getMsgType().equals(UPDATE_DENIED.toString())) {
             parsedString = UPDATE_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
-        }
-        if (msg.getMsgType() == SUBJECTS_UPDATED.toString()) {
+        } else if (msg.getMsgType().equals(SUBJECTS_UPDATED.toString())) {
             parsedString = SUBJECTS_UPDATED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
-        }
-        if (msg.getMsgType() == SUBJECTS_REJECTED.toString()) {
+        } else if (msg.getMsgType().equals(SUBJECTS_REJECTED.toString())) {
             parsedString = SUBJECTS_REJECTED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
-        }
-        if (msg.getMsgType() == PUBLISH_DENIED.toString()) {
+        } else if (msg.getMsgType().equals(PUBLISH_DENIED.toString())) {
             parsedString = PUBLISH_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
-        }
-        if (msg.getMsgType().equals(CHANGE_SERVER.toString())) {
+        } else if (msg.getMsgType().equals(CHANGE_SERVER.toString())) {
             parsedString = CHANGE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        }
-        if (msg.getMsgType().equals(UPDATE_SERVER.toString())) {
+        } else if (msg.getMsgType().equals(UPDATE_SERVER.toString())) {
             parsedString = UPDATE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        }
-        if (msg.getMsgType().equals(SWITCH_SERVER.toString())) {
+        } else if (msg.getMsgType().equals(SWITCH_SERVER.toString())) {
             parsedString = SWITCH_SERVER.toString();
+        } else if (msg.getMsgType().equals(PUBLISH.toString())) {
+            parsedString = PUBLISH.toString() + msg.getRequestNumber() + msg.getName() + msg.getSubject() + msg.getText();
         }
         return parsedString;
     }
@@ -133,8 +119,8 @@ public class Parsing {
             parsedMsg.setRequestNumber(Integer.parseInt(array1[1]));
             parsedMsg.setName(array1[2]);
             String initial = array1[3];
-            initial = initial.replace("[","");
-            initial = initial.replace("]","");
+            initial = initial.replace("[", "");
+            initial = initial.replace("]", "");
             List<String> subjectList = new LinkedList<String>(Arrays.asList(initial.split(",")));
             parsedMsg.setSubjectsList(subjectList);
         }
