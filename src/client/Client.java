@@ -70,11 +70,8 @@ public class Client extends ClientModel implements ClientInterface {
         messageT.setText(message);
         logger.log("Server 1 ip", servers[0].getIpAddress());
         logger.log("server 1 pn", String.valueOf(servers[0].getSocketNumber()));
-        try {
-            this.communication.sendMessage(Parsing.parseMsgToString(messageT), servers[0].getIpAddress(), servers[0].getSocketNumber());
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        this.communication.sendMessage(Parsing.parseMsgToString(messageT), servers[0].getIpAddress(), servers[0].getSocketNumber());
+
     }
 
     public ServerModel[] getServers() {
