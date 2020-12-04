@@ -110,16 +110,16 @@ public class Server extends ServerModel implements ServerInterface {
         Thread listeningThread = new Thread() {
             public void run() {
                 logger.log("Started Listening");
-                while (true) {
+//                while (true) {
                     try {
-                        String message = communication.waitForMessage();
-                        messageQueue.put(message);
-                        logger.log("Received message", message);
-                        logs.addElement(message);
-                    } catch (InterruptedException e) {
+                        communication.waitForMessage(messageQueue);
+//                        messageQueue.put(message);
+                        logger.log("Received message");
+//                        logs.addElement(message);
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                }
+//                }
             }
         };
         listeningThread.start();

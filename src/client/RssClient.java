@@ -273,9 +273,9 @@ public class RssClient implements ActionListener {
     private void startListening() {
         Thread listeningThread = new Thread() {
             public void run() {
-                while (true) {
-                    logs.addElement(client.listen());
-                }
+//                while (true) {
+                    client.listen(logs);
+//                }
             }
         };
         listeningThread.start();

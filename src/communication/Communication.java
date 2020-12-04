@@ -2,8 +2,10 @@ package communication;
 
 import logger.Logger;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.*;
+import java.util.concurrent.SynchronousQueue;
 
 public class Communication implements CommunicationInterface {
 
@@ -56,15 +58,34 @@ public class Communication implements CommunicationInterface {
      * @return string
      */
     @Override
-    public String waitForMessage() {
+    public void waitForMessage(SynchronousQueue<String> messages) {
         while (true) {
             try {
 
                 serverDatagramSocket.receive(receivedDatagramPacket);
-                receiveByte = new byte[byteSize];
+//                receiveByte = new byte[byteSize];
                 String m = toStringBuilder(receiveByte).toString();
                 logger.log("received", m);
-                return m;
+                messages.put(m);
+            } catch (IOException e) {
+                e.printStackTrace();
+                logger.log("Exception Caught in Communication wait for message: " + e.toString());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public void waitForMessage(DefaultListModel<String> messages) {
+        while (true) {
+            try {
+
+                serverDatagramSocket.receive(receivedDatagramPacket);
+//                receiveByte = new byte[byteSize];
+                String m = toStringBuilder(receiveByte).toString();
+                logger.log("received", m);
+                messages.addElement(m);
             } catch (IOException e) {
                 e.printStackTrace();
                 logger.log("Exception Caught in Communication wait for message: " + e.toString());

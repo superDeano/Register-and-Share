@@ -1,9 +1,11 @@
 package communication;
 
+import javax.swing.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.SynchronousQueue;
 
 public interface CommunicationInterface {
 
@@ -14,7 +16,8 @@ public interface CommunicationInterface {
      *
      * @return string
      */
-    String waitForMessage ();
+    void waitForMessage (SynchronousQueue<String> messages);
+    void waitForMessage (DefaultListModel<String> logs);
 
     /**
      * Method that when called sends the desired message to the desired location

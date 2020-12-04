@@ -8,6 +8,7 @@ import message.Parsing;
 import server.ClientModel;
 import server.ServerModel;
 
+import javax.swing.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -16,12 +17,14 @@ public class Client extends ClientModel implements ClientInterface {
     private Logger logger;
     private final ServerModel[] servers = new ServerModel[2];
     private int servingServer = -1;
+//    private SynchronousQueue<String> messages;
 
     public Client() {
         super();
         logger = new Logger();
         this.servers[0] = new ServerModel("server A");
         this.servers[1] = new ServerModel("server B");
+//        messages = new SynchronousQueue<>();
         this.communication = new Communication("client");
     }
 
@@ -30,6 +33,7 @@ public class Client extends ClientModel implements ClientInterface {
         this.logger = new Logger();
         this.servers[0] = new ServerModel("server one");
         this.servers[1] = new ServerModel("server two");
+//        messages = new SynchronousQueue<>();
         this.communication = new Communication("client");
     }
 
@@ -78,9 +82,9 @@ public class Client extends ClientModel implements ClientInterface {
         return this.servers;
     }
 
-    public String listen() {
+    public void listen(DefaultListModel<String> messages) {
         //TODO check what the message is and take appropriate action
-        return communication.waitForMessage();
+         communication.waitForMessage(messages);
     }
 
     public String getClientPortNumber() {
