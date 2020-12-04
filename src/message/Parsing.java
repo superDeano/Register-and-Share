@@ -46,7 +46,7 @@ public class Parsing {
         } else if (msg.getMsgType().equals(SWITCH_SERVER.toString())) {
             parsedString = SWITCH_SERVER.toString();
         } else if (msg.getMsgType().equals(PUBLISH.toString())) {
-            parsedString = PUBLISH.toString() + msg.getRequestNumber() + msg.getName() + msg.getSubject() + msg.getText();
+            parsedString = PUBLISH.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
         }
         return parsedString;
     }
