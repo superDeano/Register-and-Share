@@ -236,6 +236,7 @@ public class RssClient implements ActionListener {
         messagePannel.add(publishMessageTA);
 
         publishButton.setBounds(frame.getWidth() - 120, frame.getHeight() - 100, 80, 20);
+        publishButton.addActionListener(new RssClient());
         messagePannel.add(publishButton);
     }
 

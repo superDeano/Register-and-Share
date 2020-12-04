@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Main implements ActionListener {
+    private Server server;
     private static JFrame frame;
     private static JPanel serverPanel, logsPanel;
     private static JButton updateClientPortNumberButton, clearAllLogsButton;
@@ -50,7 +51,7 @@ public class Main implements ActionListener {
         otherServerIpAddressTF = new JTextField(1);
         otherServerPortNumberTF = new JTextField(1);
         JLabel currentServerLabel = new JLabel("Current Server");
-        currentServerLabel.setBounds(10, 0, textLabelWidth,20);
+        currentServerLabel.setBounds(10, 0, textLabelWidth, 20);
         serverPanel.add(currentServerLabel);
 
         JLabel currentServerNameLabel = new JLabel("Server");
@@ -58,7 +59,7 @@ public class Main implements ActionListener {
         serverPanel.add(currentServerNameLabel);
 
         serverNameComboBox = new JComboBox<>(serverNames);
-        serverNameComboBox.setBounds(textLabelWidth+ 20, 30, textLabelWidth, 25);
+        serverNameComboBox.setBounds(textLabelWidth + 20, 30, textLabelWidth, 25);
         serverPanel.add(serverNameComboBox);
 
         JLabel currentServerIpAddressLabel = new JLabel("IP Address");
@@ -75,14 +76,18 @@ public class Main implements ActionListener {
         currentServerPortNumberTF.setBounds(textLabelWidth + 20, 90, textLabelWidth + 50, 20);
         serverPanel.add(currentServerPortNumberTF);
 
+        // Current Server Button
         JButton setCurrentPortNumberButton = new JButton("Set Port");
         setCurrentPortNumberButton.setBounds(10, 120, 140, 20);
         serverPanel.add(setCurrentPortNumberButton);
 
         JButton startServerButton = new JButton("Start Server");
         startServerButton.setBounds(160, 120, 140, 20);
+        startServerButton.addActionListener(new Main());
         serverPanel.add(startServerButton);
 
+
+        //Other Server
         JLabel otherServerLabel = new JLabel("Other Server");
         otherServerLabel.setBounds(10, 180, textLabelWidth + 20, 20);
         serverPanel.add(otherServerLabel);
@@ -131,6 +136,28 @@ public class Main implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        switch (e.getActionCommand()) {
+            case "Start Server" -> {
+                startServer();
+            }
+            default -> {
+            }
+        }
+    }
 
+    private void startServer() {
+        try {
+            this.server =
+                    new Server(serverNameComboBox.getActionCommand(), Integer.parseInt(currentServerPortNumberTF.getText()));
+            //new Server(serverNameComboBox.getActionCommand(), InetAddress.getByName(otherServerIpAddressTF.getText()), Integer.parseInt(otherServerPortNumberTF.getText()),true);
+            actualServerIpAddressLabel.setText(server.getIpAddress());
+            server.setLogs(logs);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void setCurrentServerPort() {
+//        this.server.
     }
 }

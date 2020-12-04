@@ -5,12 +5,13 @@ import logger.Logger;
 import message.Message;
 import message.Parsing;
 
+import javax.swing.*;
 import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 
-import static message.msgType.*;
+import static message.MsgType.*;
 
 public class Server extends ServerModel implements ServerInterface {
     private final Logger logger;
@@ -22,9 +23,23 @@ public class Server extends ServerModel implements ServerInterface {
     private int otherServerPort;
     private long startTime;
     private long currentTime;
+    private DefaultListModel<String> logs;
+
+    public Server(String connectionName, int portNumber) {
+        super(connectionName);
+        this.isServing = false;
+        this.clients = new LinkedList<ClientModel>();
+        this.logger = new Logger();
+        this.communication = new Communication(portNumber, connectionName);
+        this.setIpAddress(communication.getIpAddress());
+        this.setSocketNumber(portNumber);
+        this.messageQueue = new SynchronousQueue<>();
+        listen();
+    }
 
     public Server(String connectionName, InetAddress otherServerIp, int otherServerPort, boolean isServing) {
-        this.isServing =isServing;
+        super(connectionName);
+        this.isServing = isServing;
         this.otherServerIp = otherServerIp;
         this.otherServerPort = otherServerPort;
         this.clients = new LinkedList<ClientModel>();
@@ -34,7 +49,7 @@ public class Server extends ServerModel implements ServerInterface {
         updateServerInfo();
         listen();
         serveClients();
-        if (isServing){
+        if (isServing) {
             startServing();
         }
     }
@@ -49,14 +64,14 @@ public class Server extends ServerModel implements ServerInterface {
                         e.printStackTrace();
                     }
                 } else {
-                    for (String msg: messageQueue
-                         ) {
-                           Message message = Parsing.parseStringToMsg(msg);
-                           handleMessage(message);
+                    for (String msg : messageQueue
+                    ) {
+                        Message message = Parsing.parseStringToMsg(msg);
+                        handleMessage(message);
                     }
                 }
                 currentTime = System.nanoTime();
-                if ((currentTime - startTime)/1000000000 == 300){
+                if ((currentTime - startTime) / 1000000000 == 300) {
                     stopServing();
                 }
             }
@@ -65,9 +80,10 @@ public class Server extends ServerModel implements ServerInterface {
         Thread servingThread = new Thread(takeCareOfMessages);
         servingThread.start();
     }
+
     private void handleMessage(Message msg) {
 
-        String msgType= msg.getMsgType();
+        String msgType = msg.getMsgType();
 
         switch (msgType) {
             case "REGISTER" -> register(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
@@ -85,13 +101,21 @@ public class Server extends ServerModel implements ServerInterface {
 
     }
 
+    public void setLogs(DefaultListModel<String> logs) {
+        this.logs = logs;
+    }
+
 
     private void listen() {
         Thread listeningThread = new Thread() {
             public void run() {
+                logger.log("Started Listening");
                 while (true) {
                     try {
-                        messageQueue.put(communication.waitForMessage());
+                        String message = communication.waitForMessage();
+                        messageQueue.put(message);
+                        logger.log("Received message", message);
+                        logs.addElement(message);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -121,8 +145,8 @@ public class Server extends ServerModel implements ServerInterface {
         changeServer.setSocketNumber(otherServerPort);
         String message = Parsing.parseMsgToString(changeServer);
 
-        for (ClientModel clients: clients
-             ) {
+        for (ClientModel clients : clients
+        ) {
             communication.sendMessage(message,
                     clients.getIpAddress(),
                     clients.getSocketNumber());
@@ -150,7 +174,7 @@ public class Server extends ServerModel implements ServerInterface {
             clientAssert.setRequestNumber(requestNumber);
             String message = Parsing.parseMsgToString(clientAssert);
 
-            communication.sendMessage(message,ipAddress,socketNumber);
+            communication.sendMessage(message, ipAddress, socketNumber);
 
             Message serverAssert = new Message();
             serverAssert.setMsgType(REGISTERED.toString());
@@ -163,8 +187,7 @@ public class Server extends ServerModel implements ServerInterface {
             communication.sendMessage(serverMsg,
                     otherServerIp,
                     otherServerPort);
-        }
-        else{
+        } else {
             logger.log("ADDING USER", "Chosen name already exists!");
 
             Message clientAssert = new Message();
@@ -192,7 +215,7 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     @Override
-    public void registered( int requestNumber, String name, InetAddress ipAddress, int socketNumber){
+    public void registered(int requestNumber, String name, InetAddress ipAddress, int socketNumber) {
 
         this.clients.add(new ClientModel(name, ipAddress, socketNumber));
         //TODO add write to db
@@ -252,8 +275,8 @@ public class Server extends ServerModel implements ServerInterface {
                 }
             }
 
-                //TODO Update db
-                logger.log("UPDATING USER", "User successfully updated!");
+            //TODO Update db
+            logger.log("UPDATING USER", "User successfully updated!");
 
 
             Message clientAssert = new Message();
@@ -264,8 +287,8 @@ public class Server extends ServerModel implements ServerInterface {
             clientAssert.setSocketNumber(socketNumber);
             String message = Parsing.parseMsgToString(clientAssert);
 
-            communication.sendMessage(message,ipAddress,socketNumber);
-            communication.sendMessage(message,otherServerIp,otherServerPort);
+            communication.sendMessage(message, ipAddress, socketNumber);
+            communication.sendMessage(message, otherServerIp, otherServerPort);
 
         } else {
 
@@ -275,7 +298,7 @@ public class Server extends ServerModel implements ServerInterface {
             clientAssert.setReason("User with this name: " + name + " does not exist");
             String message = Parsing.parseMsgToString(clientAssert);
 
-            communication.sendMessage(message,ipAddress,socketNumber);
+            communication.sendMessage(message, ipAddress, socketNumber);
 
             logger.log("UPDATING USER", "User does not exist!");
         }
@@ -297,20 +320,20 @@ public class Server extends ServerModel implements ServerInterface {
     public void subjects(int requestNumber, String name, List<String> listOfSubjects) {
         if (clientNameExist(name)) {
 
-            List <String> accepted = new LinkedList<String>();
-            List <String> denied = new LinkedList<String>();;
+            List<String> accepted = new LinkedList<String>();
+            List<String> denied = new LinkedList<String>();
+            ;
 
             for (ClientModel client : clients
             ) {
                 if (client.getName().equals(name)) {
-                    for (String subject:listOfSubjects
-                         ) {
-                        if(client.addSubject(subject)){
+                    for (String subject : listOfSubjects
+                    ) {
+                        if (client.addSubject(subject)) {
                             //TODO Update db
                             accepted.add(subject);
                             logger.log("Subject: " + subject + " has been added");
-                        }
-                        else{
+                        } else {
                             denied.add(subject);
                             logger.log("Subject: " + subject + " was already subscribed to");
                         }
@@ -377,15 +400,15 @@ public class Server extends ServerModel implements ServerInterface {
             for (ClientModel client : clients
             ) {
                 if (client.getName().equals(name)) {
-                    for (String sub: client.getSubjectsOfInterest()
-                         ) {
-                        if (sub.equals(subject)){
+                    for (String sub : client.getSubjectsOfInterest()
+                    ) {
+                        if (sub.equals(subject)) {
                             subjectFound = true;
                             for (ClientModel cli : clients
-                                 ) {
-                                for (String subj: cli.getSubjectsOfInterest()
-                                     ) {
-                                    if (subj.equals(subject)){
+                            ) {
+                                for (String subj : cli.getSubjectsOfInterest()
+                                ) {
+                                    if (subj.equals(subject)) {
                                         messageSent = true;
                                         Message clientPublish = new Message();
                                         clientPublish.setMsgType(MESSAGE.toString());
@@ -406,7 +429,7 @@ public class Server extends ServerModel implements ServerInterface {
                 }
             }
 
-            if (!subjectFound){
+            if (!subjectFound) {
                 for (ClientModel client : clients
                 ) {
                     if (client.getName().equals(name)) {
@@ -423,7 +446,7 @@ public class Server extends ServerModel implements ServerInterface {
                 }
             }
 
-            if (messageSent){
+            if (messageSent) {
                 logger.log("PUBLISHING MESSAGE", "Message has been Published !");
             }
 
@@ -461,6 +484,6 @@ public class Server extends ServerModel implements ServerInterface {
         changeServer.setSocketNumber(otherServerPort);
         String message = Parsing.parseMsgToString(changeServer);
 
-        communication.sendMessage(message,otherServerIp,otherServerPort);
+        communication.sendMessage(message, otherServerIp, otherServerPort);
     }
 }

@@ -3,6 +3,7 @@ package communication;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public interface CommunicationInterface {
 
@@ -22,7 +23,11 @@ public interface CommunicationInterface {
      * @param ip InetAddress, desired ip address where to send the message
      * @param port int, desired port where to send the message
      */
-    void sendMessage (String message , InetAddress ip , int port );
+    void sendMessage (String message , InetAddress ip, int port );
+
+
+
+    void sendMessage (String message , String ipAddress , int port ) throws UnknownHostException;
 
     /**
      * Getter for Connection Name

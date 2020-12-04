@@ -26,6 +26,7 @@ public class Communication implements CommunicationInterface {
             logger.log("Exception Caught in Communication Constructor: " + e.toString());
         }
         this.connectionName = connectionName;
+        logger = new Logger();
         this.receiveByte = new byte[byteSize];
         this.receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
     }
@@ -43,6 +44,7 @@ public class Communication implements CommunicationInterface {
             e.printStackTrace();
             logger.log("Exception Caught in Communication Constructor: " + e.toString());
         }
+        logger = new Logger();
         this.connectionName = connectionName;
         this.receiveByte = new byte[byteSize];
         this.receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
@@ -57,9 +59,12 @@ public class Communication implements CommunicationInterface {
     public String waitForMessage (){
         while (true) {
             try {
+
                 serverDatagramSocket.receive(receivedDatagramPacket);
                 receiveByte = new byte[byteSize];
-                return toStringBuilder(receiveByte).toString();
+                String m  = toStringBuilder(receiveByte).toString();
+                logger.log("received", m);
+                return m;
             } catch (IOException e) {
                 e.printStackTrace();
                 logger.log("Exception Caught in Communication wait for message: " + e.toString());
@@ -77,6 +82,19 @@ public class Communication implements CommunicationInterface {
     @Override
     public void sendMessage ( String message , InetAddress ip , int port ){
         byte stringBuffer[] = message.getBytes();
+        DatagramPacket messagePacket = new DatagramPacket(stringBuffer, stringBuffer.length, ip, port);
+        try {
+            serverDatagramSocket.send(messagePacket);
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.log("Exception Caught in Message Sender: " + e.toString());
+        }
+    }
+
+    @Override
+    public void sendMessage ( String message , String ipAddress , int port ) throws UnknownHostException {
+        byte stringBuffer[] = message.getBytes();
+        InetAddress ip = InetAddress.getByName(ipAddress);
         DatagramPacket messagePacket = new DatagramPacket(stringBuffer, stringBuffer.length, ip, port);
         try {
             serverDatagramSocket.send(messagePacket);
