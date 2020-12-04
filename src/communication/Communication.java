@@ -9,7 +9,7 @@ public class Communication implements CommunicationInterface {
 
     private String connectionName;
     private DatagramSocket serverDatagramSocket;
-    private byte [] receiveByte;
+    private byte[] receiveByte;
     private DatagramPacket receivedDatagramPacket;
     private Logger logger;
 
@@ -18,9 +18,9 @@ public class Communication implements CommunicationInterface {
      *
      * @param connectionName basic naming attribute
      */
-    public Communication(String connectionName){
+    public Communication(String connectionName) {
         try {
-            this.serverDatagramSocket = new DatagramSocket(2313,InetAddress.getLocalHost());
+            this.serverDatagramSocket = new DatagramSocket(2313, InetAddress.getLocalHost());
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
             logger.log("Exception Caught in Communication Constructor: " + e.toString());
@@ -34,10 +34,10 @@ public class Communication implements CommunicationInterface {
     /**
      * Custom constructor with a specific port
      *
-     * @param port  specified desired port
+     * @param port           specified desired port
      * @param connectionName basic naming attribute
      */
-    public Communication (int port , String connectionName){
+    public Communication(int port, String connectionName) {
         try {
             this.serverDatagramSocket = new DatagramSocket(port, InetAddress.getLocalHost());
         } catch (SocketException | UnknownHostException e) {
@@ -56,13 +56,13 @@ public class Communication implements CommunicationInterface {
      * @return string
      */
     @Override
-    public String waitForMessage (){
+    public String waitForMessage() {
         while (true) {
             try {
 
                 serverDatagramSocket.receive(receivedDatagramPacket);
                 receiveByte = new byte[byteSize];
-                String m  = toStringBuilder(receiveByte).toString();
+                String m = toStringBuilder(receiveByte).toString();
                 logger.log("received", m);
                 return m;
             } catch (IOException e) {
@@ -76,11 +76,11 @@ public class Communication implements CommunicationInterface {
      * Method that when called sends the desired message to the desired location
      *
      * @param message string, desired message
-     * @param ip InetAddress, desired ip address where to send the message
-     * @param port int, desired port where to send the message
+     * @param ip      InetAddress, desired ip address where to send the message
+     * @param port    int, desired port where to send the message
      */
     @Override
-    public void sendMessage ( String message , InetAddress ip , int port ){
+    public void sendMessage(String message, InetAddress ip, int port) {
         byte stringBuffer[] = message.getBytes();
         DatagramPacket messagePacket = new DatagramPacket(stringBuffer, stringBuffer.length, ip, port);
         try {
@@ -92,12 +92,10 @@ public class Communication implements CommunicationInterface {
     }
 
     @Override
-    public void sendMessage ( String message , String ipAddress , int port ) throws UnknownHostException {
-        byte stringBuffer[] = message.getBytes();
-        InetAddress ip = InetAddress.getByName(ipAddress);
-        DatagramPacket messagePacket = new DatagramPacket(stringBuffer, stringBuffer.length, ip, port);
+    public void sendMessage(String message, String ipAddress, int port) {
         try {
-            serverDatagramSocket.send(messagePacket);
+            InetAddress ip = InetAddress.getByName(ipAddress);
+            sendMessage(message, ip, port);
         } catch (IOException e) {
             e.printStackTrace();
             logger.log("Exception Caught in Message Sender: " + e.toString());
@@ -110,14 +108,12 @@ public class Communication implements CommunicationInterface {
      * @param message byte[] message
      * @return string message
      */
-    public static StringBuilder toStringBuilder(byte[] message)
-    {
+    public static StringBuilder toStringBuilder(byte[] message) {
         if (message == null)
             return null;
         StringBuilder ret = new StringBuilder();
         int i = 0;
-        while (message[i] != 0)
-        {
+        while (message[i] != 0) {
             ret.append((char) message[i]);
             i++;
         }
@@ -130,7 +126,9 @@ public class Communication implements CommunicationInterface {
      * @return string connectionName
      */
     @Override
-    public String getConnectionName() { return connectionName; }
+    public String getConnectionName() {
+        return connectionName;
+    }
 
     /**
      * Getter for the Datagram Packet
@@ -138,7 +136,9 @@ public class Communication implements CommunicationInterface {
      * @return DatagramPacket DatagramPacket
      */
     @Override
-    public DatagramPacket getDatagramPacket() { return receivedDatagramPacket; }
+    public DatagramPacket getDatagramPacket() {
+        return receivedDatagramPacket;
+    }
 
     /**
      * Getter for the Datagram Socket
@@ -146,7 +146,9 @@ public class Communication implements CommunicationInterface {
      * @return DatagramSocket DatagramSocket
      */
     @Override
-    public DatagramSocket getDatagramSocket() { return serverDatagramSocket; }
+    public DatagramSocket getDatagramSocket() {
+        return serverDatagramSocket;
+    }
 
     /**
      * Getter for the ReceiveByte
@@ -154,7 +156,9 @@ public class Communication implements CommunicationInterface {
      * @return byte[] RecieverByte
      */
     @Override
-    public byte[] getReceiveByte() { return receiveByte; }
+    public byte[] getReceiveByte() {
+        return receiveByte;
+    }
 
     /**
      * Getter for the ByteSize
@@ -162,7 +166,9 @@ public class Communication implements CommunicationInterface {
      * @return int ByteSize
      */
     @Override
-    public int getByteSize() { return byteSize; }
+    public int getByteSize() {
+        return byteSize;
+    }
 
     /**
      * Getter for the IpAddress
@@ -170,7 +176,9 @@ public class Communication implements CommunicationInterface {
      * @return String IpAddress
      */
     @Override
-    public String getIpAddress (){ return serverDatagramSocket.getLocalSocketAddress().toString(); }
+    public String getIpAddress() {
+        return serverDatagramSocket.getLocalSocketAddress().toString();
+    }
 
     /**
      * Getter for the PortNumber
@@ -178,7 +186,9 @@ public class Communication implements CommunicationInterface {
      * @return int PortNumber
      */
     @Override
-    public int getPortNumber (){ return (serverDatagramSocket.getLocalPort()); }
+    public int getPortNumber() {
+        return (serverDatagramSocket.getLocalPort());
+    }
 
     /**
      * Setter for the ConnectionName
@@ -186,7 +196,9 @@ public class Communication implements CommunicationInterface {
      * @param connectionName string
      */
     @Override
-    public void setConnectionName(String connectionName) { this.connectionName = connectionName; }
+    public void setConnectionName(String connectionName) {
+        this.connectionName = connectionName;
+    }
 
     /**
      * Setter for the DatagramPacket
@@ -194,7 +206,9 @@ public class Communication implements CommunicationInterface {
      * @param datagramPacket DatagramPacket
      */
     @Override
-    public void setDatagramPacket(DatagramPacket datagramPacket) { this.receivedDatagramPacket = datagramPacket; }
+    public void setDatagramPacket(DatagramPacket datagramPacket) {
+        this.receivedDatagramPacket = datagramPacket;
+    }
 
     /**
      * Setter for the DatagramSocket
@@ -202,7 +216,9 @@ public class Communication implements CommunicationInterface {
      * @param datagramSocket DatagramSocket
      */
     @Override
-    public void setDatagramSocket(DatagramSocket datagramSocket) { this.serverDatagramSocket = datagramSocket; }
+    public void setDatagramSocket(DatagramSocket datagramSocket) {
+        this.serverDatagramSocket = datagramSocket;
+    }
 
     /**
      * Setter for the recieveByte
@@ -210,7 +226,9 @@ public class Communication implements CommunicationInterface {
      * @param receiveByte byte[]
      */
     @Override
-    public void setReceiveByte(byte[] receiveByte) { this.receiveByte = receiveByte; }
+    public void setReceiveByte(byte[] receiveByte) {
+        this.receiveByte = receiveByte;
+    }
 
     /**
      * Setter for the port of the datagram socket
@@ -218,12 +236,13 @@ public class Communication implements CommunicationInterface {
      * @param port int
      */
     @Override
-    public void setPort (int port){
+    public void setPort(int port) {
         try {
-        this.serverDatagramSocket = new DatagramSocket(port, InetAddress.getLocalHost());
+            this.serverDatagramSocket = new DatagramSocket(port, InetAddress.getLocalHost());
         } catch (SocketException | UnknownHostException e) {
-        e.printStackTrace();
-        logger.log("Exception Caught in Communication Port Setter: " + e.toString());
-    }}
+            e.printStackTrace();
+            logger.log("Exception Caught in Communication Port Setter: " + e.toString());
+        }
+    }
 
 }
