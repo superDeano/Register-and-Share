@@ -18,7 +18,7 @@ public class RssClient implements ActionListener {
     private static JLabel actualClientIpAddressLabel;
     private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientPortNumberTF, clientNameTF;
     private static JTextArea publishMessageTA, topicsSendingLabel;
-//    private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
+    //    private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
     private static JCheckBox[] topicCheckBoxes;
     private static JTabbedPane tabbedPane;
     private static JComboBox<String> topicsComboBox;
@@ -303,7 +303,7 @@ public class RssClient implements ActionListener {
                 setTopicMessage();
             }
             case "Send Topic" -> {
-
+                sendTopics();
             }
             case "Publish" -> publishMessage();
             default -> System.out.println("Something else happened!");
@@ -313,9 +313,9 @@ public class RssClient implements ActionListener {
     private void setTopicMessage() {
         String message;
 //        if (subscribeRadioButton.isSelected()) {
-            message = "NEw List " + getSelectedTopicAsString();
+        message = "NEw List " + getSelectedTopicAsString();
 //        } else {
-            //Unsubscribe
+        //Unsubscribe
 //            message = "UNSUBSCRIBE TO " + getSelectedTopicAsString();
 //        }
         topicsSendingLabel.setText(message);
@@ -356,7 +356,7 @@ public class RssClient implements ActionListener {
         List<String> selectedTopics = new ArrayList<>();
         Arrays.stream(topicCheckBoxes).filter(t -> t.isSelected()).forEach(t -> selectedTopics.add(t.getActionCommand()));
 //        if (subscribeRadioButton.isSelected())
-            client.updateSubjectsOfInterest(selectedTopics);
+        client.updateSubjectsOfInterest(selectedTopics);
 //        else client.deregisterToSubjectOfInterest(selectedTopics);
     }
 

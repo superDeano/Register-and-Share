@@ -14,7 +14,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 
 public class Client extends ClientModel implements ClientInterface {
-    private final Communication communication;
+    private Communication communication;
     private Logger logger;
     private final ServerModel[] servers = new ServerModel[2];
     private int servingServer = -1;
@@ -22,18 +22,25 @@ public class Client extends ClientModel implements ClientInterface {
 
     public Client() {
         super();
-        logger = new Logger();
-        this.servers[0] = new ServerModel("server A");
-        this.servers[1] = new ServerModel("server B");
-        this.communication = new Communication("client");
+        setUpClient();
     }
 
     public Client(String name, String ipAddress, int socketNumber) throws UnknownHostException {
         super(name, InetAddress.getByName(ipAddress), socketNumber);
-        this.logger = new Logger();
-        this.servers[0] = new ServerModel("server one");
-        this.servers[1] = new ServerModel("server two");
+        setUpClient();
+    }
+
+    private void setUpClient() {
+        logger = new Logger();
+        this.servers[0] = new ServerModel("server A");
+        this.servers[1] = new ServerModel("server B");
         this.communication = new Communication("client");
+//        try {
+//            setIpAddress(InetAddress.getByName(communication.getIpAddress()));
+//            setSocketNumber(communication.getPortNumber());
+//        } catch (UnknownHostException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -66,20 +73,14 @@ public class Client extends ClientModel implements ClientInterface {
         sendMessage(message);
     }
 
-//    @Override
-//    public void deregisterToSubjectOfInterest(List<String> subjectOfInterest) {
-//        Message message = new Message();
-//
-//    }
-
     @Override
     public void updateInformationToServer() {
         Message message = new Message();
         message.setMsgType(MsgType.UPDATE.toString());
         message.setName(getName());
         message.setRequestNumber(requestNumber++);
-        message.setIpAddress(getIpAddress());
-        message.setSocketNumber(getSocketNumber());
+        message.setIpAddress(communication.getDatagramSocket().getLocalAddress());
+        message.setSocketNumber(communication.getPortNumber());
         sendMessage(message);
     }
 

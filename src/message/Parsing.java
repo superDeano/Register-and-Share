@@ -47,6 +47,10 @@ public class Parsing {
             parsedString = SWITCH_SERVER.toString();
         } else if (msg.getMsgType().equals(PUBLISH.toString())) {
             parsedString = PUBLISH.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
+        } else if (msg.getMsgType().equals(UPDATE.toString())) {
+            parsedString = UPDATE.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+        } else if (msg.getMsgType().equals(SUBJECTS.toString())) {
+            parsedString = SUBJECTS.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
         }
         return parsedString;
     }
