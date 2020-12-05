@@ -16,7 +16,7 @@ public interface CommunicationInterface {
      *
      * @return string
      */
-    void waitForMessage (ConcurrentLinkedQueue<String> messages);
+    void waitForMessage (ConcurrentLinkedQueue<String> messages,DefaultListModel<String> logs);
     void waitForMessage (DefaultListModel<String> logs);
 
     /**

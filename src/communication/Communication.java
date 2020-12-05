@@ -59,7 +59,7 @@ public class Communication implements CommunicationInterface {
      * @return string
      */
     @Override
-    public void waitForMessage(ConcurrentLinkedQueue<String> messages) {
+    public void waitForMessage(ConcurrentLinkedQueue<String> messages, DefaultListModel<String> logs) {
         try {
 
             receiveByte = new byte[byteSize];
@@ -68,6 +68,7 @@ public class Communication implements CommunicationInterface {
                 serverDatagramSocket.receive(receivedDatagramPacket);
                 String m = toStringBuilder(receiveByte).toString();
                 logger.log("received", m);
+                logs.addElement(m);
                 messages.add(m);
                 receiveByte = new byte[byteSize];
             }

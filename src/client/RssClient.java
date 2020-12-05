@@ -6,8 +6,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 //import java.awt.*;
 
 public class RssClient implements ActionListener {
@@ -17,7 +18,7 @@ public class RssClient implements ActionListener {
     private static JLabel actualClientIpAddressLabel;
     private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientPortNumberTF, clientNameTF;
     private static JTextArea publishMessageTA, topicsSendingLabel;
-    private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
+//    private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
     private static JCheckBox[] topicCheckBoxes;
     private static JTabbedPane tabbedPane;
     private static JComboBox<String> topicsComboBox;
@@ -178,26 +179,26 @@ public class RssClient implements ActionListener {
             topicCheckBoxes[i].addActionListener(new RssClient());
             topicPanel.add(topicCheckBoxes[i]);
         }
-
-        ButtonGroup buttonGroup = new ButtonGroup();
-        subscribeRadioButton = new JRadioButton("Subscribe");
-        subscribeRadioButton.setMnemonic(KeyEvent.VK_B);
-        subscribeRadioButton.setActionCommand("Subscribe");
-        subscribeRadioButton.setSelected(true);
-        subscribeRadioButton.setBounds(10, 220, 200, 20);
-        subscribeRadioButton.addActionListener(new RssClient());
-        topicPanel.add(subscribeRadioButton);
-        buttonGroup.add(subscribeRadioButton);
-
-        unsubscribeRadioButton = new JRadioButton("Unsubscribe");
-        unsubscribeRadioButton.setMnemonic(KeyEvent.VK_B);
-        unsubscribeRadioButton.setActionCommand("Unsubscribe");
+//
+//        ButtonGroup buttonGroup = new ButtonGroup();
+//        subscribeRadioButton = new JRadioButton("Subscribe");
+//        subscribeRadioButton.setMnemonic(KeyEvent.VK_B);
+//        subscribeRadioButton.setActionCommand("Subscribe");
+//        subscribeRadioButton.setSelected(true);
+//        subscribeRadioButton.setBounds(10, 220, 200, 20);
+//        subscribeRadioButton.addActionListener(new RssClient());
+//        topicPanel.add(subscribeRadioButton);
+//        buttonGroup.add(subscribeRadioButton);
+//
+//        unsubscribeRadioButton = new JRadioButton("Unsubscribe");
+//        unsubscribeRadioButton.setMnemonic(KeyEvent.VK_B);
+//        unsubscribeRadioButton.setActionCommand("Unsubscribe");
 //        unsubscribeRadioButton.setSelected(false);
-        unsubscribeRadioButton.addActionListener(new RssClient());
-        unsubscribeRadioButton.setBounds(10, 240, 200, 20);
-        topicPanel.add(unsubscribeRadioButton);
-
-        buttonGroup.add(unsubscribeRadioButton);
+//        unsubscribeRadioButton.addActionListener(new RssClient());
+//        unsubscribeRadioButton.setBounds(10, 240, 200, 20);
+//        topicPanel.add(unsubscribeRadioButton);
+//
+//        buttonGroup.add(unsubscribeRadioButton);
 //        topicPanel.add(buttonGroup);
 
         topicsSendingLabel = new JTextArea();
@@ -232,7 +233,7 @@ public class RssClient implements ActionListener {
         publishMessageTA.setBounds(10, 45, frame.getWidth() - 40, frame.getHeight() - 160);
         publishMessageTA.setWrapStyleWord(true);
         publishMessageTA.setLineWrap(true);
-        publishMessageTA.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.blue),BorderFactory.createEmptyBorder(1, 1, 1, 1)));
+        publishMessageTA.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(Color.blue), BorderFactory.createEmptyBorder(1, 1, 1, 1)));
         messagePannel.add(publishMessageTA);
 
         publishButton.setBounds(frame.getWidth() - 120, frame.getHeight() - 100, 80, 20);
@@ -274,7 +275,7 @@ public class RssClient implements ActionListener {
         Thread listeningThread = new Thread() {
             public void run() {
 //                while (true) {
-                    client.listen(logs);
+                client.listen(logs);
 //                }
             }
         };
@@ -301,6 +302,9 @@ public class RssClient implements ActionListener {
             case "Subscribe", "Unsubscribe", "Education", "Politics", "Pop", "Technology", "Science", "Sports", "World" -> {
                 setTopicMessage();
             }
+            case "Send Topic" -> {
+
+            }
             case "Publish" -> publishMessage();
             default -> System.out.println("Something else happened!");
         }
@@ -308,12 +312,12 @@ public class RssClient implements ActionListener {
 
     private void setTopicMessage() {
         String message;
-        if (subscribeRadioButton.isSelected()) {
-            message = "SUBSCRIBE to " + getSelectedTopicAsString();
-        } else {
+//        if (subscribeRadioButton.isSelected()) {
+            message = "NEw List " + getSelectedTopicAsString();
+//        } else {
             //Unsubscribe
-            message = "UNSUBSCRIBE TO " + getSelectedTopicAsString();
-        }
+//            message = "UNSUBSCRIBE TO " + getSelectedTopicAsString();
+//        }
         topicsSendingLabel.setText(message);
     }
 
@@ -347,11 +351,20 @@ public class RssClient implements ActionListener {
         logs.clear();
     }
 
+
+    private void sendTopics() {
+        List<String> selectedTopics = new ArrayList<>();
+        Arrays.stream(topicCheckBoxes).filter(t -> t.isSelected()).forEach(t -> selectedTopics.add(t.getActionCommand()));
+//        if (subscribeRadioButton.isSelected())
+            client.updateSubjectsOfInterest(selectedTopics);
+//        else client.deregisterToSubjectOfInterest(selectedTopics);
+    }
+
     private void updateClientPortNumber() {
         client.setSocketNumber(Integer.parseInt(clientPortNumberTF.getText()));
         client.setName(clientNameTF.getText());
         client.updateInformationToServer();
-        logs.addElement("Button update client port number pressed");
+//        logs.addElement("Button update client port number pressed");
     }
 
     private void registerClient() {

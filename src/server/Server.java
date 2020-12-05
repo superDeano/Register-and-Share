@@ -25,7 +25,7 @@ public class Server extends ServerModel implements ServerInterface {
     private long currentTime;
     private DefaultListModel<String> logs;
 
-    public Server(String connectionName, int portNumber) {
+    public Server(String connectionName, int portNumber, DefaultListModel<String> logs) {
         super(connectionName);
         this.isServing = false;
         this.clients = new LinkedList<ClientModel>();
@@ -34,6 +34,7 @@ public class Server extends ServerModel implements ServerInterface {
         this.setIpAddress(communication.getIpAddress());
         this.setSocketNumber(portNumber);
         this.messageQueue = new ConcurrentLinkedQueue<>();
+        this.logs = logs;
         listen();
     }
 
@@ -112,7 +113,7 @@ public class Server extends ServerModel implements ServerInterface {
                 logger.log("Started Listening");
 //                while (true) {
                 try {
-                    communication.waitForMessage(messageQueue);
+                    communication.waitForMessage(messageQueue, logs);
 //                        messageQueue.put(message);
                     logger.log("Received message");
 //                        logs.addElement(message);
