@@ -32,6 +32,7 @@ public class RssClient implements ActionListener {
 //        cliClient.run();
         instantiateGraphicalComponents();
         startClient();
+
     }
 
     private static void startClient() {
@@ -39,6 +40,7 @@ public class RssClient implements ActionListener {
         String ip = client.getClientIpAddress();
         actualClientIpAddressLabel.setText(client.getClientIpAddress());
         clientPortNumberTF.setText(client.getClientPortNumber());
+        startListening();
     }
 
     private static void instantiateGraphicalComponents() {
@@ -271,7 +273,7 @@ public class RssClient implements ActionListener {
      * Starts a separate thread that listens for incoming messages
      * Then updates the list of Logs
      */
-    private void startListening() {
+    private static void startListening() {
         Thread listeningThread = new Thread() {
             public void run() {
 //                while (true) {

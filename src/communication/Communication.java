@@ -75,8 +75,7 @@ public class Communication implements CommunicationInterface {
         } catch (IOException e) {
             e.printStackTrace();
             logger.log("Exception Caught in Communication wait for message: " + e.toString());
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 //        }
@@ -84,11 +83,12 @@ public class Communication implements CommunicationInterface {
 
     @Override
     public void waitForMessage(DefaultListModel<String> messages) {
+
+        receiveByte = new byte[byteSize];
         while (true) {
             try {
-
+                receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
                 serverDatagramSocket.receive(receivedDatagramPacket);
-
                 String m = toStringBuilder(receiveByte).toString();
                 logger.log("received", m);
                 messages.addElement(m);

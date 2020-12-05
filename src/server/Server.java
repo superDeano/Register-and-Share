@@ -36,6 +36,7 @@ public class Server extends ServerModel implements ServerInterface {
         this.messageQueue = new ConcurrentLinkedQueue<>();
         this.logs = logs;
         listen();
+        startServing();
     }
 
     public Server(String connectionName, InetAddress otherServerIp, int otherServerPort, boolean isServing) {
@@ -56,20 +57,28 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     private void serveClients() {
+
         Runnable takeCareOfMessages = () -> {
+            logger.log("Server Serving", "Started Serving");
             while (true) {
+
                 if (this.messageQueue.isEmpty()) {
+
                     try {
-                        Thread.sleep(1000);
+                        logger.log("Server Serving", "Going to sleep");
+                        Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 } else {
-                    for (String msg : messageQueue
-                    ) {
-                        Message message = Parsing.parseStringToMsg(msg);
-                        handleMessage(message);
-                    }
+//                    for (String msg : messageQueue) {
+                    logger.log("Server Serving", "Sending Message");
+                    String msg = messageQueue.poll();
+//                    Message message = Parsing.parseStringToMsg(msg);
+//                        handleMessage(message);
+                    sendMessage(msg);
+
+//                    }
                 }
                 currentTime = System.nanoTime();
                 if ((currentTime - startTime) / 1000000000 == 300) {
@@ -133,6 +142,7 @@ public class Server extends ServerModel implements ServerInterface {
         logger.log(super.getName() + "started serving");
         startTime = System.nanoTime();
         isServing = true;
+        serveClients();
 
     }
 
@@ -465,6 +475,9 @@ public class Server extends ServerModel implements ServerInterface {
         logger.log("Server Serving", "Server Started Serving");
     }
 
+    private void sendMessage(String m) {
+        communication.sendMessage(m, "127.0.0.1", 2313);
+    }
 
     private boolean clientNameExist(String name) {
         for (ClientModel c : this.clients) {
