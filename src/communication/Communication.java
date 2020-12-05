@@ -5,10 +5,10 @@ import logger.Logger;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.*;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Communication implements CommunicationInterface {
-
+    private int portNumber = 2313;
     private String connectionName;
     private DatagramSocket serverDatagramSocket;
     private byte[] receiveByte;
@@ -22,15 +22,15 @@ public class Communication implements CommunicationInterface {
      */
     public Communication(String connectionName) {
         try {
-            this.serverDatagramSocket = new DatagramSocket(2313, InetAddress.getLocalHost());
+            this.serverDatagramSocket = new DatagramSocket(portNumber, InetAddress.getLocalHost());
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
             logger.log("Exception Caught in Communication Constructor: " + e.toString());
         }
         this.connectionName = connectionName;
         logger = new Logger();
-        this.receiveByte = new byte[byteSize];
-        this.receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
+//        this.receiveByte = new byte[byteSize];
+//        this.receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
     }
 
     /**
@@ -40,16 +40,17 @@ public class Communication implements CommunicationInterface {
      * @param connectionName basic naming attribute
      */
     public Communication(int port, String connectionName) {
+        this.portNumber = port;
         try {
-            this.serverDatagramSocket = new DatagramSocket(port, InetAddress.getLocalHost());
+            this.serverDatagramSocket = new DatagramSocket(portNumber, InetAddress.getLocalHost());
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
             logger.log("Exception Caught in Communication Constructor: " + e.toString());
         }
         logger = new Logger();
         this.connectionName = connectionName;
-        this.receiveByte = new byte[byteSize];
-        this.receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
+//        this.receiveByte = new byte[byteSize];
+//        this.receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
     }
 
     /**
@@ -58,22 +59,26 @@ public class Communication implements CommunicationInterface {
      * @return string
      */
     @Override
-    public void waitForMessage(SynchronousQueue<String> messages) {
-        while (true) {
-            try {
+    public void waitForMessage(ConcurrentLinkedQueue<String> messages) {
+        try {
 
+            receiveByte = new byte[byteSize];
+            while (true) {
+                receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
                 serverDatagramSocket.receive(receivedDatagramPacket);
-//                receiveByte = new byte[byteSize];
                 String m = toStringBuilder(receiveByte).toString();
                 logger.log("received", m);
-                messages.put(m);
-            } catch (IOException e) {
-                e.printStackTrace();
-                logger.log("Exception Caught in Communication wait for message: " + e.toString());
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                messages.add(m);
+                receiveByte = new byte[byteSize];
             }
+        } catch (IOException e) {
+            e.printStackTrace();
+            logger.log("Exception Caught in Communication wait for message: " + e.toString());
         }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+//        }
     }
 
     @Override
@@ -82,10 +87,11 @@ public class Communication implements CommunicationInterface {
             try {
 
                 serverDatagramSocket.receive(receivedDatagramPacket);
-//                receiveByte = new byte[byteSize];
+
                 String m = toStringBuilder(receiveByte).toString();
                 logger.log("received", m);
                 messages.addElement(m);
+                receiveByte = new byte[byteSize];
             } catch (IOException e) {
                 e.printStackTrace();
                 logger.log("Exception Caught in Communication wait for message: " + e.toString());
@@ -198,7 +204,9 @@ public class Communication implements CommunicationInterface {
      */
     @Override
     public String getIpAddress() {
-        return serverDatagramSocket.getLocalSocketAddress().toString();
+//        return serverDatagramSocket.getLocalSocketAddress().toString();
+
+        return serverDatagramSocket.getLocalAddress() != null ? serverDatagramSocket.getLocalAddress().toString() : "Get LocalAddress is Null";
     }
 
     /**

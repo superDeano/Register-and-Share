@@ -9,7 +9,7 @@ import javax.swing.*;
 import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static message.MsgType.*;
 
@@ -17,7 +17,7 @@ public class Server extends ServerModel implements ServerInterface {
     private final Logger logger;
     private List<ClientModel> clients;
     private Communication communication;
-    private final SynchronousQueue<String> messageQueue;
+    private final ConcurrentLinkedQueue<String> messageQueue;
     private boolean isServing;
     private InetAddress otherServerIp;
     private int otherServerPort;
@@ -33,7 +33,7 @@ public class Server extends ServerModel implements ServerInterface {
         this.communication = new Communication(portNumber, connectionName);
         this.setIpAddress(communication.getIpAddress());
         this.setSocketNumber(portNumber);
-        this.messageQueue = new SynchronousQueue<>();
+        this.messageQueue = new ConcurrentLinkedQueue<>();
         listen();
     }
 
@@ -45,7 +45,7 @@ public class Server extends ServerModel implements ServerInterface {
         this.clients = new LinkedList<ClientModel>();
         this.logger = new Logger();
         this.communication = new Communication(connectionName);
-        this.messageQueue = new SynchronousQueue<>();
+        this.messageQueue = new ConcurrentLinkedQueue<>();
         updateServerInfo();
         listen();
         serveClients();
@@ -111,16 +111,16 @@ public class Server extends ServerModel implements ServerInterface {
             public void run() {
                 logger.log("Started Listening");
 //                while (true) {
-                    try {
-                        communication.waitForMessage(messageQueue);
+                try {
+                    communication.waitForMessage(messageQueue);
 //                        messageQueue.put(message);
-                        logger.log("Received message");
+                    logger.log("Received message");
 //                        logs.addElement(message);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-//                }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
+//            }
         };
         listeningThread.start();
     }

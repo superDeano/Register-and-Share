@@ -5,7 +5,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public interface CommunicationInterface {
 
@@ -16,7 +16,7 @@ public interface CommunicationInterface {
      *
      * @return string
      */
-    void waitForMessage (SynchronousQueue<String> messages);
+    void waitForMessage (ConcurrentLinkedQueue<String> messages);
     void waitForMessage (DefaultListModel<String> logs);
 
     /**
