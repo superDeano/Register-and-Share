@@ -1,5 +1,8 @@
 package client;
 
+import message.Message;
+import message.MsgType;
+import message.Parsing;
 import server.ServerModel;
 
 import javax.swing.*;
@@ -9,6 +12,9 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import static message.MsgType.PUBLISH_DENIED;
 //import java.awt.*;
 
 public class RssClient implements ActionListener {
@@ -24,6 +30,8 @@ public class RssClient implements ActionListener {
     private static JComboBox<String> topicsComboBox;
     private static Client client;
     private static DefaultListModel<String> logs;
+    private static ConcurrentLinkedQueue<String> messages;
+    private static boolean confirmedWithServer = false;
     private static String[] topics = {"Education", "Politics", "Pop", "Technology", "Science", "Sports", "World"};
 
     public static void main(String[] args) {
@@ -40,6 +48,7 @@ public class RssClient implements ActionListener {
         String ip = client.getClientIpAddress();
         actualClientIpAddressLabel.setText(client.getClientIpAddress());
         clientPortNumberTF.setText(client.getClientPortNumber());
+        messages = new ConcurrentLinkedQueue<>();
         startListening();
     }
 
@@ -103,7 +112,7 @@ public class RssClient implements ActionListener {
         clientNameTF.setBounds(160, 70, 150, 20);
         clientPanel.add(clientNameTF);
 
-        updateClientPortNumberButton = new JButton("Update Client Info");
+        updateClientPortNumberButton = new JButton("Update Information");
         updateClientPortNumberButton.setBounds(10, 110, 150, 20);
         updateClientPortNumberButton.addActionListener(new RssClient());
         clientPanel.add(updateClientPortNumberButton);
@@ -255,17 +264,50 @@ public class RssClient implements ActionListener {
     private static void startListening() {
         Thread listeningThread = new Thread() {
             public void run() {
-                client.listen(logs);
+                client.listen(messages, logs);
             }
         };
         listeningThread.start();
+    }
+
+    private static void takeAction() {
+        Thread takeActionThread = new Thread() {
+            public void run() {
+                while (true) {
+                    if (messages.isEmpty()) {
+                        try {
+                            Thread.sleep(5000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        String msg = messages.poll();
+                        takeAction(Parsing.parseStringToMsg(msg));
+                    }
+                }
+            }
+        };
+    }
+
+    private static void takeAction(Message m) {
+        switch (m.getMsgType()) {
+            case PUBLISH_DENIED -> test();
+            case MsgType.UPDATE_DENIED -> test();
+            case MsgType.UPDATE_CONFIRMED -> confirmedWithServer = true;
+            default -> test();
+        }
+    }
+
+
+    private static void test() {
+
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
 
         switch (e.getActionCommand()) {
-            case "Update Client Info" -> updateClientPortNumber();
+            case "Update Information" -> updateClientPortNumber();
             case "Register" -> registerClient();
             case "Deregister" -> deregisterClient();
             case "Save Servers" -> saveServersInfo();
@@ -307,17 +349,23 @@ public class RssClient implements ActionListener {
     }
 
     private void saveServersInfo() {
-        ServerModel[] servers = client.getServers();
-        servers[0].setIpAddress(server1IpAddressTF.getText());
-        servers[0].setSocketNumber(Integer.parseInt(server1PortNumberTF.getText()));
-        servers[1].setIpAddress(server2IpAddressTF.getText());
-        servers[1].setSocketNumber(Integer.parseInt(server2PortNumberTF.getText()));
-        logs.addElement("Servers Info saved!");
+        if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
+            JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Updating User Information", JOptionPane.WARNING_MESSAGE);
+        } else {
+            ServerModel[] servers = client.getServers();
+            servers[0].setIpAddress(server1IpAddressTF.getText());
+            servers[0].setSocketNumber(Integer.parseInt(server1PortNumberTF.getText()));
+            servers[1].setIpAddress(server2IpAddressTF.getText());
+            servers[1].setSocketNumber(Integer.parseInt(server2PortNumberTF.getText()));
+            logs.addElement("Servers Info saved!");
+        }
     }
 
     private void publishMessage() {
-        if (publishMessageTA.getText().isBlank()) {
-            JOptionPane.showMessageDialog(frame, "Cannot send blank texts", "Publishing Message Error", JOptionPane.WARNING_MESSAGE);
+        if (!confirmedWithServer) {
+            JOptionPane.showMessageDialog(frame, "Not confirmed with server.\nNeed to update your information", "Publish Message", JOptionPane.WARNING_MESSAGE);
+        } else if (publishMessageTA.getText().isBlank()) {
+            JOptionPane.showMessageDialog(frame, "Cannot send blank texts", "Publishing Message", JOptionPane.WARNING_MESSAGE);
         } else {
             client.publishMessage(topics[topicsComboBox.getSelectedIndex()], publishMessageTA.getText());
             publishMessageTA.setText("");
@@ -336,15 +384,18 @@ public class RssClient implements ActionListener {
 
 
     private void sendTopics() {
-        List<String> selectedTopics = new ArrayList<>();
-        Arrays.stream(topicCheckBoxes).filter(t -> t.isSelected()).forEach(t -> selectedTopics.add(t.getActionCommand()));
+        if (!confirmedWithServer) {
+            JOptionPane.showMessageDialog(frame, "Not confirmed with server.\nNeed to update your information", "Updating List of Subjects", JOptionPane.WARNING_MESSAGE);
+        } else {
+            List<String> selectedTopics = new ArrayList<>();
+            Arrays.stream(topicCheckBoxes).filter(t -> t.isSelected()).forEach(t -> selectedTopics.add(t.getActionCommand()));
 //        if (subscribeRadioButton.isSelected())
-        client.updateSubjectsOfInterest(selectedTopics);
+            client.updateSubjectsOfInterest(selectedTopics);
 //        else client.deregisterToSubjectOfInterest(selectedTopics);
+        }
     }
 
     private void updateClientPortNumber() {
-
         if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
             JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Updating User Information", JOptionPane.WARNING_MESSAGE);
         } else if (clientNameTF.getText().isBlank()) {
