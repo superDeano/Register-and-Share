@@ -1,7 +1,5 @@
 package server;
 
-import client.RssClient;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -79,6 +77,7 @@ public class Main implements ActionListener {
         // Current Server Button
         JButton setCurrentPortNumberButton = new JButton("Set Port");
         setCurrentPortNumberButton.setBounds(10, 120, 140, 20);
+        setCurrentPortNumberButton.addActionListener(new Main());
         serverPanel.add(setCurrentPortNumberButton);
 
         JButton startServerButton = new JButton("Start Server");
@@ -107,7 +106,7 @@ public class Main implements ActionListener {
 
         JButton saveServersInfoButton = new JButton("Save Server");
         saveServersInfoButton.setBounds(10, 270, 140, 20);
-        saveServersInfoButton.addActionListener(new RssClient());
+        saveServersInfoButton.addActionListener(new Main());
         serverPanel.add(saveServersInfoButton);
 
     }
@@ -118,7 +117,7 @@ public class Main implements ActionListener {
         logsPanel = new JPanel();
         logsPanel.setLayout(null);
         clearAllLogsButton = new JButton("Clear");
-        clearAllLogsButton.addActionListener(new RssClient());
+        clearAllLogsButton.addActionListener(new Main());
         clearAllLogsButton.setBounds(10, 1, 80, 20);
         logsPanel.add(clearAllLogsButton);
         JList<String> jList = new JList<>(logs);
@@ -140,6 +139,7 @@ public class Main implements ActionListener {
             case "Start Server" -> {
                 startServer();
             }
+            case "Clear" -> logs.clear();
             default -> {
             }
         }

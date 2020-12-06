@@ -425,7 +425,7 @@ public class Server extends ServerModel implements ServerInterface {
                 message.setName(name);
                 message.setSubject(subject);
                 message.setText(text);
-                clients.stream().filter(c1 -> c1.getName().equals(name) || !c1.subscribedToSubject(subject)).forEach(c2 -> {
+                clients.stream().filter(c1 -> !c1.getName().equals(name) && c1.subscribedToSubject(subject)).forEach(c2 -> {
                     sendMessage(message, c2.getIpAddress(), c2.getSocketNumber());
                 });
             }
