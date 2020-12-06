@@ -14,10 +14,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static message.MsgType.*;
 
 public class Server extends ServerModel implements ServerInterface {
-    private final Logger logger;
+    private Logger logger;
     private List<ClientModel> clients;
     private Communication communication;
-    private final ConcurrentLinkedQueue<String> messageQueue;
+    private ConcurrentLinkedQueue<String> messageQueue;
     private boolean isServing;
     private InetAddress otherServerIp;
     private int otherServerPort;
@@ -28,15 +28,11 @@ public class Server extends ServerModel implements ServerInterface {
     public Server(String connectionName, int portNumber, DefaultListModel<String> logs) {
         super(connectionName);
         this.isServing = false;
-        this.clients = new LinkedList<ClientModel>();
-        this.logger = new Logger();
         this.communication = new Communication(portNumber, connectionName);
         this.setIpAddress(communication.getIpAddress());
         this.setSocketNumber(portNumber);
-        this.messageQueue = new ConcurrentLinkedQueue<>();
         this.logs = logs;
-        listen();
-        startServing();
+        setUpServer();
     }
 
     public Server(String connectionName, InetAddress otherServerIp, int otherServerPort, boolean isServing) {
@@ -44,16 +40,22 @@ public class Server extends ServerModel implements ServerInterface {
         this.isServing = isServing;
         this.otherServerIp = otherServerIp;
         this.otherServerPort = otherServerPort;
-        this.clients = new LinkedList<ClientModel>();
-        this.logger = new Logger();
+
         this.communication = new Communication(connectionName);
-        this.messageQueue = new ConcurrentLinkedQueue<>();
         updateServerInfo();
-        listen();
-        serveClients();
+        setUpServer();
         if (isServing) {
             startServing();
         }
+    }
+
+
+    private void setUpServer() {
+        this.clients = new LinkedList<>();
+        this.messageQueue = new ConcurrentLinkedQueue<>();
+        this.logger = new Logger();
+        listen();
+        serveClients();
     }
 
     private void serveClients() {
@@ -236,58 +238,59 @@ public class Server extends ServerModel implements ServerInterface {
     @Override
     public void deRegister(int requestNumber, String name) {
         //TODO recheck that
-        ClientModel client = getClientWithName(name);
-        if (client != null) {
+//        ClientModel client = getClientWithName(name);
+//        if (client != null) {
 //            ClientModel toDelete = new ClientModel();
-            if (isServing) {
+//        if (isServing) {
 //                for (ClientModel client : clients
 //                ) {
 //                    if (client.getName().equals(name)) {
 //                        toDelete = client;
 //                    }
-                removeClientWithName(name);
-                }
-            }
-            this.removeClientWithName(name);
+        if (removeClientWithName(name)) {
+//            }
+//        }
+//        this.removeClientWithName(name);
             //TODO remove from db
             logger.log("REMOVING USER", "User successfully deleted!");
 
-            if (isServing) {
-                Message clientAssert = new Message();
-                clientAssert.setMsgType(DE_REGISTER.toString());
-                clientAssert.setRequestNumber(requestNumber);
-                clientAssert.setName(name);
-                String message = Parsing.parseMsgToString(clientAssert);
+//        if (isServing) {
+//            Message clientAssert = new Message();
+//            clientAssert.setMsgType(DE_REGISTER.toString());
+//            clientAssert.setRequestNumber(requestNumber);
+//            clientAssert.setName(name);
+//            String message = Parsing.parseMsgToString(clientAssert);
+//
+//            communication.sendMessage(message, null, null);
+//                    toDelete.getIpAddress(),
+//                    toDelete.getSocketNumber());
+            Message serverAssert = new Message();
+            serverAssert.setMsgType(DE_REGISTER.toString());
+            serverAssert.setName(name);
+            String serverMessage = Parsing.parseMsgToString(serverAssert);
 
-                communication.sendMessage(message,
-                        toDelete.getIpAddress(),
-                        toDelete.getSocketNumber());
-
-                Message serverAssert = new Message();
-                serverAssert.setMsgType(DE_REGISTER.toString());
-                serverAssert.setName(name);
-                String serverMessage = Parsing.parseMsgToString(serverAssert);
-
-                communication.sendMessage(message,
-                        otherServerIp,
-                        otherServerPort);
-            }
+            communication.sendMessage(serverMessage,
+                    otherServerIp,
+                    otherServerPort);
+//        }
         } else {
             logger.log("REMOVING USER", "User does not exist!");
         }
+
     }
 
     @Override
     public void update(int requestNumber, String name, InetAddress ipAddress, int socketNumber) {
-        if (getClientWithName(name)) {
+        ClientModel client = getClientWithName(name);
+        if (client != null) {
 
-            for (ClientModel client : clients
-            ) {
-                if (client.getName().equals(name)) {
-                    client.setIpAddress(ipAddress);
-                    client.setSocketNumber(socketNumber);
-                }
-            }
+//            for (ClientModel client : clients
+//            ) {
+//                if (client.getName().equals(name)) {
+            client.setIpAddress(ipAddress);
+            client.setSocketNumber(socketNumber);
+//                }
+//            }
 
             //TODO Update db
             logger.log("UPDATING USER", "User successfully updated!");
@@ -332,59 +335,61 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void subjects(int requestNumber, String name, List<String> listOfSubjects) {
-        if (getClientWithName(name)) {
+        ClientModel client = getClientWithName(name);
+        if (client != null) {
 
-            List<String> accepted = new LinkedList<String>();
-            List<String> denied = new LinkedList<String>();
-            ;
+//            List<String> accepted = new LinkedList<String>();
+//            List<String> denied = new LinkedList<String>();
+//            ;
 
-            for (ClientModel client : clients
-            ) {
-                if (client.getName().equals(name)) {
-                    for (String subject : listOfSubjects
-                    ) {
-                        if (client.addSubject(subject)) {
-                            //TODO Update db
-                            accepted.add(subject);
-                            logger.log("Subject: " + subject + " has been added");
-                        } else {
-                            denied.add(subject);
-                            logger.log("Subject: " + subject + " was already subscribed to");
-                        }
-                    }
+//            for (ClientModel client : clients
+//            ) {
+//                if (client.getName().equals(name)) {
+//                    for (String subject : listOfSubjects
+//                    ) {
+//                        if (client.addSubject(subject)) {
 
-                    Message clientAssert = new Message();
-                    clientAssert.setMsgType(SUBJECTS_UPDATED.toString());
-                    clientAssert.setRequestNumber(requestNumber);
-                    clientAssert.setName(name);
-                    clientAssert.setSubjectsList(accepted);
-                    String message = Parsing.parseMsgToString(clientAssert);
+//                            accepted.add(subject);
+//                            logger.log("Subject: " + subject + " has been added");
+//                        } else {
+//                            denied.add(subject);
+//                            logger.log("Subject: " + subject + " was already subscribed to");
+//                        }
+//                    }
+            client.setSubjectsOfInterest(listOfSubjects);
+// TODO Update db
+            Message clientAssert = new Message();
+            clientAssert.setMsgType(SUBJECTS_UPDATED.toString());
+            clientAssert.setRequestNumber(requestNumber);
+            clientAssert.setName(name);
+            clientAssert.setSubjectsList(listOfSubjects);
+            String message = Parsing.parseMsgToString(clientAssert);
 
-                    communication.sendMessage(message,
-                            client.getIpAddress(),
-                            client.getSocketNumber());
+            communication.sendMessage(message,
+                    client.getIpAddress(),
+                    client.getSocketNumber());
 
-                    communication.sendMessage(message,
-                            otherServerIp,
-                            otherServerPort);
+            communication.sendMessage(message,
+                    otherServerIp,
+                    otherServerPort);
 
-
-                    Message clientDeny = new Message();
-                    clientDeny.setMsgType(SUBJECTS_REJECTED.toString());
-                    clientDeny.setRequestNumber(requestNumber);
-                    clientDeny.setName(name);
-                    clientDeny.setSubjectsList(denied);
-                    String denyMessage = Parsing.parseMsgToString(clientDeny);
-
-                    communication.sendMessage(denyMessage,
-                            client.getIpAddress(),
-                            client.getSocketNumber());
-                }
-            }
+//                }
+//            }
 
         } else {
             //TODO ask for how to reach back client with wrong name
             logger.log("UPDATING SUBJECTS OF INTEREST", "User does not exist! And cannot be reached back.");
+
+            Message clientDeny = new Message();
+            clientDeny.setMsgType(SUBJECTS_REJECTED.toString());
+            clientDeny.setRequestNumber(requestNumber);
+            clientDeny.setName(name);
+            clientDeny.setSubjectsList(listOfSubjects);
+            String denyMessage = Parsing.parseMsgToString(clientDeny);
+
+            communication.sendMessage(denyMessage,
+                    client.getIpAddress(),
+                    client.getSocketNumber());
         }
     }
 
@@ -511,8 +516,8 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
 
-    private void removeClientWithName(String name) {
-        this.clients.removeIf(c -> c.getName().equals(name));
+    private boolean removeClientWithName(String name) {
+        return this.clients.removeIf(c -> c.getName().equals(name));
     }
 
     private void updateServerInfo() {

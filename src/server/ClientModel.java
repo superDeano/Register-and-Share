@@ -1,7 +1,6 @@
 package server;
 
 import java.net.InetAddress;
-import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -9,7 +8,7 @@ public class ClientModel {
     private String name;
     private InetAddress ipAddress;
     private int socketNumber;
-    private final Vector<String> subjectsOfInterest;
+    private List<String> subjectsOfInterest;
 
     public ClientModel() {
         this.subjectsOfInterest = new Vector<>();
@@ -43,7 +42,11 @@ public class ClientModel {
     }
 
     public List<String> getSubjectsOfInterest() {
-        return Collections.list(subjectsOfInterest.elements());
+        return subjectsOfInterest;
+    }
+
+    public void setSubjectsOfInterest(List<String> subjects){
+        this.subjectsOfInterest = subjects;
     }
 
     public void setIpAddress(InetAddress ipAddress) {
