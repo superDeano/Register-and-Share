@@ -428,7 +428,11 @@ public class Server extends ServerModel implements ServerInterface {
             }
             //Client not subscribed to subject
             else {
-
+                Message message = new Message();
+                message.setMsgType(PUBLISH_DENIED.toString());
+                message.setRequestNumber(requestNumber);
+                message.setReason("User not subscribed to topic");
+                communication.sendMessage(Parsing.parseMsgToString(message), client.getIpAddress(), client.getSocketNumber());
             }
 
 //            for (ClientModel client : clients
