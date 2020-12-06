@@ -112,8 +112,13 @@ public class RssClient implements ActionListener {
         clientNameTF.setBounds(160, 70, 150, 20);
         clientPanel.add(clientNameTF);
 
+        JButton saveNameButton = new JButton("Save Name");
+        saveNameButton.setBounds(10, 110, 150, 20);
+        saveNameButton.addActionListener(new RssClient());
+        clientPanel.add(saveNameButton);
+
         updateClientPortNumberButton = new JButton("Update Information");
-        updateClientPortNumberButton.setBounds(10, 110, 150, 20);
+        updateClientPortNumberButton.setBounds(180, 110, 150, 20);
         updateClientPortNumberButton.addActionListener(new RssClient());
         clientPanel.add(updateClientPortNumberButton);
 
@@ -312,6 +317,7 @@ public class RssClient implements ActionListener {
             case "Deregister" -> deregisterClient();
             case "Save Servers" -> saveServersInfo();
             case "Clear" -> clearAllLogs();
+            case "Save Name" -> client.setName(clientNameTF.getText());
             case "Check All" -> {
                 checkAllTopicBoxes(true);
                 setTopicMessage();
@@ -393,6 +399,10 @@ public class RssClient implements ActionListener {
             client.updateSubjectsOfInterest(selectedTopics);
 //        else client.deregisterToSubjectOfInterest(selectedTopics);
         }
+    }
+
+    private void saveName(){
+
     }
 
     private void updateClientPortNumber() {
