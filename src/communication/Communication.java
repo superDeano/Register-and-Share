@@ -5,6 +5,7 @@ import logger.Logger;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.*;
+import java.util.Enumeration;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Communication implements CommunicationInterface {
@@ -25,7 +26,7 @@ public class Communication implements CommunicationInterface {
     public Communication(String connectionName) {
         try {
             while (!portIsAvailable(portNumber)) ++portNumber;
-            this.serverDatagramSocket = new DatagramSocket(portNumber, InetAddress.getLocalHost());
+            this.serverDatagramSocket = new DatagramSocket(portNumber, InetAddress.getByName(getIpV4Address()));
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
             logger.log("Exception Caught in Communication Constructor: " + e.toString());
@@ -45,7 +46,7 @@ public class Communication implements CommunicationInterface {
     public Communication(int port, String connectionName) {
         this.portNumber = port;
         try {
-            this.serverDatagramSocket = new DatagramSocket(portNumber, InetAddress.getLocalHost());
+            this.serverDatagramSocket = new DatagramSocket(portNumber, InetAddress.getByName(getIpV4Address()));
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
             logger.log("Exception Caught in Communication Constructor: " + e.toString());
@@ -311,6 +312,33 @@ public class Communication implements CommunicationInterface {
         }
 
         return false;
+    }
+
+    private String getIpV4Address(){
+        String ip = "";
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface iface = interfaces.nextElement();
+                // filters out 127.0.0.1 and inactive interfaces
+                if (iface.isLoopback() || !iface.isUp())
+                    continue;
+
+                Enumeration<InetAddress> addresses = iface.getInetAddresses();
+                while(addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+
+                    // *EDIT*
+                    if (addr instanceof Inet6Address) continue;
+
+                    ip = addr.getHostAddress();
+                    System.out.println(iface.getDisplayName() + " " + ip);
+                }
+            }
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        }
+        return ip;
     }
 
 }
