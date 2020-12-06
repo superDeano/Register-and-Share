@@ -50,7 +50,7 @@ public class Client extends ClientModel implements ClientInterface {
         message.setRequestNumber(requestNumber++);
         message.setName(getName());
         message.setIpAddress(communication.getIpAddress());
-        message.setSocketNumber(getSocketNumber());
+        message.setSocketNumber(communication.getPortNumber());
         sendMessage(message);
     }
 

@@ -207,7 +207,11 @@ public class Communication implements CommunicationInterface {
     public String getIpAddress() {
 //        return serverDatagramSocket.getLocalSocketAddress().toString();
 
-        return serverDatagramSocket.getLocalAddress() != null ? serverDatagramSocket.getLocalAddress().toString() : "Get LocalAddress is Null";
+        return serverDatagramSocket.getLocalAddress() != null ? removeFirstCharInIpAddress(serverDatagramSocket.getLocalAddress().toString()) : "Get LocalAddress is Null";
+    }
+
+    private String removeFirstCharInIpAddress(String ip) {
+        return ip.split("/")[1];
     }
 
     /**

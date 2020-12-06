@@ -67,7 +67,7 @@ public class Server extends ServerModel implements ServerInterface {
                 if (this.messageQueue.isEmpty()) {
 
                     try {
-                        logger.log("Server Serving", "Going to sleep");
+//                        logger.log("Server Serving", "Going to sleep");
                         Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -183,14 +183,17 @@ public class Server extends ServerModel implements ServerInterface {
             logger.log("ADDING USER", "User successfully added!");
 
             Message clientAssert = new Message();
-            clientAssert.setMsgType(REGISTERED.toString());
+            clientAssert.setMsgType(REGISTERED);
             clientAssert.setRequestNumber(requestNumber);
+            clientAssert.setName(name);
+            clientAssert.setIpAddress(ipAddress);
+            clientAssert.setSocketNumber(socketNumber);
             String message = Parsing.parseMsgToString(clientAssert);
 
             communication.sendMessage(message, ipAddress, socketNumber);
 
             Message serverAssert = new Message();
-            serverAssert.setMsgType(REGISTERED.toString());
+            serverAssert.setMsgType(REGISTERED);
             serverAssert.setRequestNumber(requestNumber);
             serverAssert.setName(name);
             serverAssert.setIpAddress(ipAddress);
@@ -204,7 +207,7 @@ public class Server extends ServerModel implements ServerInterface {
             logger.log("ADDING USER", "Chosen name already exists!");
 
             Message clientAssert = new Message();
-            clientAssert.setMsgType(REGISTER_DENIED.toString());
+            clientAssert.setMsgType(REGISTER_DENIED);
             clientAssert.setRequestNumber(requestNumber);
             clientAssert.setReason("Name is already in use");
             String message = Parsing.parseMsgToString(clientAssert);

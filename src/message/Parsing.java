@@ -5,7 +5,6 @@ import logger.Logger;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 import static message.MsgType.*;
 
@@ -16,40 +15,58 @@ public class Parsing {
     public static String parseMsgToString(Message msg) {
         String parsedString = "";
 
-
-        if (msg.getMsgType().equals(REGISTER)) {
-            parsedString = REGISTER + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress().toString()  + ";" + msg.getSocketNumber();
-        } else if (msg.getMsgType().equals(REGISTER_DENIED.toString()) && Objects.equals(msg.getName(), "")) {
-            parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
-        } else if (msg.getMsgType().equals(REGISTERED.toString()) && !Objects.equals(msg.getName(), "")) {
-            parsedString = REGISTERED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        } else if (msg.getMsgType().equals(REGISTER_DENIED.toString()) && !Objects.equals(msg.getName(), "")) {
-            parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        } else if (msg.getMsgType().equals(DE_REGISTER.toString())) {
-            parsedString = DE_REGISTER.toString() + ";" + msg.getName();
-        } else if (msg.getMsgType().equals(UPDATE_CONFIRMED.toString())) {
-            parsedString = UPDATE_CONFIRMED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        } else if (msg.getMsgType().equals(UPDATE_DENIED.toString())) {
-            parsedString = UPDATE_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
-        } else if (msg.getMsgType().equals(SUBJECTS_UPDATED.toString())) {
-            parsedString = SUBJECTS_UPDATED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
-        } else if (msg.getMsgType().equals(SUBJECTS_REJECTED.toString())) {
-            parsedString = SUBJECTS_REJECTED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
-        } else if (msg.getMsgType().equals(PUBLISH_DENIED.toString())) {
-            parsedString = PUBLISH_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
-        } else if (msg.getMsgType().equals(CHANGE_SERVER.toString())) {
-            parsedString = CHANGE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        } else if (msg.getMsgType().equals(UPDATE_SERVER.toString())) {
-            parsedString = UPDATE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        } else if (msg.getMsgType().equals(SWITCH_SERVER.toString())) {
-            parsedString = SWITCH_SERVER;
-        } else if (msg.getMsgType().equals(PUBLISH.toString())) {
-            parsedString = PUBLISH + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
-        } else if (msg.getMsgType().equals(UPDATE.toString())) {
-            parsedString = UPDATE + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-        } else if (msg.getMsgType().equals(SUBJECTS.toString())) {
-            parsedString = SUBJECTS + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+        switch (msg.getMsgType()) {
+            case REGISTER -> parsedString = REGISTER + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress().toString() + ";" + msg.getSocketNumber();
+            case REGISTER_DENIED -> parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
+            case REGISTERED -> parsedString = REGISTERED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+            case DE_REGISTER -> parsedString = DE_REGISTER.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName();
+            case UPDATE -> parsedString = UPDATE + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+            case UPDATE_CONFIRMED -> parsedString = UPDATE_CONFIRMED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+            case UPDATE_DENIED -> parsedString = UPDATE_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
+            case SUBJECTS -> parsedString = SUBJECTS + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+            case SUBJECTS_UPDATED -> parsedString = SUBJECTS_UPDATED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+            case SUBJECTS_REJECTED -> parsedString = SUBJECTS_REJECTED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+            case PUBLISH -> parsedString = PUBLISH + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
+            case PUBLISH_DENIED -> parsedString = PUBLISH_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
+            case CHANGE_SERVER -> parsedString = CHANGE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+            case UPDATE_SERVER -> parsedString = UPDATE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+            case SWITCH_SERVER -> parsedString = SWITCH_SERVER;
+            default -> parsedString = "";
         }
+
+//        if (msg.getMsgType().equals(REGISTER)) {
+//            parsedString = REGISTER + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress().toString() + ";" + msg.getSocketNumber();
+//        } else if (msg.getMsgType().equals(REGISTER_DENIED.toString()) && Objects.equals(msg.getName(), "")) {
+//            parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
+//        } else if (msg.getMsgType().equals(REGISTERED.toString()) && !Objects.equals(msg.getName(), "")) {
+//            parsedString = REGISTERED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+//        } else if (msg.getMsgType().equals(REGISTER_DENIED.toString()) && !Objects.equals(msg.getName(), "")) {
+//            parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+//        } else if (msg.getMsgType().equals(DE_REGISTER.toString())) {
+//            parsedString = DE_REGISTER.toString() + ";" + msg.getName();
+//        } else if (msg.getMsgType().equals(UPDATE_CONFIRMED.toString())) {
+//            parsedString = UPDATE_CONFIRMED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+//        } else if (msg.getMsgType().equals(UPDATE_DENIED.toString())) {
+//            parsedString = UPDATE_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
+//        } else if (msg.getMsgType().equals(SUBJECTS_UPDATED.toString())) {
+//            parsedString = SUBJECTS_UPDATED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+//        } else if (msg.getMsgType().equals(SUBJECTS_REJECTED.toString())) {
+//            parsedString = SUBJECTS_REJECTED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+//        } else if (msg.getMsgType().equals(PUBLISH_DENIED.toString())) {
+//            parsedString = PUBLISH_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
+//        } else if (msg.getMsgType().equals(CHANGE_SERVER.toString())) {
+//            parsedString = CHANGE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+//        } else if (msg.getMsgType().equals(UPDATE_SERVER.toString())) {
+//            parsedString = UPDATE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+//        } else if (msg.getMsgType().equals(SWITCH_SERVER.toString())) {
+//            parsedString = SWITCH_SERVER;
+//        } else if (msg.getMsgType().equals(PUBLISH.toString())) {
+//            parsedString = PUBLISH + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
+//        } else if (msg.getMsgType().equals(UPDATE.toString())) {
+//            parsedString = UPDATE + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+//        } else if (msg.getMsgType().equals(SUBJECTS.toString())) {
+//            parsedString = SUBJECTS + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+//        }
         return parsedString;
     }
 
@@ -68,7 +85,7 @@ public class Parsing {
             parsedMsg.setRequestNumber(Integer.parseInt(array1[1]));
             parsedMsg.setName(array1[2]);
 //            try {
-                parsedMsg.setIpAddress(array1[3]);
+            parsedMsg.setIpAddress(array1[3]);
 //            } catch (UnknownHostException e) {
 //                e.printStackTrace();
 //                logger.log("Exception Caught in Parsing String to message: " + e.toString());
@@ -80,7 +97,7 @@ public class Parsing {
             parsedMsg.setRequestNumber(Integer.parseInt(array1[1]));
             parsedMsg.setName(array1[2]);
 //            try {
-                parsedMsg.setIpAddress(array1[3]);
+            parsedMsg.setIpAddress(array1[3]);
 //            } catch (UnknownHostException e) {
 //                e.printStackTrace();
 //                logger.log("Exception Caught in Parsing String to message: " + e.toString());
@@ -92,7 +109,7 @@ public class Parsing {
             parsedMsg.setRequestNumber(Integer.parseInt(array1[1]));
             parsedMsg.setName(array1[2]);
 //            try {
-                parsedMsg.setIpAddress(array1[3]);
+            parsedMsg.setIpAddress(array1[3]);
 //            } catch (UnknownHostException e) {
 //                e.printStackTrace();
 //                logger.log("Exception Caught in Parsing String to message: " + e.toString());
@@ -109,7 +126,7 @@ public class Parsing {
             parsedMsg.setRequestNumber(Integer.parseInt(array1[1]));
             parsedMsg.setName(array1[2]);
 //            try {
-                parsedMsg.setIpAddress(array1[3]);
+            parsedMsg.setIpAddress(array1[3]);
 //            } catch (UnknownHostException e) {
 //                e.printStackTrace();
 //                logger.log("Exception Caught in Parsing String to message: " + e.toString());

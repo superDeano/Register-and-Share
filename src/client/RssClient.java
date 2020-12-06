@@ -21,8 +21,8 @@ public class RssClient implements ActionListener {
     private static JFrame frame;
     private static JPanel clientPanel, serverPanel, topicPanel, messagePannel, logsPanel;
     private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton, updateClientInfoButton, clearAllLogsButton;
-    private static JLabel actualClientIpAddressLabel;
-    private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientPortNumberTF, clientNameTF;
+    private static JLabel actualClientIpAddressLabel, actualClientPortNumberLabel;
+    private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientNameTF;
     private static JTextArea publishMessageTA, topicsSendingLabel;
     //    private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
     private static JCheckBox[] topicCheckBoxes;
@@ -45,11 +45,12 @@ public class RssClient implements ActionListener {
 
     private static void startClient() {
         client = new Client();
-        String ip = client.getClientIpAddress();
+//        String ip = client.getClientIpAddress();
         actualClientIpAddressLabel.setText(client.getClientIpAddress());
-        clientPortNumberTF.setText(client.getClientPortNumber());
+        actualClientPortNumberLabel.setText(client.getClientPortNumber());
         messages = new ConcurrentLinkedQueue<>();
         startListening();
+        takeAction();
     }
 
     private static void instantiateGraphicalComponents() {
@@ -65,7 +66,7 @@ public class RssClient implements ActionListener {
 
         //TextFields
         actualClientIpAddressLabel = new JLabel();
-        clientPortNumberTF = new JTextField();
+//        clientPortNumberLabel = new JTextField();
         server1IpAddressTF = new JTextField(1);
         server1PortNumberTF = new JTextField(1);
         server2IpAddressTF = new JTextField(1);
@@ -96,13 +97,14 @@ public class RssClient implements ActionListener {
         actualClientIpAddressLabel.setBounds(160, 10, 300, 20);
         clientPanel.add(actualClientIpAddressLabel);
 
-        JLabel clientPortNumberLabel = new JLabel("Client Port Number");
+        JLabel clientPortNumberLabel = new JLabel("Port Number");
         clientPortNumberLabel.setBounds(10, 40, 150, 20);
         clientPanel.add(clientPortNumberLabel);
 
         // Text Field for client Port Number
-        clientPortNumberTF.setBounds(160, 40, 50, 20);
-        clientPanel.add(clientPortNumberTF);
+        actualClientPortNumberLabel = new JLabel();
+        actualClientPortNumberLabel.setBounds(160, 40, 50, 20);
+        clientPanel.add(actualClientPortNumberLabel);
 
         JLabel clientNameLabel = new JLabel("Name");
         clientNameLabel.setBounds(10, 70, 150, 20);
@@ -292,13 +294,14 @@ public class RssClient implements ActionListener {
                 }
             }
         };
+        takeActionThread.run();
     }
 
     private static void takeAction(Message m) {
         switch (m.getMsgType()) {
             case PUBLISH_DENIED -> test();
-            case MsgType.UPDATE_DENIED -> test();
-            case MsgType.UPDATE_CONFIRMED -> confirmedWithServer = true;
+            case MsgType.UPDATE_DENIED, MsgType.REGISTER_DENIED -> confirmedWithServer = false;
+            case MsgType.UPDATE_CONFIRMED, MsgType.REGISTERED -> confirmedWithServer = true;
             default -> test();
         }
     }
@@ -312,7 +315,7 @@ public class RssClient implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         switch (e.getActionCommand()) {
-            case "Update Information" -> updateClientPortNumber();
+            case "Update Information" -> updateClientInfo();
             case "Register" -> registerClient();
             case "Deregister" -> deregisterClient();
             case "Save Servers" -> saveServersInfo();
@@ -405,13 +408,13 @@ public class RssClient implements ActionListener {
 
     }
 
-    private void updateClientPortNumber() {
+    private void updateClientInfo() {
         if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
             JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Updating User Information", JOptionPane.WARNING_MESSAGE);
         } else if (clientNameTF.getText().isBlank()) {
             JOptionPane.showMessageDialog(frame, "Need to enter a proper name", "Client Name", JOptionPane.WARNING_MESSAGE);
         } else {
-            client.setSocketNumber(Integer.parseInt(clientPortNumberTF.getText()));
+//            client.setSocketNumber(Integer.parseInt(actualClientPortNumberLabel.getText()));
             client.setName(clientNameTF.getText());
             client.updateInformationToServer();
         }
@@ -423,7 +426,7 @@ public class RssClient implements ActionListener {
         } else {
             client.registerToServer();
             System.out.println("Button to register client pressed");
-            logs.addElement("Button to register client pressed");
+//            logs.addElement("Button to register client pressed");
         }
     }
 
@@ -432,6 +435,7 @@ public class RssClient implements ActionListener {
             JOptionPane.showMessageDialog(frame, "Server information missing.\nNeed to enter server information", "Deregistering", JOptionPane.WARNING_MESSAGE);
         } else {
             client.deregisterToServer();
+            confirmedWithServer = false;
         }
     }
 }
