@@ -3,8 +3,6 @@ package dao;
 import server.ClientModel;
 import server.ServerModel;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -68,10 +66,10 @@ public class ServerStorage implements ServerStorageInterface {
             statement = connection.createStatement();
             resultSet = statement.executeQuery("select c.clientName, c.ipAddress, c.portNumber from clients c");
             while (resultSet.next()) {
-                clientList.add(new ClientModel(resultSet.getString("clientName"), InetAddress.getByName(resultSet.getString("ipAddress")), resultSet.getInt("portNumber")));
+                clientList.add(new ClientModel(resultSet.getString("clientName"), resultSet.getString("ipAddress"), resultSet.getInt("portNumber")));
             }
             getClientsSubjects(clientList);
-        } catch (SQLException | UnknownHostException throwables) {
+        } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
 

@@ -2,8 +2,6 @@ package message;
 
 import logger.Logger;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,8 +17,8 @@ public class Parsing {
         String parsedString = "";
 
 
-        if (msg.getMsgType().equals(REGISTERED.toString()) && Objects.equals(msg.getName(), "")) {
-            parsedString = REGISTERED.toString() + ";" + msg.getRequestNumber();
+        if (msg.getMsgType().equals(REGISTER)) {
+            parsedString = REGISTER + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress().toString()  + ";" + msg.getSocketNumber();
         } else if (msg.getMsgType().equals(REGISTER_DENIED.toString()) && Objects.equals(msg.getName(), "")) {
             parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
         } else if (msg.getMsgType().equals(REGISTERED.toString()) && !Objects.equals(msg.getName(), "")) {
@@ -69,36 +67,36 @@ public class Parsing {
         if (array1[0].equals(REGISTER.toString())) {
             parsedMsg.setRequestNumber(Integer.parseInt(array1[1]));
             parsedMsg.setName(array1[2]);
-            try {
-                parsedMsg.setIpAddress(InetAddress.getByName(array1[3]));
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                logger.log("Exception Caught in Parsing String to message: " + e.toString());
-            }
+//            try {
+                parsedMsg.setIpAddress(array1[3]);
+//            } catch (UnknownHostException e) {
+//                e.printStackTrace();
+//                logger.log("Exception Caught in Parsing String to message: " + e.toString());
+//            }
             parsedMsg.setSocketNumber(Integer.parseInt(array1[4]));
         }
 
         if (array1[0].equals(REGISTERED.toString()) && array1.length == 5) {
             parsedMsg.setRequestNumber(Integer.parseInt(array1[1]));
             parsedMsg.setName(array1[2]);
-            try {
-                parsedMsg.setIpAddress(InetAddress.getByName(array1[3]));
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                logger.log("Exception Caught in Parsing String to message: " + e.toString());
-            }
+//            try {
+                parsedMsg.setIpAddress(array1[3]);
+//            } catch (UnknownHostException e) {
+//                e.printStackTrace();
+//                logger.log("Exception Caught in Parsing String to message: " + e.toString());
+//            }
             parsedMsg.setSocketNumber(Integer.parseInt(array1[4]));
         }
 
         if (array1[0].equals(REGISTER_DENIED.toString()) && array1.length == 5) {
             parsedMsg.setRequestNumber(Integer.parseInt(array1[1]));
             parsedMsg.setName(array1[2]);
-            try {
-                parsedMsg.setIpAddress(InetAddress.getByName(array1[3]));
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                logger.log("Exception Caught in Parsing String to message: " + e.toString());
-            }
+//            try {
+                parsedMsg.setIpAddress(array1[3]);
+//            } catch (UnknownHostException e) {
+//                e.printStackTrace();
+//                logger.log("Exception Caught in Parsing String to message: " + e.toString());
+//            }
             parsedMsg.setSocketNumber(Integer.parseInt(array1[4]));
         }
 
@@ -110,12 +108,12 @@ public class Parsing {
         if (array1[0].equals(UPDATE.toString()) && array1.length == 5) {
             parsedMsg.setRequestNumber(Integer.parseInt(array1[1]));
             parsedMsg.setName(array1[2]);
-            try {
-                parsedMsg.setIpAddress(InetAddress.getByName(array1[3]));
-            } catch (UnknownHostException e) {
-                e.printStackTrace();
-                logger.log("Exception Caught in Parsing String to message: " + e.toString());
-            }
+//            try {
+                parsedMsg.setIpAddress(array1[3]);
+//            } catch (UnknownHostException e) {
+//                e.printStackTrace();
+//                logger.log("Exception Caught in Parsing String to message: " + e.toString());
+//            }
             parsedMsg.setSocketNumber(Integer.parseInt(array1[4]));
         }
 

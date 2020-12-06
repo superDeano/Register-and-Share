@@ -1,6 +1,5 @@
 package message;
 
-import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,7 +8,7 @@ public class Message {
     String msgType;
     int requestNumber;
     String name;
-    InetAddress ipAddress;
+    String ipAddress;
     int socketNumber;
     String reason;
     List <String> subjectsList;
@@ -52,11 +51,11 @@ public class Message {
         this.name = name;
     }
 
-    public InetAddress getIpAddress() {
+    public String getIpAddress() {
         return ipAddress;
     }
 
-    public void setIpAddress(InetAddress ipAddress) {
+    public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
     }
 

@@ -9,9 +9,9 @@ import server.ClientModel;
 import server.ServerModel;
 
 import javax.swing.*;
-import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Client extends ClientModel implements ClientInterface {
     private Communication communication;
@@ -26,7 +26,7 @@ public class Client extends ClientModel implements ClientInterface {
     }
 
     public Client(String name, String ipAddress, int socketNumber) throws UnknownHostException {
-        super(name, InetAddress.getByName(ipAddress), socketNumber);
+        super(name, ipAddress, socketNumber);
         setUpClient();
     }
 
@@ -49,7 +49,7 @@ public class Client extends ClientModel implements ClientInterface {
         message.setMsgType(MsgType.REGISTER.toString());
         message.setRequestNumber(requestNumber++);
         message.setName(getName());
-        message.setIpAddress(getIpAddress());
+        message.setIpAddress(communication.getIpAddress());
         message.setSocketNumber(getSocketNumber());
         sendMessage(message);
     }
@@ -79,7 +79,7 @@ public class Client extends ClientModel implements ClientInterface {
         message.setMsgType(MsgType.UPDATE.toString());
         message.setName(getName());
         message.setRequestNumber(requestNumber++);
-        message.setIpAddress(communication.getDatagramSocket().getLocalAddress());
+        message.setIpAddress(communication.getIpAddress());
         message.setSocketNumber(communication.getPortNumber());
         sendMessage(message);
     }
@@ -107,9 +107,9 @@ public class Client extends ClientModel implements ClientInterface {
         return this.servers;
     }
 
-    public void listen(DefaultListModel<String> messages) {
+    public void listen(ConcurrentLinkedQueue<String> messages, DefaultListModel<String> logs) {
         //TODO check what the message is and take appropriate action
-        communication.waitForMessage(messages);
+        communication.waitForMessage(messages, logs);
     }
 
     public String getClientPortNumber() {

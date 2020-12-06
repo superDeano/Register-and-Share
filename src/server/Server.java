@@ -7,7 +7,6 @@ import message.MsgType;
 import message.Parsing;
 
 import javax.swing.*;
-import java.net.InetAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -20,7 +19,7 @@ public class Server extends ServerModel implements ServerInterface {
     private Communication communication;
     private ConcurrentLinkedQueue<String> messageQueue;
     private boolean isServing;
-    private InetAddress otherServerIp;
+    private String otherServerIp;
     private int otherServerPort;
     private long startTime;
     private long currentTime;
@@ -36,7 +35,7 @@ public class Server extends ServerModel implements ServerInterface {
         setUpServer();
     }
 
-    public Server(String connectionName, InetAddress otherServerIp, int otherServerPort, boolean isServing) {
+    public Server(String connectionName, String otherServerIp, int otherServerPort, boolean isServing) {
         super(connectionName);
         this.isServing = isServing;
         this.otherServerIp = otherServerIp;
@@ -77,9 +76,9 @@ public class Server extends ServerModel implements ServerInterface {
 //                    for (String msg : messageQueue) {
                     logger.log("Server Serving", "Sending Message");
                     String msg = messageQueue.poll();
-//                    Message message = Parsing.parseStringToMsg(msg);
-//                        handleMessage(message);
-                    sendMessage(msg);
+                    Message message = Parsing.parseStringToMsg(msg);
+                    handleMessage(message);
+//                    sendMessage(msg);
 
 //                    }
                 }
@@ -177,7 +176,7 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     @Override
-    public void register(int requestNumber, String name, InetAddress ipAddress, int socketNumber) {
+    public void register(int requestNumber, String name, String ipAddress, int socketNumber) {
         if (getClientWithName(name) == null) {
             this.clients.add(new ClientModel(name, ipAddress, socketNumber));
             //TODO write to db
@@ -229,7 +228,7 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     @Override
-    public void registered(int requestNumber, String name, InetAddress ipAddress, int socketNumber) {
+    public void registered(int requestNumber, String name, String ipAddress, int socketNumber) {
 
         this.clients.add(new ClientModel(name, ipAddress, socketNumber));
         //TODO add write to db
@@ -281,7 +280,7 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     @Override
-    public void update(int requestNumber, String name, InetAddress ipAddress, int socketNumber) {
+    public void update(int requestNumber, String name, String ipAddress, int socketNumber) {
         ClientModel client = getClientWithName(name);
         if (client != null) {
 
@@ -323,7 +322,7 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     @Override
-    public void updateConfirmed(int requestNumber, String name, InetAddress ipAddress, int socketNumber) {
+    public void updateConfirmed(int requestNumber, String name, String ipAddress, int socketNumber) {
         for (ClientModel client : clients
         ) {
             if (client.getName().equals(name)) {
@@ -509,7 +508,7 @@ public class Server extends ServerModel implements ServerInterface {
         communication.sendMessage(m, "127.0.0.1", 2313);
     }
 
-    private void sendMessage(Message message, InetAddress ipAddress, int portNumber) {
+    private void sendMessage(Message message, String ipAddress, int portNumber) {
         communication.sendMessage(Parsing.parseMsgToString(message), ipAddress, portNumber);
     }
 
