@@ -3,6 +3,7 @@ package server;
 import communication.Communication;
 import logger.Logger;
 import message.Message;
+import message.MsgType;
 import message.Parsing;
 
 import javax.swing.*;
@@ -98,16 +99,16 @@ public class Server extends ServerModel implements ServerInterface {
         String msgType = msg.getMsgType();
 
         switch (msgType) {
-            case "REGISTER" -> register(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
-            case "REGISTERED" -> registered(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
-            case "REGISTER-DENIED" -> logger.log("Server received register deny for user: " + msg.getName());
-            case "DE-REGISTER" -> deRegister(msg.getRequestNumber(), msg.getName());
-            case "UPDATE" -> update(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
-            case "UPDATE-CONFIRMED" -> updateConfirmed(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
-            case "SUBJECTS" -> subjects(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
-            case "SUBJECTS-UPDATED" -> subjectsUpdated(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
-            case "PUBLISH" -> publish(msg.getRequestNumber(), msg.getName(), msg.getSubject(), msg.getText());
-            case "SWITCH-SERVER" -> switchServer();
+            case MsgType.REGISTER -> register(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+            case REGISTERED -> registered(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+            case REGISTER_DENIED -> logger.log("Server received register deny for user: " + msg.getName());
+            case DE_REGISTER -> deRegister(msg.getRequestNumber(), msg.getName());
+            case UPDATE -> update(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+            case UPDATE_CONFIRMED -> updateConfirmed(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+            case SUBJECTS -> subjects(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
+            case SUBJECTS_UPDATED -> subjectsUpdated(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
+            case PUBLISH -> publish(msg.getRequestNumber(), msg.getName(), msg.getSubject(), msg.getText());
+            case SWITCH_SERVER -> switchServer();
             default -> logger.log("Unknown message has been received");
         }
 

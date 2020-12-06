@@ -44,13 +44,13 @@ public class Parsing {
         } else if (msg.getMsgType().equals(UPDATE_SERVER.toString())) {
             parsedString = UPDATE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
         } else if (msg.getMsgType().equals(SWITCH_SERVER.toString())) {
-            parsedString = SWITCH_SERVER.toString();
+            parsedString = SWITCH_SERVER;
         } else if (msg.getMsgType().equals(PUBLISH.toString())) {
-            parsedString = PUBLISH.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
+            parsedString = PUBLISH + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
         } else if (msg.getMsgType().equals(UPDATE.toString())) {
-            parsedString = UPDATE.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+            parsedString = UPDATE + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
         } else if (msg.getMsgType().equals(SUBJECTS.toString())) {
-            parsedString = SUBJECTS.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+            parsedString = SUBJECTS + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
         }
         return parsedString;
     }
