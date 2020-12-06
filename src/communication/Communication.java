@@ -14,6 +14,8 @@ public class Communication implements CommunicationInterface {
     private byte[] receiveByte;
     private DatagramPacket receivedDatagramPacket;
     private Logger logger;
+    private final int MIN_PORT_NUMBER = 2000;
+    private final int MAX_PORT_NUMBER = 10000;
 
     /**
      * Default constructor for a communication object
@@ -22,6 +24,7 @@ public class Communication implements CommunicationInterface {
      */
     public Communication(String connectionName) {
         try {
+            while (!portIsAvailable(portNumber)) ++portNumber;
             this.serverDatagramSocket = new DatagramSocket(portNumber, InetAddress.getLocalHost());
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
@@ -277,6 +280,37 @@ public class Communication implements CommunicationInterface {
             e.printStackTrace();
             logger.log("Exception Caught in Communication Port Setter: " + e.toString());
         }
+    }
+
+    public boolean portIsAvailable(int port) {
+        if (port < MIN_PORT_NUMBER || port > MAX_PORT_NUMBER) {
+            throw new IllegalArgumentException("Invalid start port: " + port);
+        }
+
+        ServerSocket ss = null;
+        DatagramSocket ds = null;
+        try {
+            ss = new ServerSocket(port);
+            ss.setReuseAddress(true);
+            ds = new DatagramSocket(port);
+            ds.setReuseAddress(true);
+            return true;
+        } catch (IOException e) {
+        } finally {
+            if (ds != null) {
+                ds.close();
+            }
+
+            if (ss != null) {
+                try {
+                    ss.close();
+                } catch (IOException e) {
+                    /* should not be thrown */
+                }
+            }
+        }
+
+        return false;
     }
 
 }
