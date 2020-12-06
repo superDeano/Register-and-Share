@@ -181,27 +181,6 @@ public class RssClient implements ActionListener {
             topicCheckBoxes[i].addActionListener(new RssClient());
             topicPanel.add(topicCheckBoxes[i]);
         }
-//
-//        ButtonGroup buttonGroup = new ButtonGroup();
-//        subscribeRadioButton = new JRadioButton("Subscribe");
-//        subscribeRadioButton.setMnemonic(KeyEvent.VK_B);
-//        subscribeRadioButton.setActionCommand("Subscribe");
-//        subscribeRadioButton.setSelected(true);
-//        subscribeRadioButton.setBounds(10, 220, 200, 20);
-//        subscribeRadioButton.addActionListener(new RssClient());
-//        topicPanel.add(subscribeRadioButton);
-//        buttonGroup.add(subscribeRadioButton);
-//
-//        unsubscribeRadioButton = new JRadioButton("Unsubscribe");
-//        unsubscribeRadioButton.setMnemonic(KeyEvent.VK_B);
-//        unsubscribeRadioButton.setActionCommand("Unsubscribe");
-//        unsubscribeRadioButton.setSelected(false);
-//        unsubscribeRadioButton.addActionListener(new RssClient());
-//        unsubscribeRadioButton.setBounds(10, 240, 200, 20);
-//        topicPanel.add(unsubscribeRadioButton);
-//
-//        buttonGroup.add(unsubscribeRadioButton);
-//        topicPanel.add(buttonGroup);
 
         topicsSendingLabel = new JTextArea();
         topicsSendingLabel.setBounds(10, 280, 350, 40);
@@ -276,9 +255,7 @@ public class RssClient implements ActionListener {
     private static void startListening() {
         Thread listeningThread = new Thread() {
             public void run() {
-//                while (true) {
                 client.listen(logs);
-//                }
             }
         };
         listeningThread.start();
@@ -315,7 +292,7 @@ public class RssClient implements ActionListener {
     private void setTopicMessage() {
         String message;
 //        if (subscribeRadioButton.isSelected()) {
-        message = "NEw List " + getSelectedTopicAsString();
+        message = "New List: " + getSelectedTopicAsString();
 //        } else {
         //Unsubscribe
 //            message = "UNSUBSCRIBE TO " + getSelectedTopicAsString();
@@ -325,7 +302,7 @@ public class RssClient implements ActionListener {
 
     private String getSelectedTopicAsString() {
         StringBuilder topic = new StringBuilder();
-        Arrays.stream(topicCheckBoxes).filter(t -> t.isSelected()).forEach(t -> topic.append(t.getActionCommand() + ", "));
+        Arrays.stream(topicCheckBoxes).filter(t -> t.isSelected()).forEach(t -> topic.append(t.getActionCommand()).append(", "));
         return topic.toString();
     }
 
@@ -339,8 +316,12 @@ public class RssClient implements ActionListener {
     }
 
     private void publishMessage() {
-        client.publishMessage(topics[topicsComboBox.getSelectedIndex()], publishMessageTA.getText());
-        publishMessageTA.setText("");
+        if (publishMessageTA.getText().isBlank()) {
+            JOptionPane.showMessageDialog(frame, "Cannot send blank texts", "Publishing Message Error", JOptionPane.WARNING_MESSAGE);
+        } else {
+            client.publishMessage(topics[topicsComboBox.getSelectedIndex()], publishMessageTA.getText());
+            publishMessageTA.setText("");
+        }
     }
 
     private void checkAllTopicBoxes(boolean enabled) {
@@ -363,19 +344,33 @@ public class RssClient implements ActionListener {
     }
 
     private void updateClientPortNumber() {
-        client.setSocketNumber(Integer.parseInt(clientPortNumberTF.getText()));
-        client.setName(clientNameTF.getText());
-        client.updateInformationToServer();
-//        logs.addElement("Button update client port number pressed");
+
+        if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
+            JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Updating User Information", JOptionPane.WARNING_MESSAGE);
+        } else if (clientNameTF.getText().isBlank()) {
+            JOptionPane.showMessageDialog(frame, "Need to enter a proper name", "Client Name", JOptionPane.WARNING_MESSAGE);
+        } else {
+            client.setSocketNumber(Integer.parseInt(clientPortNumberTF.getText()));
+            client.setName(clientNameTF.getText());
+            client.updateInformationToServer();
+        }
     }
 
     private void registerClient() {
-        client.registerToServer();
-        System.out.println("Button to register client pressed");
-        logs.addElement("Button to register client pressed");
+        if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
+            JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Registering", JOptionPane.WARNING_MESSAGE);
+        } else {
+            client.registerToServer();
+            System.out.println("Button to register client pressed");
+            logs.addElement("Button to register client pressed");
+        }
     }
 
     private void deregisterClient() {
-        client.deregisterToServer();
+        if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
+            JOptionPane.showMessageDialog(frame, "Server information missing.\nNeed to enter server information", "Deregistering", JOptionPane.WARNING_MESSAGE);
+        } else {
+            client.deregisterToServer();
+        }
     }
 }
