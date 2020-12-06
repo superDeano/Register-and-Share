@@ -175,7 +175,7 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void register(int requestNumber, String name, InetAddress ipAddress, int socketNumber) {
-        if (!clientNameExist(name)) {
+        if (getClientWithName(name) == null) {
             this.clients.add(new ClientModel(name, ipAddress, socketNumber));
             //TODO write to db
             logger.log("ADDING USER", "User successfully added!");
@@ -235,14 +235,17 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void deRegister(int requestNumber, String name) {
-        if (clientNameExist(name)) {
-            ClientModel toDelete = new ClientModel();
+        //TODO recheck that
+        ClientModel client = getClientWithName(name);
+        if (client != null) {
+//            ClientModel toDelete = new ClientModel();
             if (isServing) {
-                for (ClientModel client : clients
-                ) {
-                    if (client.getName() == name) {
-                        toDelete = client;
-                    }
+//                for (ClientModel client : clients
+//                ) {
+//                    if (client.getName().equals(name)) {
+//                        toDelete = client;
+//                    }
+                removeClientWithName(name);
                 }
             }
             this.removeClientWithName(name);
@@ -276,7 +279,7 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void update(int requestNumber, String name, InetAddress ipAddress, int socketNumber) {
-        if (clientNameExist(name)) {
+        if (getClientWithName(name)) {
 
             for (ClientModel client : clients
             ) {
@@ -329,7 +332,7 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void subjects(int requestNumber, String name, List<String> listOfSubjects) {
-        if (clientNameExist(name)) {
+        if (getClientWithName(name)) {
 
             List<String> accepted = new LinkedList<String>();
             List<String> denied = new LinkedList<String>();
@@ -404,65 +407,82 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void publish(int requestNumber, String name, String subject, String text) {
-        if (clientNameExist(name)) {
-            boolean subjectFound = false;
-            boolean messageSent = false;
+        ClientModel client = getClientWithName(name);
+        if (client != null) {
+//            boolean subjectFound = false;
+//            boolean messageSent = false;
+            if (client.subscribedToSubject(subject)) {
+                Message message = new Message();
+                message.setMsgType(MESSAGE.toString());
+                message.setName(name);
+                message.setSubject(subject);
+                message.setText(text);
+                clients.stream().filter(c1 -> c1.getName().equals(name) || !c1.subscribedToSubject(subject)).forEach(c2 -> {
+                    sendMessage(message, c2.getIpAddress(), c2.getSocketNumber());
+                });
+            }
+            //Client not subscribed to subject
+            else {
 
-            for (ClientModel client : clients
-            ) {
-                if (client.getName().equals(name)) {
-                    for (String sub : client.getSubjectsOfInterest()
-                    ) {
-                        if (sub.equals(subject)) {
-                            subjectFound = true;
-                            for (ClientModel cli : clients
-                            ) {
-                                for (String subj : cli.getSubjectsOfInterest()
-                                ) {
-                                    if (subj.equals(subject)) {
-                                        messageSent = true;
-                                        Message clientPublish = new Message();
-                                        clientPublish.setMsgType(MESSAGE.toString());
-                                        clientPublish.setName(name);
-                                        clientPublish.setSubject(subject);
-                                        clientPublish.setText(text);
-                                        String message = Parsing.parseMsgToString(clientPublish);
-
-                                        communication.sendMessage(message,
-                                                cli.getIpAddress(),
-                                                cli.getSocketNumber());
-
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
-            if (!subjectFound) {
-                for (ClientModel client : clients
-                ) {
-                    if (client.getName().equals(name)) {
-                        Message clientDeny = new Message();
-                        clientDeny.setMsgType(PUBLISH_DENIED.toString());
-                        clientDeny.setRequestNumber(requestNumber);
-                        clientDeny.setReason("Subject is not within the subjects of interests of user: " + name);
-                        String message = Parsing.parseMsgToString(clientDeny);
+//            for (ClientModel client : clients
+//            ) {
+//                if (client.getName().equals(name)) {
+//                    for (String sub : client.getSubjectsOfInterest()
+//                    ) {
+//                        if (sub.equals(subject)) {
+//                            subjectFound = true;
+//                            for (ClientModel cli : clients
+//                            ) {
+//                                for (String subj : cli.getSubjectsOfInterest()
+//                                ) {
+//                                    if (subj.equals(subject)) {
+//                                        messageSent = true;
+//                                        Message clientPublish = new Message();
+//                                        clientPublish.setMsgType(MESSAGE.toString());
+//                                        clientPublish.setName(name);
+//                                        clientPublish.setSubject(subject);
+//                                        clientPublish.setText(text);
+//                                        String message = Parsing.parseMsgToString(clientPublish);
+//
+//                                        communication.sendMessage(message,
+//                                                cli.getIpAddress(),
+//                                                cli.getSocketNumber());
+//
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
 
-                        communication.sendMessage(message,
-                                client.getIpAddress(),
-                                client.getSocketNumber());
-                    }
-                }
-            }
+//            if (!subjectFound) {
+//                for (ClientModel client : clients
+//                ) {
+//                    if (client.getName().equals(name)) {
+//                        Message clientDeny = new Message();
+//                        clientDeny.setMsgType(PUBLISH_DENIED.toString());
+//                        clientDeny.setRequestNumber(requestNumber);
+//                        clientDeny.setReason("Subject is not within the subjects of interests of user: " + name);
+//                        String message = Parsing.parseMsgToString(clientDeny);
+//
+//                        communication.sendMessage(message,
+//                                client.getIpAddress(),
+//                                client.getSocketNumber());
+//                    }
+//                }
+//            }
+//
+//            if (messageSent) {
+//                logger.log("PUBLISHING MESSAGE", "Message has been Published !");
+//            }
 
-            if (messageSent) {
-                logger.log("PUBLISHING MESSAGE", "Message has been Published !");
-            }
 
-
-        } else {
+        }
+        // Client with name does not exist
+        else {
             //TODO ask for how to reach back client with wrong name
             logger.log("PUBLISHING MESSAGE", "User does not exist!");
         }
@@ -479,12 +499,17 @@ public class Server extends ServerModel implements ServerInterface {
         communication.sendMessage(m, "127.0.0.1", 2313);
     }
 
-    private boolean clientNameExist(String name) {
-        for (ClientModel c : this.clients) {
-            if (c.getName().equals(name)) return true;
-        }
-        return false;
+    private void sendMessage(Message message, InetAddress ipAddress, int portNumber) {
+        communication.sendMessage(Parsing.parseMsgToString(message), ipAddress, portNumber);
     }
+
+    private ClientModel getClientWithName(String name) {
+        for (ClientModel c : this.clients) {
+            if (c.getName().equals(name)) return c;
+        }
+        return null;
+    }
+
 
     private void removeClientWithName(String name) {
         this.clients.removeIf(c -> c.getName().equals(name));

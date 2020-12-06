@@ -11,7 +11,7 @@ public class ClientModel {
     private int socketNumber;
     private final Vector<String> subjectsOfInterest;
 
-    public ClientModel(){
+    public ClientModel() {
         this.subjectsOfInterest = new Vector<>();
     }
 
@@ -42,25 +42,27 @@ public class ClientModel {
         return ipAddress;
     }
 
-    public List<String> getSubjectsOfInterest() { return Collections.list(subjectsOfInterest.elements()); }
+    public List<String> getSubjectsOfInterest() {
+        return Collections.list(subjectsOfInterest.elements());
+    }
 
     public void setIpAddress(InetAddress ipAddress) {
         this.ipAddress = ipAddress;
     }
 
     public boolean addSubject(String subject) {
-        if (this.subjectAlreadySubscribed(subject)) return false;
+        if (this.subscribedToSubject(subject)) return false;
         this.subjectsOfInterest.add(subject);
         return true;
     }
 
     public boolean removeSubject(String subject) {
-        if (!this.subjectAlreadySubscribed(subject)) return false;
+        if (!this.subscribedToSubject(subject)) return false;
         this.subjectsOfInterest.remove(subject);
         return true;
     }
 
-    private boolean subjectAlreadySubscribed(String subject) {
+    public boolean subscribedToSubject(String subject) {
         for (String s : this.subjectsOfInterest) {
             if (s.equals(subject))
                 return true;
