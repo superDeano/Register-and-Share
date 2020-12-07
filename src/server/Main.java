@@ -1,6 +1,5 @@
 package server;
 
-import client.RssClient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -123,7 +122,7 @@ public class Main implements ActionListener {
         clearAllLogsButton.setBounds(10, 1, 80, 20);
         logsPanel.add(clearAllLogsButton);
         JList<String> jList = new JList<>(logs);
-        RssClient.MyCellRenderer cellRenderer = new RssClient.MyCellRenderer(350);
+        MyCellRenderer cellRenderer = new MyCellRenderer(350);
         jList.setCellRenderer(cellRenderer);
         JScrollPane scrollPane = new JScrollPane(jList);
         scrollPane.setBounds(1, 30, frame.getWidth() - 30, frame.getHeight() - 120);
