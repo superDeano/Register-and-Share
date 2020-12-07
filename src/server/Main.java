@@ -148,7 +148,7 @@ public class Main implements ActionListener {
     private void startServer() {
         try {
             this.server =
-                    new Server(serverNameComboBox.getActionCommand(), Integer.parseInt(currentServerPortNumberTF.getText()), logs);
+                    new Server(serverNameComboBox.getSelectedItem().toString(), Integer.parseInt(currentServerPortNumberTF.getText()), logs);
             //new Server(serverNameComboBox.getActionCommand(), InetAddress.getByName(otherServerIpAddressTF.getText()), Integer.parseInt(otherServerPortNumberTF.getText()),true);
             actualServerIpAddressLabel.setText(server.getIpAddress());
             server.setLogs(logs);

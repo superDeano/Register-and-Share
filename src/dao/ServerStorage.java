@@ -13,11 +13,11 @@ public class ServerStorage implements ServerStorageInterface {
     private PreparedStatement preparedStatement = null;
     private ResultSet resultSet = null;
     private final String currentServerName;
-    private final String url = "jdbc:mysql://register-mysql.mysql.database.azure.com:3306/register-server?useSSL=true";
 
-    public ServerStorage(String currentServerName) throws SQLException {
-//        Class.forName("com.mysql.jdbc.Driver");
+    public ServerStorage(String currentServerName) throws SQLException, ClassNotFoundException {
+        Class.forName("com.mysql.jdbc.Driver");
         this.currentServerName = currentServerName;
+        String url = "jdbc:mysql://register-mysql.mysql.database.azure.com:3306/register-server?useSSL=true";
         this.connection = DriverManager.getConnection(url, "supermysql", "dypqiC-nokroh-2xypnu");
     }
 
@@ -64,9 +64,9 @@ public class ServerStorage implements ServerStorageInterface {
 
         try {
             statement = connection.createStatement();
-            resultSet = statement.executeQuery("select c.clientName, c.ipAddress, c.portNumber from clients c");
+            resultSet = statement.executeQuery("select c.name, c.ipAddress, c.portNumber from clients c");
             while (resultSet.next()) {
-                clientList.add(new ClientModel(resultSet.getString("clientName"), resultSet.getString("ipAddress"), resultSet.getInt("portNumber")));
+                clientList.add(new ClientModel(resultSet.getString("name"), resultSet.getString("ipAddress"), resultSet.getInt("portNumber")));
             }
             getClientsSubjects(clientList);
         } catch (SQLException throwables) {

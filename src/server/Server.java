@@ -1,13 +1,14 @@
 package server;
 
 import communication.Communication;
+import dao.ServerStorage;
 import logger.Logger;
 import message.Message;
 import message.MsgType;
 import message.Parsing;
 
 import javax.swing.*;
-import java.util.LinkedList;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -23,6 +24,7 @@ public class Server extends ServerModel implements ServerInterface {
     private int otherServerPort;
     private long startTime;
     private long currentTime;
+    private ServerStorage dao;
     private DefaultListModel<String> logs;
 
     public Server(String connectionName, int portNumber, DefaultListModel<String> logs) {
@@ -51,11 +53,21 @@ public class Server extends ServerModel implements ServerInterface {
 
 
     private void setUpServer() {
-        this.clients = new LinkedList<>();
-        this.messageQueue = new ConcurrentLinkedQueue<>();
-        this.logger = new Logger();
-        listen();
-        serveClients();
+        try {
+            this.dao = new ServerStorage(getName());
+//            this.clients = new LinkedList<>();
+            getClientListSaved();
+            this.messageQueue = new ConcurrentLinkedQueue<>();
+            this.logger = new Logger();
+            listen();
+            serveClients();
+        } catch (SQLException | ClassNotFoundException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void getClientListSaved() {
+        this.clients = dao.getAllClients();
     }
 
     private void serveClients() {
@@ -178,7 +190,10 @@ public class Server extends ServerModel implements ServerInterface {
     @Override
     public void register(int requestNumber, String name, String ipAddress, int socketNumber) {
         if (getClientWithName(name) == null) {
-            this.clients.add(new ClientModel(name, ipAddress, socketNumber));
+            ClientModel newClient = new ClientModel(name, ipAddress, socketNumber);
+            this.clients.add(newClient);
+            dao.addClient(newClient);
+
             //TODO write to db
             logger.log("ADDING USER", "User successfully added!");
 
@@ -232,15 +247,14 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void registered(int requestNumber, String name, String ipAddress, int socketNumber) {
-
-        this.clients.add(new ClientModel(name, ipAddress, socketNumber));
-        //TODO add write to db
-
+        ClientModel newClient = new ClientModel(name, ipAddress, socketNumber);
+        this.clients.add(newClient);
+        dao.addClient(newClient);
     }
 
     @Override
     public void deRegister(int requestNumber, String name) {
-        //TODO recheck that
+
 //        ClientModel client = getClientWithName(name);
 //        if (client != null) {
 //            ClientModel toDelete = new ClientModel();
@@ -254,7 +268,7 @@ public class Server extends ServerModel implements ServerInterface {
 //            }
 //        }
 //        this.removeClientWithName(name);
-            //TODO remove from db
+            dao.deleteClient(name);
             logger.log("REMOVING USER", "User successfully deleted!");
 
 //        if (isServing) {
@@ -294,8 +308,7 @@ public class Server extends ServerModel implements ServerInterface {
             client.setSocketNumber(socketNumber);
 //                }
 //            }
-
-            //TODO Update db
+            dao.updateClientInfo(client);
             logger.log("UPDATING USER", "User successfully updated!");
 
 
@@ -333,7 +346,7 @@ public class Server extends ServerModel implements ServerInterface {
                 client.setSocketNumber(socketNumber);
             }
         }
-        //TODO update db
+        //TODO REDO THAT
     }
 
     @Override
@@ -360,6 +373,7 @@ public class Server extends ServerModel implements ServerInterface {
 //                        }
 //                    }
             client.setSubjectsOfInterest(listOfSubjects);
+
 // TODO Update db
             Message clientAssert = new Message();
             clientAssert.setMsgType(SUBJECTS_UPDATED.toString());
