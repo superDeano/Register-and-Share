@@ -320,7 +320,7 @@ public class RssClient implements ActionListener {
             case "Deregister" -> deregisterClient();
             case "Save Servers" -> saveServersInfo();
             case "Clear" -> clearAllLogs();
-            case "Save Name" -> client.setName(clientNameTF.getText());
+            case "Save Name" -> saveName();
             case "Check All" -> {
                 checkAllTopicBoxes(true);
                 setTopicMessage();
@@ -404,8 +404,13 @@ public class RssClient implements ActionListener {
         }
     }
 
-    private void saveName(){
-
+    private void saveName() {
+        String name = clientNameTF.getText();
+        if (name.isBlank()) {
+            JOptionPane.showMessageDialog(frame, "Name cannot be blank!", "Saving", JOptionPane.WARNING_MESSAGE);
+        } else {
+            client.setName(name);
+        }
     }
 
     private void updateClientInfo() {
@@ -423,6 +428,8 @@ public class RssClient implements ActionListener {
     private void registerClient() {
         if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
             JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Registering", JOptionPane.WARNING_MESSAGE);
+        } else if (client.getName() == null || client.getName().isBlank()) {
+            JOptionPane.showMessageDialog(frame, "Name cannot be blank!", "Registering", JOptionPane.WARNING_MESSAGE);
         } else {
             client.registerToServer();
             System.out.println("Button to register client pressed");
@@ -433,6 +440,8 @@ public class RssClient implements ActionListener {
     private void deregisterClient() {
         if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
             JOptionPane.showMessageDialog(frame, "Server information missing.\nNeed to enter server information", "Deregistering", JOptionPane.WARNING_MESSAGE);
+        } else if (client.getName().isBlank() || client.getName() == null) {
+            JOptionPane.showMessageDialog(frame, "Name cannot be blank!", "Deregistering", JOptionPane.WARNING_MESSAGE);
         } else {
             client.deregisterToServer();
             confirmedWithServer = false;
