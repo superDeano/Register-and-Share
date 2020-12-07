@@ -54,8 +54,9 @@ public class ServerStorage implements ServerStorageInterface {
     @Override
     public void deleteClient(String name) {
         try {
-            preparedStatement = connection.prepareStatement("DELETE CLIENTS c, `client-subjects` cs FROM c inner join on c.name = cs.clientName where c.name = ?;");
+            preparedStatement = connection.prepareStatement("DELETE c.*, cs.* from CLIENTS c inner join `client-subjects` cs on c.name = cs.clientName where c.name = ? and c.serverName = ?;");
             preparedStatement.setString(1, name);
+            preparedStatement.setString(2, currentServerName);
             preparedStatement.executeUpdate();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
