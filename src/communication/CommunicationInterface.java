@@ -116,6 +116,6 @@ public interface CommunicationInterface {
      *
      * @param port int
      */
-    void setPort (int port);
+    boolean setPort (int port);
 
 }

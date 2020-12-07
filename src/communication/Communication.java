@@ -289,16 +289,19 @@ public class Communication implements CommunicationInterface {
      * @param port int
      */
     @Override
-    public void setPort(int port) {
+    public boolean setPort(int port) {
         try {
+            if (!portIsAvailable(port)) return false;
             this.serverDatagramSocket = new DatagramSocket(port, InetAddress.getLocalHost());
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
             logger.log("Exception Caught in Communication Port Setter: " + e.toString());
+            return false;
         }
+        return true;
     }
 
-    private boolean portIsValid(int port) {
+    public boolean portIsValid(int port) {
         return (port < MIN_PORT_NUMBER || port > MAX_PORT_NUMBER);
     }
 
