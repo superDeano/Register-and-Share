@@ -1,5 +1,7 @@
 package communication;
 
+import message.Message;
+
 import javax.swing.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -16,7 +18,7 @@ public interface CommunicationInterface {
      *
      * @return string
      */
-    void waitForMessage (ConcurrentLinkedQueue<String> messages,DefaultListModel<String> logs);
+    void waitForMessage (ConcurrentLinkedQueue<Message> messages, DefaultListModel<String> logs);
     void waitForMessage (DefaultListModel<String> logs);
 
     /**

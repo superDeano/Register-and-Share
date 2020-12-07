@@ -18,7 +18,7 @@ public class Server extends ServerModel implements ServerInterface {
     private Logger logger;
     private List<ClientModel> clients;
     private Communication communication;
-    private ConcurrentLinkedQueue<String> messageQueue;
+    private ConcurrentLinkedQueue<Message> messageQueue;
     private boolean isServing;
     private String otherServerIp;
     private int otherServerPort;
@@ -87,8 +87,8 @@ public class Server extends ServerModel implements ServerInterface {
                 } else {
 //                    for (String msg : messageQueue) {
                     logger.log("Server Serving", "Sending Message");
-                    String msg = messageQueue.poll();
-                    Message message = Parsing.parseStringToMsg(msg);
+                    Message message = messageQueue.poll();
+//                    Message message = Parsing.parseStringToMsg(msg);
                     handleMessage(message);
 //                    sendMessage(msg);
 
@@ -113,12 +113,12 @@ public class Server extends ServerModel implements ServerInterface {
             case MsgType.REGISTER -> register(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
             case REGISTERED -> registered(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
             case REGISTER_DENIED -> logger.log("Server received register deny for user: " + msg.getName());
-            case DE_REGISTER -> deRegister(msg.getRequestNumber(), msg.getName());
+            case DE_REGISTER -> deRegister(msg);
             case UPDATE -> update(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
             case UPDATE_CONFIRMED -> updateConfirmed(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
-            case SUBJECTS -> subjects(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
+            case SUBJECTS -> subjects(msg);
             case SUBJECTS_UPDATED -> subjectsUpdated(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
-            case PUBLISH -> publish(msg.getRequestNumber(), msg.getName(), msg.getSubject(), msg.getText());
+            case PUBLISH -> publish(msg);
             case SWITCH_SERVER -> switchServer();
             default -> logger.log("Unknown message has been received");
         }
@@ -194,7 +194,6 @@ public class Server extends ServerModel implements ServerInterface {
             this.clients.add(newClient);
             dao.addClient(newClient);
 
-            //TODO write to db
             logger.log("ADDING USER", "User successfully added!");
 
             Message clientAssert = new Message();
@@ -232,7 +231,7 @@ public class Server extends ServerModel implements ServerInterface {
                     socketNumber);
 
             Message serverAssert = new Message();
-            serverAssert.setMsgType(REGISTER_DENIED.toString());
+            serverAssert.setMsgType(REGISTER_DENIED);
             serverAssert.setRequestNumber(requestNumber);
             serverAssert.setName(name);
             serverAssert.setIpAddress(ipAddress);
@@ -253,7 +252,7 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     @Override
-    public void deRegister(int requestNumber, String name) {
+    public void deRegister(Message message) {
 
 //        ClientModel client = getClientWithName(name);
 //        if (client != null) {
@@ -264,11 +263,11 @@ public class Server extends ServerModel implements ServerInterface {
 //                    if (client.getName().equals(name)) {
 //                        toDelete = client;
 //                    }
-        if (removeClientWithName(name)) {
+        if (removeClientWithName(message.getName())) {
 //            }
 //        }
 //        this.removeClientWithName(name);
-            dao.deleteClient(name);
+            dao.deleteClient(message.getName());
             logger.log("REMOVING USER", "User successfully deleted!");
 
 //        if (isServing) {
@@ -283,7 +282,7 @@ public class Server extends ServerModel implements ServerInterface {
 //                    toDelete.getSocketNumber());
             Message serverAssert = new Message();
             serverAssert.setMsgType(DE_REGISTER.toString());
-            serverAssert.setName(name);
+            serverAssert.setName(message.getName());
             String serverMessage = Parsing.parseMsgToString(serverAssert);
 
             communication.sendMessage(serverMessage,
@@ -327,7 +326,7 @@ public class Server extends ServerModel implements ServerInterface {
         } else {
 
             Message clientAssert = new Message();
-            clientAssert.setMsgType(UPDATE_DENIED.toString());
+            clientAssert.setMsgType(UPDATE_DENIED);
             clientAssert.setRequestNumber(requestNumber);
             clientAssert.setReason("User with this name: " + name + " does not exist");
             String message = Parsing.parseMsgToString(clientAssert);
@@ -340,19 +339,21 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void updateConfirmed(int requestNumber, String name, String ipAddress, int socketNumber) {
-        for (ClientModel client : clients
-        ) {
-            if (client.getName().equals(name)) {
-                client.setIpAddress(ipAddress);
-                client.setSocketNumber(socketNumber);
-            }
-        }
-        //TODO REDO THAT
+//        for (ClientModel client : clients) {
+//            if (client.getName().equals(name)) {
+//                client.setIpAddress(ipAddress);
+//                client.setSocketNumber(socketNumber);
+//            }
+//        }
+        ClientModel clientModel = getClientWithName(name);
+        clientModel.setIpAddress(ipAddress);
+        clientModel.setSocketNumber(socketNumber);
+        dao.updateClientInfo(clientModel);
     }
 
     @Override
-    public void subjects(int requestNumber, String name, List<String> listOfSubjects) {
-        ClientModel client = getClientWithName(name);
+    public void subjects(Message message) {
+        ClientModel client = getClientWithName(message.getName());
         if (client != null) {
 
 //            List<String> accepted = new LinkedList<String>();
@@ -373,23 +374,24 @@ public class Server extends ServerModel implements ServerInterface {
 //                            logger.log("Subject: " + subject + " was already subscribed to");
 //                        }
 //                    }
+            List<String> listOfSubjects = message.getSubjectsList();
             client.setSubjectsOfInterest(listOfSubjects);
 
-            if (listOfSubjects.isEmpty()) dao.deleteClientListOfSubjects(name);
-            else dao.updateClientListOfSubjects(name, listOfSubjects);
+            if (listOfSubjects.isEmpty()) dao.deleteClientListOfSubjects(message.getName());
+            else dao.updateClientListOfSubjects(message.getName(), listOfSubjects);
 
             Message clientAssert = new Message();
             clientAssert.setMsgType(SUBJECTS_UPDATED.toString());
-            clientAssert.setRequestNumber(requestNumber);
-            clientAssert.setName(name);
+            clientAssert.setRequestNumber(message.getRequestNumber());
+            clientAssert.setName(message.getName());
             clientAssert.setSubjectsList(listOfSubjects);
-            String message = Parsing.parseMsgToString(clientAssert);
+            String messageS = Parsing.parseMsgToString(clientAssert);
 
-            communication.sendMessage(message,
+            communication.sendMessage(messageS,
                     client.getIpAddress(),
                     client.getSocketNumber());
 
-            communication.sendMessage(message,
+            communication.sendMessage(messageS,
                     otherServerIp,
                     otherServerPort);
 
@@ -397,19 +399,18 @@ public class Server extends ServerModel implements ServerInterface {
 //            }
 
         } else {
-            //TODO ask for how to reach back client with wrong name
-            logger.log("UPDATING SUBJECTS OF INTEREST", "User does not exist! And cannot be reached back.");
+            logger.log("UPDATING SUBJECTS OF INTEREST", "User does not exist!");
 
             Message clientDeny = new Message();
-            clientDeny.setMsgType(SUBJECTS_REJECTED.toString());
-            clientDeny.setRequestNumber(requestNumber);
-            clientDeny.setName(name);
-            clientDeny.setSubjectsList(listOfSubjects);
+            clientDeny.setMsgType(SUBJECTS_REJECTED);
+            clientDeny.setRequestNumber(message.getRequestNumber());
+            clientDeny.setName(message.getName());
+            clientDeny.setSubjectsList(message.getSubjectsList());
             String denyMessage = Parsing.parseMsgToString(clientDeny);
 
             communication.sendMessage(denyMessage,
-                    client.getIpAddress(),
-                    client.getSocketNumber());
+                    message.getIpAddress(),
+                    message.getSocketNumber());
         }
     }
 
@@ -421,7 +422,6 @@ public class Server extends ServerModel implements ServerInterface {
 //                for (String subject : subjectsList
 //                ) {
 //                    if (client.addSubject(subject)) {
-//                        //TODO Update db
 //                        logger.log("Subject: " + subject + " has been added");
 //                    }
 //                }
@@ -436,28 +436,28 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     @Override
-    public void publish(int requestNumber, String name, String subject, String text) {
-        ClientModel client = getClientWithName(name);
+    public void publish(Message message) {
+        ClientModel client = getClientWithName(message.getName());
         if (client != null) {
 //            boolean subjectFound = false;
 //            boolean messageSent = false;
-            if (client.subscribedToSubject(subject)) {
-                Message message = new Message();
-                message.setMsgType(MESSAGE.toString());
-                message.setName(name);
-                message.setSubject(subject);
-                message.setText(text);
-                clients.stream().filter(c1 -> !c1.getName().equals(name) && c1.subscribedToSubject(subject)).forEach(c2 -> {
+            if (client.subscribedToSubject(message.getSubject())) {
+                Message messagePublished = new Message();
+                messagePublished.setMsgType(MESSAGE);
+                messagePublished.setName(message.getName());
+                messagePublished.setSubject(message.getSubject());
+                messagePublished.setText(message.getText());
+                clients.stream().filter(c1 -> !c1.getName().equals(client.getName()) && c1.subscribedToSubject(message.getSubject())).forEach(c2 -> {
                     sendMessage(message, c2.getIpAddress(), c2.getSocketNumber());
                 });
             }
             //Client not subscribed to subject
             else {
-                Message message = new Message();
-                message.setMsgType(PUBLISH_DENIED.toString());
-                message.setRequestNumber(requestNumber);
-                message.setReason("User not subscribed to topic");
-                communication.sendMessage(Parsing.parseMsgToString(message), client.getIpAddress(), client.getSocketNumber());
+                Message messageClientNotSub = new Message();
+                messageClientNotSub.setMsgType(PUBLISH_DENIED);
+                messageClientNotSub.setRequestNumber(message.getRequestNumber());
+                messageClientNotSub.setReason("User not subscribed to topic");
+                communication.sendMessage(Parsing.parseMsgToString(messageClientNotSub), client.getIpAddress(), client.getSocketNumber());
             }
 
 //            for (ClientModel client : clients
@@ -517,7 +517,11 @@ public class Server extends ServerModel implements ServerInterface {
         }
         // Client with name does not exist
         else {
-            //TODO ask for how to reach back client with wrong name
+            Message publishDeniedMessage = new Message();
+            publishDeniedMessage.setMsgType(PUBLISH_DENIED);
+            publishDeniedMessage.setRequestNumber(message.getRequestNumber());
+            publishDeniedMessage.setReason("User does not exist");
+            communication.sendMessage(Parsing.parseMsgToString(publishDeniedMessage), message.getIpAddress(), message.getSocketNumber());
             logger.log("PUBLISHING MESSAGE", "User does not exist!");
         }
     }
@@ -552,7 +556,7 @@ public class Server extends ServerModel implements ServerInterface {
     private void updateServerInfo() {
 
         Message changeServer = new Message();
-        changeServer.setMsgType(UPDATE_SERVER.toString());
+        changeServer.setMsgType(UPDATE_SERVER);
         changeServer.setIpAddress(otherServerIp);
         changeServer.setSocketNumber(otherServerPort);
         String message = Parsing.parseMsgToString(changeServer);

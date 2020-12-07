@@ -107,7 +107,7 @@ public class Client extends ClientModel implements ClientInterface {
         return this.servers;
     }
 
-    public void listen(ConcurrentLinkedQueue<String> messages, DefaultListModel<String> logs) {
+    public void listen(ConcurrentLinkedQueue<Message> messages, DefaultListModel<String> logs) {
         //TODO check what the message is and take appropriate action
         communication.waitForMessage(messages, logs);
     }

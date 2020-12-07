@@ -2,7 +2,6 @@ package client;
 
 import message.Message;
 import message.MsgType;
-import message.Parsing;
 import server.ServerModel;
 
 import javax.swing.*;
@@ -30,7 +29,7 @@ public class RssClient implements ActionListener {
     private static JComboBox<String> topicsComboBox;
     private static Client client;
     private static DefaultListModel<String> logs;
-    private static ConcurrentLinkedQueue<String> messages;
+    private static ConcurrentLinkedQueue<Message> messages;
     private static boolean confirmedWithServer = false;
     private static String[] topics = {"Education", "Politics", "Pop", "Technology", "Science", "Sports", "World"};
 
@@ -294,8 +293,8 @@ public class RssClient implements ActionListener {
                             e.printStackTrace();
                         }
                     } else {
-                        String msg = messages.poll();
-                        takeAction(Parsing.parseStringToMsg(msg));
+                        Message msg = messages.poll();
+                        takeAction(msg);
                     }
                 }
             }

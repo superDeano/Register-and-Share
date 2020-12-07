@@ -1,5 +1,7 @@
 package server;
 
+import message.Message;
+
 import java.util.List;
 
 public interface ServerInterface {
@@ -13,17 +15,17 @@ public interface ServerInterface {
 
     public void registered( int requestNumber, String name, String ipAddress, int socket);
 
-    public void deRegister(int requestNumber, String name);
+    public void deRegister(Message message);
 
     public void update(int requestNumber, String name, String ipAddress, int socketNumber);
 
     public void updateConfirmed(int requestNumber, String name, String ipAddress, int socketNumber);
 
-    public void subjects(int requestNumber, String name, List<String> listOfSubjects);
+    public void subjects(Message message);
 
     public void subjectsUpdated(int requestNumber, String name, List<String> subjectsList);
 
-    public void publish(int requestNumber, String name, String subject, String text);
+    public void publish(Message message);
 
     public void switchServer();
 

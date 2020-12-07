@@ -1,6 +1,8 @@
 package communication;
 
 import logger.Logger;
+import message.Message;
+import message.Parsing;
 
 import javax.swing.*;
 import java.io.IOException;
@@ -63,7 +65,7 @@ public class Communication implements CommunicationInterface {
      * @return string
      */
     @Override
-    public void waitForMessage(ConcurrentLinkedQueue<String> messages, DefaultListModel<String> logs) {
+    public void waitForMessage(ConcurrentLinkedQueue<Message> messages, DefaultListModel<String> logs) {
         try {
 
             receiveByte = new byte[byteSize];
@@ -73,7 +75,9 @@ public class Communication implements CommunicationInterface {
                 String m = toStringBuilder(receiveByte).toString();
                 logger.log("received", m);
                 logs.addElement(m);
-                messages.add(m);
+                Message message = Parsing.parseStringToMsg(m);
+                checkIfMessageNeedsIpAndPortNumber(message, receivedDatagramPacket);
+                messages.add(message);
                 receiveByte = new byte[byteSize];
             }
         } catch (IOException e) {
@@ -85,6 +89,16 @@ public class Communication implements CommunicationInterface {
 //        }
     }
 
+    private void checkIfMessageNeedsIpAndPortNumber(Message message, DatagramPacket datagramPacket) {
+        if (message.getIpAddress() == null || message.getIpAddress().isBlank()) {
+            message.setIpAddress(datagramPacket.getAddress().getHostAddress());
+        }
+        if (message.getSocketNumber() == -1 || portIsValid(message.getSocketNumber())) {
+            message.setSocketNumber(datagramPacket.getPort());
+        }
+    }
+
+
     @Override
     public void waitForMessage(DefaultListModel<String> messages) {
 
@@ -93,6 +107,7 @@ public class Communication implements CommunicationInterface {
             try {
                 receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
                 serverDatagramSocket.receive(receivedDatagramPacket);
+//                receivedDatagramPacket.getAddress().getHostAddress()
                 String m = toStringBuilder(receiveByte).toString();
                 logger.log("received", m);
                 messages.addElement(m);
@@ -283,6 +298,10 @@ public class Communication implements CommunicationInterface {
         }
     }
 
+    private boolean portIsValid(int port) {
+        return (port < MIN_PORT_NUMBER || port > MAX_PORT_NUMBER);
+    }
+
     public boolean portIsAvailable(int port) {
         if (port < MIN_PORT_NUMBER || port > MAX_PORT_NUMBER) {
             throw new IllegalArgumentException("Invalid start port: " + port);
@@ -314,7 +333,7 @@ public class Communication implements CommunicationInterface {
         return false;
     }
 
-    private String getIpV4Address(){
+    private String getIpV4Address() {
         String ip = "";
         try {
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
@@ -325,7 +344,7 @@ public class Communication implements CommunicationInterface {
                     continue;
 
                 Enumeration<InetAddress> addresses = iface.getInetAddresses();
-                while(addresses.hasMoreElements()) {
+                while (addresses.hasMoreElements()) {
                     InetAddress addr = addresses.nextElement();
 
                     // *EDIT*
