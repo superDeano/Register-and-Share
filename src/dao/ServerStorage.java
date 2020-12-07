@@ -23,11 +23,15 @@ public class ServerStorage implements ServerStorageInterface {
 
     @Override
     public void addClient(ClientModel client) {
-        StringBuilder query = new StringBuilder("INSERT INTO `clients` (name, ipAddress, portNumber, serverName) VALUES (");
-        query.append(client.getName() + ", " + client.getIpAddress().toString() + ", " + client.getSocketNumber() + ", " + currentServerName + ")");
         try {
-            statement = connection.createStatement();
-            statement.execute(query.toString());
+            String query = "INSERT INTO `clients` (name, ipAddress, portNumber, serverName) VALUES (?,?,?,?)";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setString(1, client.getName());
+            preparedStatement.setString(2, client.getIpAddress());
+            preparedStatement.setInt(3, client.getSocketNumber());
+            preparedStatement.setString(4, currentServerName);
+            preparedStatement.executeUpdate();
+//        query.append(client.getName() + ", " + client.getIpAddress() + ", " + client.getSocketNumber() + ", " + currentServerName + ")");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -50,7 +54,7 @@ public class ServerStorage implements ServerStorageInterface {
     @Override
     public void deleteClient(String name) {
         try {
-            preparedStatement = connection.prepareStatement("DELETE CLIENTS c, client-subjects cs FROM c inner join on c.name = cs.clientName where c.name = ?;");
+            preparedStatement = connection.prepareStatement("DELETE CLIENTS c, `client-subjects` cs FROM c inner join on c.name = cs.clientName where c.name = ?;");
             preparedStatement.setString(1, name);
             preparedStatement.executeUpdate();
         } catch (SQLException throwables) {
@@ -79,8 +83,10 @@ public class ServerStorage implements ServerStorageInterface {
     private void getClientsSubjects(List<ClientModel> clientModelList) {
         for (ClientModel clientModel : clientModelList) {
             try {
-                statement = connection.createStatement();
-                resultSet = statement.executeQuery("select cs.subject from client-subjects cs where cs.serverName = " + currentServerName + " and cs.clientName = " + clientModel.getName() + ";");
+                preparedStatement = connection.prepareStatement("select cs.subject from `client-subjects` cs where cs.serverName = ? and cs.clientName = ?;");
+                preparedStatement.setString(1, currentServerName);
+                preparedStatement.setString(2, clientModel.getName());
+                resultSet = preparedStatement.executeQuery();
 
                 while (resultSet.next()) {
                     clientModel.addSubject(resultSet.getString("subjects"));
@@ -111,7 +117,7 @@ public class ServerStorage implements ServerStorageInterface {
     @Override
     public void clientUnsubscribeToSubjects(String clientName, List<String> subjects) {
         try {
-            preparedStatement = connection.prepareStatement("DELETE FROM client-subjects cs where (cs.clientName = ? and cs.serverName = ?) and cs.subject in ? ");
+            preparedStatement = connection.prepareStatement("DELETE FROM `client-subjects` cs where (cs.clientName = ? and cs.serverName = ?) and cs.subject in ? ");
             preparedStatement.setString(1, clientName);
             preparedStatement.setString(2, currentServerName);
             preparedStatement.setArray(3, (Array) subjects);
@@ -138,8 +144,11 @@ public class ServerStorage implements ServerStorageInterface {
     public ServerModel getOtherServerInfo() {
         ServerModel otherServer = new ServerModel();
         try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("SELECT s.otherServerIpAddress, s.otherServerPortNumber from servers s where s.serverName = " + currentServerName + ";");
+            preparedStatement = connection.prepareStatement("SELECT s.otherServerIpAddress, s.otherServerPortNumber from servers s where s.serverName = ?;");
+            preparedStatement.setString(1, currentServerName);
+            resultSet = preparedStatement.executeQuery();
+//            statement = connection.createStatement();
+//            resultSet = statement.executeQuery("SELECT s.otherServerIpAddress, s.otherServerPortNumber from servers s where s.serverName = " + currentServerName + ";");
 
             otherServer.setSocketNumber(resultSet.getInt("otherServerPortNumber"));
             otherServer.setIpAddress(resultSet.getString("otherServerIpAddress"));
