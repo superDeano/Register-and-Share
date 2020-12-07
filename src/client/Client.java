@@ -100,11 +100,43 @@ public class Client extends ClientModel implements ClientInterface {
     }
 
     public void sendMessage(Message message) {
-        this.communication.sendMessage(Parsing.parseMsgToString(message), servers[0].getIpAddress(), servers[0].getSocketNumber());
+        switch (servingServer) {
+
+            case 0 -> this.communication.sendMessage(Parsing.parseMsgToString(message), servers[0].getIpAddress(), servers[0].getSocketNumber());
+            case 1 -> this.communication.sendMessage(Parsing.parseMsgToString(message), servers[1].getIpAddress(), servers[1].getSocketNumber());
+            default -> {
+                this.communication.sendMessage(Parsing.parseMsgToString(message), servers[0].getIpAddress(), servers[0].getSocketNumber());
+                this.communication.sendMessage(Parsing.parseMsgToString(message), servers[1].getIpAddress(), servers[1].getSocketNumber());
+            }
+        }
+
     }
 
     public ServerModel[] getServers() {
         return this.servers;
+    }
+
+    public void switchServer() {
+        servingServer = (servingServer + 1) % 2;
+    }
+
+    public void changeServer(Message m) {
+        if (servingServer == 0) {
+            servers[1].setIpAddress(m.getIpAddress());
+            servers[1].setSocketNumber(m.getSocketNumber());
+        } else {
+            servers[0].setIpAddress(m.getIpAddress());
+            servers[0].setSocketNumber(m.getSocketNumber());
+        }
+
+    }
+
+    public void serverReplied(Message message) {
+        for (int i = 0; i < servers.length; i++) {
+            if (message.getIpAddress().equals(servers[i].getIpAddress()) && message.getSocketNumber() == servers[i].getSocketNumber()) {
+                servingServer = i;
+            }
+        }
     }
 
     public void listen(ConcurrentLinkedQueue<Message> messages, DefaultListModel<String> logs) {

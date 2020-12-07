@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static message.MsgType.PUBLISH_DENIED;
+import static message.MsgType.*;
 //import java.awt.*;
 
 public class RssClient implements ActionListener {
@@ -304,9 +304,12 @@ public class RssClient implements ActionListener {
 
     private static void takeAction(Message m) {
         switch (m.getMsgType()) {
-            case PUBLISH_DENIED -> test();
-            case MsgType.UPDATE_DENIED, MsgType.REGISTER_DENIED -> confirmedWithServer = false;
-            case MsgType.UPDATE_CONFIRMED, MsgType.REGISTERED -> confirmedWithServer = true;
+            case PUBLISH_DENIED -> client.serverReplied(m);
+            case MsgType.UPDATE_DENIED, MsgType.REGISTER_DENIED -> handleRegisterAndUpdate(m, false);
+            case MsgType.UPDATE_CONFIRMED, MsgType.REGISTERED -> handleRegisterAndUpdate(m, false);
+            case CHANGE_SERVER -> client.changeServer(m);
+            case SWITCH_SERVER -> client.switchServer();
+
             default -> test();
         }
     }
@@ -314,6 +317,11 @@ public class RssClient implements ActionListener {
 
     private static void test() {
 
+    }
+
+    private static void handleRegisterAndUpdate(Message message, boolean confirmed) {
+        confirmedWithServer = confirmed;
+        client.serverReplied(message);
     }
 
     @Override
