@@ -11,7 +11,7 @@ public class Message {
     String ipAddress;
     int socketNumber;
     String reason;
-    List <String> subjectsList;
+    List<String> subjectsList;
     String subject;
     String text;
 
@@ -99,7 +99,19 @@ public class Message {
         this.text = text;
     }
 
-    public String getSubjectStringList(){
-        return subjectsList.toString();
+    public String getSubjectStringList() {
+        if (subjectsList.isEmpty()) return subjectsList.toString();
+
+        StringBuilder subjects = new StringBuilder();
+        int lastIndex = subjectsList.size() - 1;
+
+        for (int i = 0; i <= lastIndex; i++) {
+            if (i == lastIndex) {
+                subjects.append(subjectsList.get(i));
+            } else {
+                subjects.append(subjectsList.get(i)).append(",");
+            }
+        }
+        return subjects.toString();
     }
 }
