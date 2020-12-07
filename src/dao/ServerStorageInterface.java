@@ -10,8 +10,8 @@ public interface ServerStorageInterface {
     public void updateClientInfo(ClientModel client);
     public void deleteClient(String name);
     public List<ClientModel> getAllClients();
-    public void clientSubscribeToSubjects(String clientName, List<String> subjects);
-    public void clientUnsubscribeToSubjects(String clientName, List<String> subjects);
+    public void updateClientListOfSubjects(String clientName, List<String> subjects);
+    public void deleteClientListOfSubjects(String clientName);
     public void updateOtherServerIpAddressAndPortNumber(String ipAddress, int portNumber);
     public ServerModel getOtherServerInfo();
 }

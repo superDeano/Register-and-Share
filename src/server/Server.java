@@ -308,6 +308,7 @@ public class Server extends ServerModel implements ServerInterface {
             client.setSocketNumber(socketNumber);
 //                }
 //            }
+
             dao.updateClientInfo(client);
             logger.log("UPDATING USER", "User successfully updated!");
 
@@ -374,7 +375,9 @@ public class Server extends ServerModel implements ServerInterface {
 //                    }
             client.setSubjectsOfInterest(listOfSubjects);
 
-// TODO Update db
+            if (listOfSubjects.isEmpty()) dao.deleteClientListOfSubjects(name);
+            else dao.updateClientListOfSubjects(name, listOfSubjects);
+
             Message clientAssert = new Message();
             clientAssert.setMsgType(SUBJECTS_UPDATED.toString());
             clientAssert.setRequestNumber(requestNumber);
@@ -412,17 +415,22 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void subjectsUpdated(int requestNumber, String name, List<String> subjectsList) {
-        for (ClientModel client : clients
-        ) {
-            if (client.getName().equals(name)) {
-                for (String subject : subjectsList
-                ) {
-                    if (client.addSubject(subject)) {
-                        //TODO Update db
-                        logger.log("Subject: " + subject + " has been added");
-                    }
-                }
-            }
+//        for (ClientModel client : clients
+//        ) {
+//            if (client.getName().equals(name)) {
+//                for (String subject : subjectsList
+//                ) {
+//                    if (client.addSubject(subject)) {
+//                        //TODO Update db
+//                        logger.log("Subject: " + subject + " has been added");
+//                    }
+//                }
+//            }
+//        }
+        ClientModel client = getClientWithName(name);
+        if (client != null) {
+            client.setSubjectsOfInterest(subjectsList);
+            dao.updateClientListOfSubjects(name, subjectsList);
         }
 
     }

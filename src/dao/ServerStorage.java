@@ -89,7 +89,7 @@ public class ServerStorage implements ServerStorageInterface {
                 resultSet = preparedStatement.executeQuery();
 
                 while (resultSet.next()) {
-                    clientModel.addSubject(resultSet.getString("subjects"));
+                    clientModel.addSubject(resultSet.getString("subject"));
                 }
 
             } catch (SQLException throwables) {
@@ -99,9 +99,10 @@ public class ServerStorage implements ServerStorageInterface {
     }
 
     @Override
-    public void clientSubscribeToSubjects(String clientName, List<String> subjects) {
+    public void updateClientListOfSubjects(String clientName, List<String> subjects) {
+        deleteClientListOfSubjects(clientName);
         try {
-            preparedStatement = connection.prepareStatement("INSERT INTO client-subjects(clientName, serverName, subject) VALUES (?,?,?)");
+            preparedStatement = connection.prepareStatement("INSERT INTO `client-subjects` (clientName, serverName, subject) VALUES (?,?,?)");
             preparedStatement.setString(1, clientName);
             preparedStatement.setString(2, currentServerName);
             for (String subject : subjects) {
@@ -115,12 +116,11 @@ public class ServerStorage implements ServerStorageInterface {
     }
 
     @Override
-    public void clientUnsubscribeToSubjects(String clientName, List<String> subjects) {
+    public void deleteClientListOfSubjects(String clientName) {
         try {
-            preparedStatement = connection.prepareStatement("DELETE FROM `client-subjects` cs where (cs.clientName = ? and cs.serverName = ?) and cs.subject in ? ");
+            preparedStatement = connection.prepareStatement("DELETE FROM `client-subjects` where (clientName = ? and serverName = ?) ");
             preparedStatement.setString(1, clientName);
             preparedStatement.setString(2, currentServerName);
-            preparedStatement.setArray(3, (Array) subjects);
             preparedStatement.executeUpdate();
         } catch (SQLException throwables) {
             throwables.printStackTrace();
