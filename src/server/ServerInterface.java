@@ -17,7 +17,7 @@ public interface ServerInterface {
 
     public void deRegister(Message message);
 
-    public void update(int requestNumber, String name, String ipAddress, int socketNumber);
+    public void updateClientInformation(int requestNumber, String name, String ipAddress, int socketNumber);
 
     public void updateConfirmed(int requestNumber, String name, String ipAddress, int socketNumber);
 

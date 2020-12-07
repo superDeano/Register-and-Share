@@ -150,7 +150,7 @@ public class ServerStorage implements ServerStorageInterface {
             resultSet = preparedStatement.executeQuery();
 //            statement = connection.createStatement();
 //            resultSet = statement.executeQuery("SELECT s.otherServerIpAddress, s.otherServerPortNumber from servers s where s.serverName = " + currentServerName + ";");
-
+            if (!resultSet.next()) return null;
             otherServer.setSocketNumber(resultSet.getInt("otherServerPortNumber"));
             otherServer.setIpAddress(resultSet.getString("otherServerIpAddress"));
         } catch (SQLException throwables) {

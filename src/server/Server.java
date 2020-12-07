@@ -44,7 +44,7 @@ public class Server extends ServerModel implements ServerInterface {
         this.otherServerPort = otherServerPort;
 
         this.communication = new Communication(connectionName);
-        updateServerInfo();
+//        updateServerInfo();
         setUpServer();
         if (isServing) {
             startServing();
@@ -57,6 +57,11 @@ public class Server extends ServerModel implements ServerInterface {
             this.dao = new ServerStorage(getName());
 //            this.clients = new LinkedList<>();
             getClientListSaved();
+            ServerModel otherServer = dao.getOtherServerInfo();
+            if (otherServer != null) {
+                otherServerIp = otherServer.getIpAddress();
+                otherServerPort = otherServer.getSocketNumber();
+            }
             this.messageQueue = new ConcurrentLinkedQueue<>();
             this.logger = new Logger();
             listen();
@@ -114,10 +119,11 @@ public class Server extends ServerModel implements ServerInterface {
             case REGISTERED -> registered(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
             case REGISTER_DENIED -> logger.log("Server received register deny for user: " + msg.getName());
             case DE_REGISTER -> deRegister(msg);
-            case UPDATE -> update(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+            case UPDATE -> updateClientInformation(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
             case UPDATE_CONFIRMED -> updateConfirmed(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
             case SUBJECTS -> subjects(msg);
             case SUBJECTS_UPDATED -> subjectsUpdated(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
+            case UPDATE_SERVER -> updateOtherServerInfo(msg);
             case PUBLISH -> publish(msg);
             case SWITCH_SERVER -> switchServer();
             default -> logger.log("Unknown message has been received");
@@ -165,7 +171,7 @@ public class Server extends ServerModel implements ServerInterface {
         logger.log(super.getName() + "stopped serving");
 
         Message changeServer = new Message();
-        changeServer.setMsgType(CHANGE_SERVER.toString());
+        changeServer.setMsgType(CHANGE_SERVER);
         changeServer.setIpAddress(otherServerIp);
         changeServer.setSocketNumber(otherServerPort);
         String message = Parsing.parseMsgToString(changeServer);
@@ -178,7 +184,7 @@ public class Server extends ServerModel implements ServerInterface {
         }
 
         Message switchServe = new Message();
-        changeServer.setMsgType(SWITCH_SERVER.toString());
+        changeServer.setMsgType(SWITCH_SERVER);
         String switchMessage = Parsing.parseMsgToString(switchServe);
         communication.sendMessage(switchMessage,
                 otherServerIp,
@@ -296,7 +302,7 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     @Override
-    public void update(int requestNumber, String name, String ipAddress, int socketNumber) {
+    public void updateClientInformation(int requestNumber, String name, String ipAddress, int socketNumber) {
         ClientModel client = getClientWithName(name);
         if (client != null) {
 
@@ -533,9 +539,9 @@ public class Server extends ServerModel implements ServerInterface {
         logger.log("Server Serving", "Server Started Serving");
     }
 
-    private void sendMessage(String m) {
-        communication.sendMessage(m, "127.0.0.1", 2313);
-    }
+//    private void sendMessage(String m) {
+//        communication.sendMessage(m, "127.0.0.1", 2313);
+//    }
 
     private void sendMessage(Message message, String ipAddress, int portNumber) {
         communication.sendMessage(Parsing.parseMsgToString(message), ipAddress, portNumber);
@@ -553,14 +559,24 @@ public class Server extends ServerModel implements ServerInterface {
         return this.clients.removeIf(c -> c.getName().equals(name));
     }
 
-    private void updateServerInfo() {
-
-        Message changeServer = new Message();
-        changeServer.setMsgType(UPDATE_SERVER);
-        changeServer.setIpAddress(otherServerIp);
-        changeServer.setSocketNumber(otherServerPort);
-        String message = Parsing.parseMsgToString(changeServer);
-
-        communication.sendMessage(message, otherServerIp, otherServerPort);
+    public boolean updateServerInfo(int newPortNumber) {
+        if (!communication.portIsValid(newPortNumber)) return false;
+        if (communication.setPort(newPortNumber)) {
+            Message currentServerUpdatedInfo = new Message();
+            currentServerUpdatedInfo.setMsgType(UPDATE_SERVER);
+            currentServerUpdatedInfo.setIpAddress(communication.getIpAddress());
+            currentServerUpdatedInfo.setSocketNumber(communication.getPortNumber());
+            String message = Parsing.parseMsgToString(currentServerUpdatedInfo);
+            communication.sendMessage(message, otherServerIp, otherServerPort);
+            return true;
+        } else return false;
     }
+
+    private void updateOtherServerInfo(Message message) {
+        otherServerIp = message.getIpAddress();
+        otherServerPort = message.getSocketNumber();
+        dao.updateOtherServerIpAddressAndPortNumber(message.getIpAddress(), message.getSocketNumber());
+    }
+
+
 }
