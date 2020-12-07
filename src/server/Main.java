@@ -1,5 +1,7 @@
 package server;
 
+import client.RssClient;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -121,6 +123,8 @@ public class Main implements ActionListener {
         clearAllLogsButton.setBounds(10, 1, 80, 20);
         logsPanel.add(clearAllLogsButton);
         JList<String> jList = new JList<>(logs);
+        RssClient.MyCellRenderer cellRenderer = new RssClient.MyCellRenderer(350);
+        jList.setCellRenderer(cellRenderer);
         JScrollPane scrollPane = new JScrollPane(jList);
         scrollPane.setBounds(1, 30, frame.getWidth() - 30, frame.getHeight() - 120);
         logsPanel.add(scrollPane);
@@ -159,5 +163,25 @@ public class Main implements ActionListener {
 
     private void setCurrentServerPort() {
 //        this.server.
+    }
+
+    static class MyCellRenderer extends DefaultListCellRenderer {
+        public static final String HTML_1 = "<html><body style='width: ";
+        public static final String HTML_2 = "px'>";
+        public static final String HTML_3 = "</html>";
+        private int width;
+
+        public MyCellRenderer(int width) {
+            this.width = width;
+        }
+
+        @Override
+        public Component getListCellRendererComponent(JList list, Object value,
+                                                      int index, boolean isSelected, boolean cellHasFocus) {
+            String text = HTML_1 + String.valueOf(width) + HTML_2 + value.toString()
+                    + HTML_3;
+            return super.getListCellRendererComponent(list, text, index, isSelected,
+                    cellHasFocus);
+        }
     }
 }
