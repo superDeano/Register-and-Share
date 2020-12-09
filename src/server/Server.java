@@ -37,19 +37,19 @@ public class Server extends ServerModel implements ServerInterface {
         setUpServer();
     }
 
-    public Server(String connectionName, String otherServerIp, int otherServerPort, boolean isServing) {
-        super(connectionName);
-        this.isServing = isServing;
-        this.otherServerIp = otherServerIp;
-        this.otherServerPort = otherServerPort;
-
-        this.communication = new Communication(connectionName);
-//        updateServerInfo();
-        setUpServer();
-        if (isServing) {
-            startServing();
-        }
-    }
+//    public Server(String connectionName, String otherServerIp, int otherServerPort, boolean isServing) {
+//        super(connectionName);
+//        this.isServing = isServing;
+//        this.otherServerIp = otherServerIp;
+//        this.otherServerPort = otherServerPort;
+//
+//        this.communication = new Communication(connectionName);
+////        updateServerInfo();
+//        setUpServer();
+//        if (isServing) {
+//            startServing();
+//        }
+//    }
 
 
     private void setUpServer() {
@@ -64,6 +64,9 @@ public class Server extends ServerModel implements ServerInterface {
             }
             this.messageQueue = new ConcurrentLinkedQueue<>();
             this.logger = new Logger();
+            if(this.getName().equals("A")){
+                startServing();
+            }
             listen();
             serveClients();
         } catch (SQLException | ClassNotFoundException throwables) {
@@ -162,8 +165,6 @@ public class Server extends ServerModel implements ServerInterface {
         logger.log(super.getName() + "started serving");
         startTime = System.nanoTime();
         isServing = true;
-        serveClients();
-
     }
 
     @Override
@@ -535,7 +536,6 @@ public class Server extends ServerModel implements ServerInterface {
     @Override
     public void switchServer() {
         startServing();
-        isServing = true;
         logger.log("Server Serving", "Server Started Serving");
     }
 
