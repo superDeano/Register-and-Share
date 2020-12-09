@@ -1,6 +1,13 @@
+package communication;
+
+import message.Message;
+
+import javax.swing.*;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public interface CommunicationInterface {
 
@@ -11,7 +18,8 @@ public interface CommunicationInterface {
      *
      * @return string
      */
-    String waitForMessage ();
+    void waitForMessage (ConcurrentLinkedQueue<Message> messages, DefaultListModel<String> logs);
+    void waitForMessage (DefaultListModel<String> logs);
 
     /**
      * Method that when called sends the desired message to the desired location
@@ -20,7 +28,11 @@ public interface CommunicationInterface {
      * @param ip InetAddress, desired ip address where to send the message
      * @param port int, desired port where to send the message
      */
-    void sendMessage (String message , InetAddress ip , int port );
+    void sendMessage (String message , InetAddress ip, int port );
+
+
+
+    void sendMessage (String message , String ipAddress , int port ) throws UnknownHostException;
 
     /**
      * Getter for Connection Name
@@ -98,5 +110,12 @@ public interface CommunicationInterface {
      * @param receiveByte byte[]
      */
     void setReceiveByte(byte[] receiveByte);
+
+    /**
+     * Setter for the port of the datagram socket
+     *
+     * @param port int
+     */
+    boolean setPort (int port);
 
 }
