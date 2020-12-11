@@ -1,12 +1,17 @@
 package server;
 
+import java.util.List;
 import java.util.Vector;
 
 public class ClientModel {
     private String name;
     private String ipAddress;
     private int socketNumber;
-    private final Vector<String> subjectsOfInterest;
+    private List<String> subjectsOfInterest;
+
+    public ClientModel() {
+        this.subjectsOfInterest = new Vector<>();
+    }
 
     public ClientModel(String name, String ipAddress, int socketNumber) {
         this.name = name;
@@ -35,23 +40,31 @@ public class ClientModel {
         return ipAddress;
     }
 
+    public List<String> getSubjectsOfInterest() {
+        return subjectsOfInterest;
+    }
+
+    public void setSubjectsOfInterest(List<String> subjects){
+        this.subjectsOfInterest = subjects;
+    }
+
     public void setIpAddress(String ipAddress) {
         this.ipAddress = ipAddress;
     }
 
     public boolean addSubject(String subject) {
-        if (this.subjectAlreadySubscribed(subject)) return false;
+        if (this.subscribedToSubject(subject)) return false;
         this.subjectsOfInterest.add(subject);
         return true;
     }
 
     public boolean removeSubject(String subject) {
-        if (!this.subjectAlreadySubscribed(subject)) return false;
+        if (!this.subscribedToSubject(subject)) return false;
         this.subjectsOfInterest.remove(subject);
         return true;
     }
 
-    private boolean subjectAlreadySubscribed(String subject) {
+    public boolean subscribedToSubject(String subject) {
         for (String s : this.subjectsOfInterest) {
             if (s.equals(subject))
                 return true;
