@@ -143,6 +143,9 @@ public class Main implements ActionListener {
                 startServer();
             }
             break;
+            case "Set Port":{
+                setCurrentServerPort();
+            }
             case "Clear":
                 logs.clear();
                 break;
@@ -165,7 +168,10 @@ public class Main implements ActionListener {
     }
 
     private void setCurrentServerPort() {
-//        this.server.
+        boolean allChecks = this.server.setCurrentServerPort(Integer.parseInt(currentServerPortNumberTF.getText()));
+        if (!allChecks){
+            JOptionPane.showMessageDialog(frame, "Either the server was serving, port was invalid or already used.\nPlease try again", "Error when setting the port", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     static class MyCellRenderer extends DefaultListCellRenderer {
