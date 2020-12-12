@@ -102,12 +102,15 @@ public class Client extends ClientModel implements ClientInterface {
     public void sendMessage(Message message) {
         switch (servingServer) {
 
-            case 0 -> this.communication.sendMessage(Parsing.parseMsgToString(message), servers[0].getIpAddress(), servers[0].getSocketNumber());
-            case 1 -> this.communication.sendMessage(Parsing.parseMsgToString(message), servers[1].getIpAddress(), servers[1].getSocketNumber());
-            default -> {
+            case 0: this.communication.sendMessage(Parsing.parseMsgToString(message), servers[0].getIpAddress(), servers[0].getSocketNumber());
+                break;
+            case 1 : this.communication.sendMessage(Parsing.parseMsgToString(message), servers[1].getIpAddress(), servers[1].getSocketNumber());
+                break;
+            default : {
                 this.communication.sendMessage(Parsing.parseMsgToString(message), servers[0].getIpAddress(), servers[0].getSocketNumber());
                 this.communication.sendMessage(Parsing.parseMsgToString(message), servers[1].getIpAddress(), servers[1].getSocketNumber());
             }
+            break;
         }
 
     }

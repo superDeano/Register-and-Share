@@ -90,7 +90,7 @@ public class Communication implements CommunicationInterface {
     }
 
     private void checkIfMessageNeedsIpAndPortNumber(Message message, DatagramPacket datagramPacket) {
-        if (message.getIpAddress() == null || message.getIpAddress().isBlank()) {
+        if (message.getIpAddress() == null || message.getIpAddress().equals("")) {
             message.setIpAddress(datagramPacket.getAddress().getHostAddress());
         }
         if (message.getSocketNumber() == -1 || portIsValid(message.getSocketNumber())) {

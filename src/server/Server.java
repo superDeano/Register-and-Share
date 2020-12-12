@@ -64,7 +64,7 @@ public class Server extends ServerModel implements ServerInterface {
             }
             this.messageQueue = new ConcurrentLinkedQueue<>();
             this.logger = new Logger();
-            if(this.getName().equals("A")){
+            if (this.getName().equals("A")) {
                 startServing();
             }
             listen();
@@ -118,18 +118,42 @@ public class Server extends ServerModel implements ServerInterface {
         String msgType = msg.getMsgType();
 
         switch (msgType) {
-            case MsgType.REGISTER -> register(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
-            case REGISTERED -> registered(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
-            case REGISTER_DENIED -> logger.log("Server received register deny for user: " + msg.getName());
-            case DE_REGISTER -> deRegister(msg);
-            case UPDATE -> updateClientInformation(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
-            case UPDATE_CONFIRMED -> updateConfirmed(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
-            case SUBJECTS -> subjects(msg);
-            case SUBJECTS_UPDATED -> subjectsUpdated(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
-            case UPDATE_SERVER -> updateOtherServerInfo(msg);
-            case PUBLISH -> publish(msg);
-            case SWITCH_SERVER -> switchServer();
-            default -> logger.log("Unknown message has been received");
+            case MsgType.REGISTER:
+                register(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+                break;
+            case REGISTERED:
+                registered(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+                break;
+            case REGISTER_DENIED:
+                logger.log("Server received register deny for user: " + msg.getName());
+                break;
+            case DE_REGISTER:
+                deRegister(msg);
+                break;
+            case UPDATE:
+                updateClientInformation(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+                break;
+            case UPDATE_CONFIRMED:
+                updateConfirmed(msg.getRequestNumber(), msg.getName(), msg.getIpAddress(), msg.getSocketNumber());
+                break;
+            case SUBJECTS:
+                subjects(msg);
+                break;
+            case SUBJECTS_UPDATED:
+                subjectsUpdated(msg.getRequestNumber(), msg.getName(), msg.getSubjectsList());
+                break;
+            case UPDATE_SERVER:
+                updateOtherServerInfo(msg);
+                break;
+            case PUBLISH:
+                publish(msg);
+                break;
+            case SWITCH_SERVER:
+                switchServer();
+                break;
+            default:
+                logger.log("Unknown message has been received");
+                break;
         }
 
     }

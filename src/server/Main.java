@@ -139,12 +139,16 @@ public class Main implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
-            case "Start Server" -> {
+            case "Start Server": {
                 startServer();
             }
-            case "Clear" -> logs.clear();
-            default -> {
+            break;
+            case "Clear":
+                logs.clear();
+                break;
+            default: {
             }
+            break;
         }
     }
 

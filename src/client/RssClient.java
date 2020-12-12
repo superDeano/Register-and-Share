@@ -304,13 +304,26 @@ public class RssClient implements ActionListener {
 
     private static void takeAction(Message m) {
         switch (m.getMsgType()) {
-            case PUBLISH_DENIED -> client.serverReplied(m);
-            case MsgType.UPDATE_DENIED, MsgType.REGISTER_DENIED -> handleRegisterAndUpdate(m, false);
-            case MsgType.UPDATE_CONFIRMED, MsgType.REGISTERED -> handleRegisterAndUpdate(m, false);
-            case CHANGE_SERVER -> client.changeServer(m);
-            case SWITCH_SERVER -> client.switchServer();
-
-            default -> test();
+            case PUBLISH_DENIED:
+                client.serverReplied(m);
+                break;
+            case MsgType.UPDATE_DENIED:
+            case MsgType.REGISTER_DENIED:
+                handleRegisterAndUpdate(m, false);
+                break;
+            case MsgType.UPDATE_CONFIRMED:
+            case MsgType.REGISTERED:
+                handleRegisterAndUpdate(m, false);
+                break;
+            case CHANGE_SERVER:
+                client.changeServer(m);
+                break;
+            case SWITCH_SERVER:
+                client.switchServer();
+                break;
+            default:
+                test();
+                break;
         }
     }
 
@@ -328,28 +341,56 @@ public class RssClient implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         switch (e.getActionCommand()) {
-            case "Update Information" -> updateClientInfo();
-            case "Register" -> registerClient();
-            case "Deregister" -> deregisterClient();
-            case "Save Servers" -> saveServersInfo();
-            case "Clear" -> clearAllLogs();
-            case "Save Name" -> saveName();
-            case "Check All" -> {
+            case "Update Information":
+                updateClientInfo();
+                break;
+            case "Register":
+                registerClient();
+                break;
+            case "Deregister":
+                deregisterClient();
+                break;
+            case "Save Servers":
+                saveServersInfo();
+                break;
+            case "Clear":
+                clearAllLogs();
+                break;
+            case "Save Name":
+                saveName();
+                break;
+            case "Check All": {
                 checkAllTopicBoxes(true);
                 setTopicMessage();
             }
-            case "Uncheck All" -> {
+            break;
+            case "Uncheck All": {
                 checkAllTopicBoxes(false);
                 setTopicMessage();
             }
-            case "Subscribe", "Unsubscribe", "Education", "Politics", "Pop", "Technology", "Science", "Sports", "World" -> {
+            break;
+            case "Subscribe":
+            case "Unsubscribe":
+            case "Education":
+            case "Politics":
+            case "Pop":
+            case "Technology":
+            case "Science":
+            case "Sports":
+            case "World": {
                 setTopicMessage();
             }
-            case "Send Topic" -> {
+            break;
+            case "Send Topic": {
                 sendTopics();
             }
-            case "Publish" -> publishMessage();
-            default -> System.out.println("Something else happened!");
+            break;
+            case "Publish":
+                publishMessage();
+                break;
+            default:
+                System.out.println("Something else happened!");
+                break;
         }
     }
 
@@ -371,7 +412,7 @@ public class RssClient implements ActionListener {
     }
 
     private void saveServersInfo() {
-        if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
+        if (server1IpAddressTF.getText().equals("") || server1PortNumberTF.getText().equals("") || server2IpAddressTF.getText().equals("") || server2PortNumberTF.getText().equals("")) {
             JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Updating User Information", JOptionPane.WARNING_MESSAGE);
         } else {
             ServerModel[] servers = client.getServers();
@@ -386,7 +427,7 @@ public class RssClient implements ActionListener {
     private void publishMessage() {
         if (!confirmedWithServer) {
             JOptionPane.showMessageDialog(frame, "Not confirmed with server.\nNeed to update your information", "Publish Message", JOptionPane.WARNING_MESSAGE);
-        } else if (publishMessageTA.getText().isBlank()) {
+        } else if (publishMessageTA.getText().equals("")) {
             JOptionPane.showMessageDialog(frame, "Cannot send blank texts", "Publishing Message", JOptionPane.WARNING_MESSAGE);
         } else {
             client.publishMessage(topics[topicsComboBox.getSelectedIndex()], publishMessageTA.getText());
@@ -419,7 +460,7 @@ public class RssClient implements ActionListener {
 
     private void saveName() {
         String name = clientNameTF.getText();
-        if (name.isBlank()) {
+        if (name.equals("")) {
             JOptionPane.showMessageDialog(frame, "Name cannot be blank!", "Saving", JOptionPane.WARNING_MESSAGE);
         } else {
             client.setName(name);
@@ -427,9 +468,9 @@ public class RssClient implements ActionListener {
     }
 
     private void updateClientInfo() {
-        if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
+        if (server1IpAddressTF.getText().equals("") || server1PortNumberTF.getText().equals("") || server2IpAddressTF.getText().equals("") || server2PortNumberTF.getText().equals("")) {
             JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Updating User Information", JOptionPane.WARNING_MESSAGE);
-        } else if (clientNameTF.getText().isBlank()) {
+        } else if (clientNameTF.getText().equals("")) {
             JOptionPane.showMessageDialog(frame, "Need to enter a proper name", "Client Name", JOptionPane.WARNING_MESSAGE);
         } else {
 //            client.setSocketNumber(Integer.parseInt(actualClientPortNumberLabel.getText()));
@@ -439,9 +480,9 @@ public class RssClient implements ActionListener {
     }
 
     private void registerClient() {
-        if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
+        if (server1IpAddressTF.getText().equals("") || server1PortNumberTF.getText().equals("")|| server2IpAddressTF.getText().equals("") || server2PortNumberTF.getText().equals("")) {
             JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Registering", JOptionPane.WARNING_MESSAGE);
-        } else if (client.getName() == null || client.getName().isBlank()) {
+        } else if (client.getName() == null || client.getName().equals("")) {
             JOptionPane.showMessageDialog(frame, "Name cannot be blank!", "Registering", JOptionPane.WARNING_MESSAGE);
         } else {
             client.registerToServer();
@@ -451,9 +492,9 @@ public class RssClient implements ActionListener {
     }
 
     private void deregisterClient() {
-        if (server1IpAddressTF.getText().isBlank() || server1PortNumberTF.getText().isBlank() || server2IpAddressTF.getText().isBlank() || server2PortNumberTF.getText().isBlank()) {
+        if (server1IpAddressTF.getText().equals("") || server1PortNumberTF.getText().equals("") || server2IpAddressTF.getText().equals("") || server2PortNumberTF.getText().equals("") ) {
             JOptionPane.showMessageDialog(frame, "Server information missing.\nNeed to enter server information", "Deregistering", JOptionPane.WARNING_MESSAGE);
-        } else if (client.getName().isBlank() || client.getName() == null) {
+        } else if (client.getName().equals("") || client.getName() == null) {
             JOptionPane.showMessageDialog(frame, "Name cannot be blank!", "Deregistering", JOptionPane.WARNING_MESSAGE);
         } else {
             client.deregisterToServer();

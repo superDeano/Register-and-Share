@@ -16,22 +16,54 @@ public class Parsing {
         String parsedString = "";
 
         switch (msg.getMsgType()) {
-            case REGISTER -> parsedString = REGISTER + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress().toString() + ";" + msg.getSocketNumber();
-            case REGISTER_DENIED -> parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
-            case REGISTERED -> parsedString = REGISTERED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-            case DE_REGISTER -> parsedString = DE_REGISTER.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName();
-            case UPDATE -> parsedString = UPDATE + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-            case UPDATE_CONFIRMED -> parsedString = UPDATE_CONFIRMED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-            case UPDATE_DENIED -> parsedString = UPDATE_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
-            case SUBJECTS -> parsedString = SUBJECTS + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
-            case SUBJECTS_UPDATED -> parsedString = SUBJECTS_UPDATED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
-            case SUBJECTS_REJECTED -> parsedString = SUBJECTS_REJECTED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
-            case PUBLISH -> parsedString = PUBLISH + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
-            case PUBLISH_DENIED -> parsedString = PUBLISH_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
-            case CHANGE_SERVER -> parsedString = CHANGE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-            case UPDATE_SERVER -> parsedString = UPDATE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
-            case SWITCH_SERVER -> parsedString = SWITCH_SERVER;
-            default -> parsedString = "";
+            case REGISTER:
+                parsedString = REGISTER + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress().toString() + ";" + msg.getSocketNumber();
+                break;
+            case REGISTER_DENIED:
+                parsedString = REGISTER_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
+                break;
+            case REGISTERED:
+                parsedString = REGISTERED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+                break;
+            case DE_REGISTER:
+                parsedString = DE_REGISTER.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName();
+                break;
+            case UPDATE:
+                parsedString = UPDATE + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+                break;
+            case UPDATE_CONFIRMED:
+                parsedString = UPDATE_CONFIRMED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+                break;
+            case UPDATE_DENIED:
+                parsedString = UPDATE_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
+                break;
+            case SUBJECTS:
+                parsedString = SUBJECTS + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+                break;
+            case SUBJECTS_UPDATED:
+                parsedString = SUBJECTS_UPDATED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+                break;
+            case SUBJECTS_REJECTED:
+                parsedString = SUBJECTS_REJECTED.toString() + ";" + msg.getName() + ";" + msg.getSubjectStringList();
+                break;
+            case PUBLISH:
+                parsedString = PUBLISH + ";" + msg.getRequestNumber() + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
+                break;
+            case PUBLISH_DENIED:
+                parsedString = PUBLISH_DENIED.toString() + ";" + msg.getRequestNumber() + ";" + msg.getReason();
+                break;
+            case CHANGE_SERVER:
+                parsedString = CHANGE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+                break;
+            case UPDATE_SERVER:
+                parsedString = UPDATE_SERVER.toString() + ";" + msg.getIpAddress() + ";" + msg.getSocketNumber();
+                break;
+            case SWITCH_SERVER:
+                parsedString = SWITCH_SERVER;
+                break;
+            default:
+                parsedString = "";
+                break;
         }
 
 //        if (msg.getMsgType().equals(REGISTER)) {
