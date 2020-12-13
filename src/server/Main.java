@@ -146,6 +146,9 @@ public class Main implements ActionListener {
             case "Set Port":{
                 setCurrentServerPort();
             }
+            case "Save Server":
+                saveOtherServerInfo();
+                break;
             case "Clear":
                 logs.clear();
                 break;
@@ -155,11 +158,16 @@ public class Main implements ActionListener {
         }
     }
 
+    private void saveOtherServerInfo(){
+        server.setOtherServerInfo();
+        logs.addElement("Other Server info saved!");
+    }
+
     private void startServer() {
         try {
             this.server =
                     new Server(serverNameComboBox.getSelectedItem().toString(), Integer.parseInt(currentServerPortNumberTF.getText()), logs);
-            //new Server(serverNameComboBox.getActionCommand(), InetAddress.getByName(otherServerIpAddressTF.getText()), Integer.parseInt(otherServerPortNumberTF.getText()),true);
+           
             actualServerIpAddressLabel.setText(server.getIpAddress());
             server.setLogs(logs);
             server.setOtherServerIpAddressTF(otherServerIpAddressTF);

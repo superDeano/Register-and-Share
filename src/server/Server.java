@@ -296,6 +296,12 @@ public class Server extends ServerModel implements ServerInterface {
         }
     }
 
+    public void setOtherServerInfo() {
+        this.otherServerIp = otherServerIpAddressTF.getText();
+        this.otherServerPort = Integer.parseInt(otherServerPortNumberTF.getText());
+        dao.updateOtherServerIpAddressAndPortNumber(otherServerIp, otherServerPort);
+    }
+
     @Override
     public void deRegister(Message message) {
 
@@ -494,10 +500,10 @@ public class Server extends ServerModel implements ServerInterface {
         displayOtherServerInfo();
     }
 
-    public boolean setCurrentServerPort (int port){
-        if (!this.isServing){
-            if (communication.portIsAvailable(port) && communication.portIsValid(port)){
-                if (communication.setPort(port)){
+    public boolean setCurrentServerPort(int port) {
+        if (!this.isServing) {
+            if (communication.portIsAvailable(port) && communication.portIsValid(port)) {
+                if (communication.setPort(port)) {
                     Message currentServerUpdatedInfo = new Message();
                     currentServerUpdatedInfo.setMsgType(UPDATE_SERVER);
                     currentServerUpdatedInfo.setIpAddress(communication.getIpAddress());
@@ -505,7 +511,7 @@ public class Server extends ServerModel implements ServerInterface {
                     String message = Parsing.parseMsgToString(currentServerUpdatedInfo);
                     communication.sendMessage(message, otherServerIp, otherServerPort);
                     return true;
-                }else return false;
+                } else return false;
             } else return false;
         } else return false;
     }
@@ -514,6 +520,7 @@ public class Server extends ServerModel implements ServerInterface {
         otherServerIpAddressTF.setText(otherServerIp);
         otherServerPortNumberTF.setText(String.valueOf(otherServerPort));
     }
+
     public boolean checkPort(int port) {
         return communication.portIsValid(port) && communication.portIsAvailable(port);
     }
