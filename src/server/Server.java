@@ -20,11 +20,12 @@ public class Server extends ServerModel implements ServerInterface {
     private Communication communication;
     private ConcurrentLinkedQueue<Message> messageQueue;
     private boolean isServing;
-    public String otherServerIp;
-    public int otherServerPort;
+    private String otherServerIp;
+    private int otherServerPort;
     private long startTime;
     private long currentTime;
     private ServerStorage dao;
+    private JTextField otherServerIpAddressTF, otherServerPortNumberTF;
     private DefaultListModel<String> logs;
 
     public Server(String connectionName, int portNumber, DefaultListModel<String> logs) {
@@ -52,6 +53,14 @@ public class Server extends ServerModel implements ServerInterface {
 //    }
 
 
+    public void setOtherServerIpAddressTF(JTextField otherServerIpAddressTF) {
+        otherServerIpAddressTF = otherServerIpAddressTF;
+    }
+
+    public void setOtherServerPortNumberTF(JTextField otherServerPortNumberTF) {
+        otherServerPortNumberTF = otherServerPortNumberTF;
+    }
+
     private void setUpServer() {
         try {
             this.dao = new ServerStorage(getName());
@@ -61,6 +70,7 @@ public class Server extends ServerModel implements ServerInterface {
             if (otherServer != null) {
                 otherServerIp = otherServer.getIpAddress();
                 otherServerPort = otherServer.getSocketNumber();
+                displayOtherServerInfo();
             }
             this.messageQueue = new ConcurrentLinkedQueue<>();
             this.logger = new Logger();
@@ -600,10 +610,16 @@ public class Server extends ServerModel implements ServerInterface {
         otherServerIp = message.getIpAddress();
         otherServerPort = message.getSocketNumber();
         dao.updateOtherServerIpAddressAndPortNumber(message.getIpAddress(), message.getSocketNumber());
+        displayOtherServerInfo();
     }
 
     public boolean checkPort(int port) {
         return communication.portIsValid(port) && communication.portIsAvailable(port);
+    }
+
+    private void displayOtherServerInfo() {
+        otherServerIpAddressTF.setText(otherServerIp);
+        otherServerPortNumberTF.setText(String.valueOf(otherServerPort));
     }
 
 }

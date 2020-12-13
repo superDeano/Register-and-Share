@@ -159,10 +159,8 @@ public class Main implements ActionListener {
             //new Server(serverNameComboBox.getActionCommand(), InetAddress.getByName(otherServerIpAddressTF.getText()), Integer.parseInt(otherServerPortNumberTF.getText()),true);
             actualServerIpAddressLabel.setText(server.getIpAddress());
             server.setLogs(logs);
-            if (server.otherServerIp != null) {
-                otherServerIpAddressTF.setText(server.otherServerIp);
-                otherServerPortNumberTF.setText(String.valueOf(server.otherServerPort));
-            }
+            server.setOtherServerIpAddressTF(otherServerIpAddressTF);
+            server.setOtherServerPortNumberTF(otherServerPortNumberTF);
         } catch (Exception e) {
             e.printStackTrace();
         }
