@@ -20,8 +20,8 @@ public class Server extends ServerModel implements ServerInterface {
     private Communication communication;
     private ConcurrentLinkedQueue<Message> messageQueue;
     private boolean isServing;
-    private String otherServerIp;
-    private int otherServerPort;
+    public String otherServerIp;
+    public int otherServerPort;
     private long startTime;
     private long currentTime;
     private ServerStorage dao;
@@ -602,5 +602,8 @@ public class Server extends ServerModel implements ServerInterface {
         dao.updateOtherServerIpAddressAndPortNumber(message.getIpAddress(), message.getSocketNumber());
     }
 
+    public boolean checkPort(int port) {
+        return communication.portIsValid(port) && communication.portIsAvailable(port);
+    }
 
 }
