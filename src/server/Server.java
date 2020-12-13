@@ -230,106 +230,89 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void register(int requestNumber, String name, String ipAddress, int socketNumber) {
-        if (getClientWithName(name) == null) {
-            ClientModel newClient = new ClientModel(name, ipAddress, socketNumber);
-            this.clients.add(newClient);
-            dao.addClient(newClient);
+        if (this.isServing) {
+            if (getClientWithName(name) == null) {
+                ClientModel newClient = new ClientModel(name, ipAddress, socketNumber);
+                this.clients.add(newClient);
+                dao.addClient(newClient);
 
-            logger.log("ADDING USER", "User successfully added!");
+                logger.log("ADDING USER", "User successfully added!");
 
-            Message clientAssert = new Message();
-            clientAssert.setMsgType(REGISTERED);
-            clientAssert.setRequestNumber(requestNumber);
-            clientAssert.setName(name);
-            clientAssert.setIpAddress(ipAddress);
-            clientAssert.setSocketNumber(socketNumber);
-            String message = Parsing.parseMsgToString(clientAssert);
+                Message clientAssert = new Message();
+                clientAssert.setMsgType(REGISTERED);
+                clientAssert.setRequestNumber(requestNumber);
+                clientAssert.setName(name);
+                clientAssert.setIpAddress(ipAddress);
+                clientAssert.setSocketNumber(socketNumber);
+                String message = Parsing.parseMsgToString(clientAssert);
 
-            communication.sendMessage(message, ipAddress, socketNumber);
+                communication.sendMessage(message, ipAddress, socketNumber);
 
-            Message serverAssert = new Message();
-            serverAssert.setMsgType(REGISTERED);
-            serverAssert.setRequestNumber(requestNumber);
-            serverAssert.setName(name);
-            serverAssert.setIpAddress(ipAddress);
-            serverAssert.setSocketNumber(socketNumber);
-            String serverMsg = Parsing.parseMsgToString(serverAssert);
+                Message serverAssert = new Message();
+                serverAssert.setMsgType(REGISTERED);
+                serverAssert.setRequestNumber(requestNumber);
+                serverAssert.setName(name);
+                serverAssert.setIpAddress(ipAddress);
+                serverAssert.setSocketNumber(socketNumber);
+                String serverMsg = Parsing.parseMsgToString(serverAssert);
 
-            communication.sendMessage(serverMsg,
-                    otherServerIp,
-                    otherServerPort);
-        } else {
-            logger.log("ADDING USER", "Chosen name already exists!");
+                communication.sendMessage(serverMsg,
+                        otherServerIp,
+                        otherServerPort);
+            } else {
+                logger.log("ADDING USER", "Chosen name already exists!");
 
-            Message clientAssert = new Message();
-            clientAssert.setMsgType(REGISTER_DENIED);
-            clientAssert.setRequestNumber(requestNumber);
-            clientAssert.setReason("Name is already in use");
-            String message = Parsing.parseMsgToString(clientAssert);
+                Message clientAssert = new Message();
+                clientAssert.setMsgType(REGISTER_DENIED);
+                clientAssert.setRequestNumber(requestNumber);
+                clientAssert.setReason("Name is already in use");
+                String message = Parsing.parseMsgToString(clientAssert);
 
-            communication.sendMessage(message,
-                    ipAddress,
-                    socketNumber);
+                communication.sendMessage(message,
+                        ipAddress,
+                        socketNumber);
 
-            Message serverAssert = new Message();
-            serverAssert.setMsgType(REGISTER_DENIED);
-            serverAssert.setRequestNumber(requestNumber);
-            serverAssert.setName(name);
-            serverAssert.setIpAddress(ipAddress);
-            serverAssert.setSocketNumber(socketNumber);
-            String serverMsg = Parsing.parseMsgToString(serverAssert);
+                Message serverAssert = new Message();
+                serverAssert.setMsgType(REGISTER_DENIED);
+                serverAssert.setRequestNumber(requestNumber);
+                serverAssert.setName(name);
+                serverAssert.setIpAddress(ipAddress);
+                serverAssert.setSocketNumber(socketNumber);
+                String serverMsg = Parsing.parseMsgToString(serverAssert);
 
-            communication.sendMessage(serverMsg,
-                    otherServerIp,
-                    otherServerPort);
+                communication.sendMessage(serverMsg,
+                        otherServerIp,
+                        otherServerPort);
+            }
         }
     }
 
     @Override
     public void registered(int requestNumber, String name, String ipAddress, int socketNumber) {
-        ClientModel newClient = new ClientModel(name, ipAddress, socketNumber);
-        this.clients.add(newClient);
-        dao.addClient(newClient);
+        if (!this.isServing) {
+            ClientModel newClient = new ClientModel(name, ipAddress, socketNumber);
+            this.clients.add(newClient);
+            dao.addClient(newClient);
+        }
     }
 
     @Override
     public void deRegister(Message message) {
 
-//        ClientModel client = getClientWithName(name);
-//        if (client != null) {
-//            ClientModel toDelete = new ClientModel();
-//        if (isServing) {
-//                for (ClientModel client : clients
-//                ) {
-//                    if (client.getName().equals(name)) {
-//                        toDelete = client;
-//                    }
         if (removeClientWithName(message.getName())) {
-//            }
-//        }
-//        this.removeClientWithName(name);
             dao.deleteClient(message.getName());
             logger.log("REMOVING USER", "User successfully deleted!");
 
-//        if (isServing) {
-//            Message clientAssert = new Message();
-//            clientAssert.setMsgType(DE_REGISTER.toString());
-//            clientAssert.setRequestNumber(requestNumber);
-//            clientAssert.setName(name);
-//            String message = Parsing.parseMsgToString(clientAssert);
-//
-//            communication.sendMessage(message, null, null);
-//                    toDelete.getIpAddress(),
-//                    toDelete.getSocketNumber());
-            Message serverAssert = new Message();
-            serverAssert.setMsgType(DE_REGISTER.toString());
-            serverAssert.setName(message.getName());
-            String serverMessage = Parsing.parseMsgToString(serverAssert);
+            if (this.isServing) {
+                Message serverAssert = new Message();
+                serverAssert.setMsgType(DE_REGISTER.toString());
+                serverAssert.setName(message.getName());
+                String serverMessage = Parsing.parseMsgToString(serverAssert);
 
-            communication.sendMessage(serverMessage,
-                    otherServerIp,
-                    otherServerPort);
-//        }
+                communication.sendMessage(serverMessage,
+                        otherServerIp,
+                        otherServerPort);
+            }
         } else {
             logger.log("REMOVING USER", "User does not exist!");
         }
@@ -338,244 +321,154 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void updateClientInformation(int requestNumber, String name, String ipAddress, int socketNumber) {
-        ClientModel client = getClientWithName(name);
-        if (client != null) {
+        if (this.isServing) {
+            ClientModel client = getClientWithName(name);
+            if (client != null) {
 
-//            for (ClientModel client : clients
-//            ) {
-//                if (client.getName().equals(name)) {
-            client.setIpAddress(ipAddress);
-            client.setSocketNumber(socketNumber);
-//                }
-//            }
-
-            dao.updateClientInfo(client);
-            logger.log("UPDATING USER", "User successfully updated!");
+                client.setIpAddress(ipAddress);
+                client.setSocketNumber(socketNumber);
 
 
-            Message clientAssert = new Message();
-            clientAssert.setMsgType(UPDATE_CONFIRMED.toString());
-            clientAssert.setRequestNumber(requestNumber);
-            clientAssert.setName(name);
-            clientAssert.setIpAddress(ipAddress);
-            clientAssert.setSocketNumber(socketNumber);
-            String message = Parsing.parseMsgToString(clientAssert);
+                dao.updateClientInfo(client);
+                logger.log("UPDATING USER", "User successfully updated!");
 
-            communication.sendMessage(message, ipAddress, socketNumber);
-            communication.sendMessage(message, otherServerIp, otherServerPort);
+                Message clientAssert = new Message();
+                clientAssert.setMsgType(UPDATE_CONFIRMED.toString());
+                clientAssert.setRequestNumber(requestNumber);
+                clientAssert.setName(name);
+                clientAssert.setIpAddress(ipAddress);
+                clientAssert.setSocketNumber(socketNumber);
+                String message = Parsing.parseMsgToString(clientAssert);
 
-        } else {
+                communication.sendMessage(message, ipAddress, socketNumber);
+                communication.sendMessage(message, otherServerIp, otherServerPort);
 
-            Message clientAssert = new Message();
-            clientAssert.setMsgType(UPDATE_DENIED);
-            clientAssert.setRequestNumber(requestNumber);
-            clientAssert.setReason("User with this name: " + name + " does not exist");
-            String message = Parsing.parseMsgToString(clientAssert);
+            } else {
 
-            communication.sendMessage(message, ipAddress, socketNumber);
+                Message clientAssert = new Message();
+                clientAssert.setMsgType(UPDATE_DENIED);
+                clientAssert.setRequestNumber(requestNumber);
+                clientAssert.setReason("User with this name: " + name + " does not exist");
+                String message = Parsing.parseMsgToString(clientAssert);
 
-            logger.log("UPDATING USER", "User does not exist!");
+                communication.sendMessage(message, ipAddress, socketNumber);
+
+                logger.log("UPDATING USER", "User does not exist!");
+            }
         }
     }
 
     @Override
     public void updateConfirmed(int requestNumber, String name, String ipAddress, int socketNumber) {
-//        for (ClientModel client : clients) {
-//            if (client.getName().equals(name)) {
-//                client.setIpAddress(ipAddress);
-//                client.setSocketNumber(socketNumber);
-//            }
-//        }
-        ClientModel clientModel = getClientWithName(name);
-        clientModel.setIpAddress(ipAddress);
-        clientModel.setSocketNumber(socketNumber);
-        dao.updateClientInfo(clientModel);
+        if (!this.isServing) {
+            ClientModel clientModel = getClientWithName(name);
+            clientModel.setIpAddress(ipAddress);
+            clientModel.setSocketNumber(socketNumber);
+            dao.updateClientInfo(clientModel);
+        }
     }
 
     @Override
     public void subjects(Message message) {
-        ClientModel client = getClientWithName(message.getName());
-        if (client != null) {
+        if (this.isServing) {
+            ClientModel client = getClientWithName(message.getName());
+            if (client != null) {
 
-//            List<String> accepted = new LinkedList<String>();
-//            List<String> denied = new LinkedList<String>();
-//            ;
+                List<String> listOfSubjects = message.getSubjectsList();
+                client.setSubjectsOfInterest(listOfSubjects);
 
-//            for (ClientModel client : clients
-//            ) {
-//                if (client.getName().equals(name)) {
-//                    for (String subject : listOfSubjects
-//                    ) {
-//                        if (client.addSubject(subject)) {
+                if (listOfSubjects.isEmpty()) dao.deleteClientListOfSubjects(message.getName());
+                else dao.updateClientListOfSubjects(message.getName(), listOfSubjects);
 
-//                            accepted.add(subject);
-//                            logger.log("Subject: " + subject + " has been added");
-//                        } else {
-//                            denied.add(subject);
-//                            logger.log("Subject: " + subject + " was already subscribed to");
-//                        }
-//                    }
-            List<String> listOfSubjects = message.getSubjectsList();
-            client.setSubjectsOfInterest(listOfSubjects);
+                Message clientAssert = new Message();
+                clientAssert.setMsgType(SUBJECTS_UPDATED.toString());
+                clientAssert.setRequestNumber(message.getRequestNumber());
+                clientAssert.setName(message.getName());
+                clientAssert.setSubjectsList(listOfSubjects);
+                String messageS = Parsing.parseMsgToString(clientAssert);
 
-            if (listOfSubjects.isEmpty()) dao.deleteClientListOfSubjects(message.getName());
-            else dao.updateClientListOfSubjects(message.getName(), listOfSubjects);
+                communication.sendMessage(messageS,
+                        client.getIpAddress(),
+                        client.getSocketNumber());
 
-            Message clientAssert = new Message();
-            clientAssert.setMsgType(SUBJECTS_UPDATED.toString());
-            clientAssert.setRequestNumber(message.getRequestNumber());
-            clientAssert.setName(message.getName());
-            clientAssert.setSubjectsList(listOfSubjects);
-            String messageS = Parsing.parseMsgToString(clientAssert);
-
-            communication.sendMessage(messageS,
-                    client.getIpAddress(),
-                    client.getSocketNumber());
-
-            communication.sendMessage(messageS,
-                    otherServerIp,
-                    otherServerPort);
+                communication.sendMessage(messageS,
+                        otherServerIp,
+                        otherServerPort);
 
 //                }
 //            }
 
-        } else {
-            logger.log("UPDATING SUBJECTS OF INTEREST", "User does not exist!");
+            } else {
+                logger.log("UPDATING SUBJECTS OF INTEREST", "User does not exist!");
 
-            Message clientDeny = new Message();
-            clientDeny.setMsgType(SUBJECTS_REJECTED);
-            clientDeny.setRequestNumber(message.getRequestNumber());
-            clientDeny.setName(message.getName());
-            clientDeny.setSubjectsList(message.getSubjectsList());
-            String denyMessage = Parsing.parseMsgToString(clientDeny);
+                Message clientDeny = new Message();
+                clientDeny.setMsgType(SUBJECTS_REJECTED);
+                clientDeny.setRequestNumber(message.getRequestNumber());
+                clientDeny.setName(message.getName());
+                clientDeny.setSubjectsList(message.getSubjectsList());
+                String denyMessage = Parsing.parseMsgToString(clientDeny);
 
-            communication.sendMessage(denyMessage,
-                    message.getIpAddress(),
-                    message.getSocketNumber());
+                communication.sendMessage(denyMessage,
+                        message.getIpAddress(),
+                        message.getSocketNumber());
+            }
         }
     }
 
     @Override
     public void subjectsUpdated(int requestNumber, String name, List<String> subjectsList) {
-//        for (ClientModel client : clients
-//        ) {
-//            if (client.getName().equals(name)) {
-//                for (String subject : subjectsList
-//                ) {
-//                    if (client.addSubject(subject)) {
-//                        logger.log("Subject: " + subject + " has been added");
-//                    }
-//                }
-//            }
-//        }
-        ClientModel client = getClientWithName(name);
-        if (client != null) {
-            client.setSubjectsOfInterest(subjectsList);
-            dao.updateClientListOfSubjects(name, subjectsList);
+        if (!this.isServing) {
+            ClientModel client = getClientWithName(name);
+            if (client != null) {
+                client.setSubjectsOfInterest(subjectsList);
+                dao.updateClientListOfSubjects(name, subjectsList);
+            }
         }
-
     }
 
     @Override
     public void publish(Message message) {
-        ClientModel client = getClientWithName(message.getName());
-        if (client != null) {
-//            boolean subjectFound = false;
-//            boolean messageSent = false;
-            if (client.subscribedToSubject(message.getSubject())) {
-                Message messagePublished = new Message();
-                messagePublished.setMsgType(MESSAGE);
-                messagePublished.setName(message.getName());
-                messagePublished.setSubject(message.getSubject());
-                messagePublished.setText(message.getText());
-                clients.stream().filter(c1 -> !c1.getName().equals(client.getName()) && c1.subscribedToSubject(message.getSubject())).forEach(c2 -> {
-                    sendMessage(message, c2.getIpAddress(), c2.getSocketNumber());
-                });
+        if (this.isServing) {
+            ClientModel client = getClientWithName(message.getName());
+            if (client != null) {
+                if (client.subscribedToSubject(message.getSubject())) {
+                    Message messagePublished = new Message();
+                    messagePublished.setMsgType(MESSAGE);
+                    messagePublished.setName(message.getName());
+                    messagePublished.setSubject(message.getSubject());
+                    messagePublished.setText(message.getText());
+                    clients.stream().filter(c1 -> !c1.getName().equals(client.getName()) && c1.subscribedToSubject(message.getSubject())).forEach(c2 -> {
+                        sendMessage(message, c2.getIpAddress(), c2.getSocketNumber());
+                    });
+                }
+                // Client not subscribed
+                else {
+                    Message messageClientNotSub = new Message();
+                    messageClientNotSub.setMsgType(PUBLISH_DENIED);
+                    messageClientNotSub.setRequestNumber(message.getRequestNumber());
+                    messageClientNotSub.setReason("User not subscribed to topic");
+                    communication.sendMessage(Parsing.parseMsgToString(messageClientNotSub), client.getIpAddress(), client.getSocketNumber());
+                }
             }
-            //Client not subscribed to subject
+            // Client with name does not exist
             else {
-                Message messageClientNotSub = new Message();
-                messageClientNotSub.setMsgType(PUBLISH_DENIED);
-                messageClientNotSub.setRequestNumber(message.getRequestNumber());
-                messageClientNotSub.setReason("User not subscribed to topic");
-                communication.sendMessage(Parsing.parseMsgToString(messageClientNotSub), client.getIpAddress(), client.getSocketNumber());
+                Message publishDeniedMessage = new Message();
+                publishDeniedMessage.setMsgType(PUBLISH_DENIED);
+                publishDeniedMessage.setRequestNumber(message.getRequestNumber());
+                publishDeniedMessage.setReason("User does not exist");
+                communication.sendMessage(Parsing.parseMsgToString(publishDeniedMessage), message.getIpAddress(), message.getSocketNumber());
+                logger.log("PUBLISHING MESSAGE", "User does not exist!");
             }
-
-//            for (ClientModel client : clients
-//            ) {
-//                if (client.getName().equals(name)) {
-//                    for (String sub : client.getSubjectsOfInterest()
-//                    ) {
-//                        if (sub.equals(subject)) {
-//                            subjectFound = true;
-//                            for (ClientModel cli : clients
-//                            ) {
-//                                for (String subj : cli.getSubjectsOfInterest()
-//                                ) {
-//                                    if (subj.equals(subject)) {
-//                                        messageSent = true;
-//                                        Message clientPublish = new Message();
-//                                        clientPublish.setMsgType(MESSAGE.toString());
-//                                        clientPublish.setName(name);
-//                                        clientPublish.setSubject(subject);
-//                                        clientPublish.setText(text);
-//                                        String message = Parsing.parseMsgToString(clientPublish);
-//
-//                                        communication.sendMessage(message,
-//                                                cli.getIpAddress(),
-//                                                cli.getSocketNumber());
-//
-//                                    }
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-
-//            if (!subjectFound) {
-//                for (ClientModel client : clients
-//                ) {
-//                    if (client.getName().equals(name)) {
-//                        Message clientDeny = new Message();
-//                        clientDeny.setMsgType(PUBLISH_DENIED.toString());
-//                        clientDeny.setRequestNumber(requestNumber);
-//                        clientDeny.setReason("Subject is not within the subjects of interests of user: " + name);
-//                        String message = Parsing.parseMsgToString(clientDeny);
-//
-//                        communication.sendMessage(message,
-//                                client.getIpAddress(),
-//                                client.getSocketNumber());
-//                    }
-//                }
-//            }
-//
-//            if (messageSent) {
-//                logger.log("PUBLISHING MESSAGE", "Message has been Published !");
-//            }
-
-
-        }
-        // Client with name does not exist
-        else {
-            Message publishDeniedMessage = new Message();
-            publishDeniedMessage.setMsgType(PUBLISH_DENIED);
-            publishDeniedMessage.setRequestNumber(message.getRequestNumber());
-            publishDeniedMessage.setReason("User does not exist");
-            communication.sendMessage(Parsing.parseMsgToString(publishDeniedMessage), message.getIpAddress(), message.getSocketNumber());
-            logger.log("PUBLISHING MESSAGE", "User does not exist!");
         }
     }
 
     @Override
     public void switchServer() {
-        startServing();
-        logger.log("Server Serving", "Server Started Serving");
+        if (!this.isServing) {
+            startServing();
+            logger.log("Server Serving", "Server Started Serving");
+        }
     }
-
-//    private void sendMessage(String m) {
-//        communication.sendMessage(m, "127.0.0.1", 2313);
-//    }
 
     private void sendMessage(Message message, String ipAddress, int portNumber) {
         communication.sendMessage(Parsing.parseMsgToString(message), ipAddress, portNumber);
@@ -588,38 +481,41 @@ public class Server extends ServerModel implements ServerInterface {
         return null;
     }
 
-
     private boolean removeClientWithName(String name) {
         return this.clients.removeIf(c -> c.getName().equals(name));
     }
 
-    public boolean updateServerInfo(int newPortNumber) {
-        if (!communication.portIsValid(newPortNumber)) return false;
-        if (communication.setPort(newPortNumber)) {
-            Message currentServerUpdatedInfo = new Message();
-            currentServerUpdatedInfo.setMsgType(UPDATE_SERVER);
-            currentServerUpdatedInfo.setIpAddress(communication.getIpAddress());
-            currentServerUpdatedInfo.setSocketNumber(communication.getPortNumber());
-            String message = Parsing.parseMsgToString(currentServerUpdatedInfo);
-            communication.sendMessage(message, otherServerIp, otherServerPort);
-            return true;
-        } else return false;
-    }
-
     private void updateOtherServerInfo(Message message) {
-        otherServerIp = message.getIpAddress();
-        otherServerPort = message.getSocketNumber();
-        dao.updateOtherServerIpAddressAndPortNumber(message.getIpAddress(), message.getSocketNumber());
+        if (this.isServing) {
+            otherServerIp = message.getIpAddress();
+            otherServerPort = message.getSocketNumber();
+            dao.updateOtherServerIpAddressAndPortNumber(message.getIpAddress(), message.getSocketNumber());
+        }
         displayOtherServerInfo();
     }
 
-    public boolean checkPort(int port) {
-        return communication.portIsValid(port) && communication.portIsAvailable(port);
+    public boolean setCurrentServerPort (int port){
+        if (!this.isServing){
+            if (communication.portIsAvailable(port) && communication.portIsValid(port)){
+                if (communication.setPort(port)){
+                    Message currentServerUpdatedInfo = new Message();
+                    currentServerUpdatedInfo.setMsgType(UPDATE_SERVER);
+                    currentServerUpdatedInfo.setIpAddress(communication.getIpAddress());
+                    currentServerUpdatedInfo.setSocketNumber(communication.getPortNumber());
+                    String message = Parsing.parseMsgToString(currentServerUpdatedInfo);
+                    communication.sendMessage(message, otherServerIp, otherServerPort);
+                    return true;
+                }else return false;
+            } else return false;
+        } else return false;
     }
 
     private void displayOtherServerInfo() {
         otherServerIpAddressTF.setText(otherServerIp);
         otherServerPortNumberTF.setText(String.valueOf(otherServerPort));
+    }
+    public boolean checkPort(int port) {
+        return communication.portIsValid(port) && communication.portIsAvailable(port);
     }
 
 }
