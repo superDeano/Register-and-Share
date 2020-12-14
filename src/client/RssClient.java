@@ -314,7 +314,7 @@ public class RssClient implements ActionListener {
                 break;
             case MsgType.UPDATE_CONFIRMED:
             case MsgType.REGISTERED:
-                handleRegisterAndUpdate(m, false);
+                handleRegisterAndUpdate(m, true);
                 break;
             case CHANGE_SERVER:
                 client.changeServer(m);
