@@ -19,6 +19,7 @@ public class Client extends ClientModel implements ClientInterface {
     private final ServerModel[] servers = new ServerModel[2];
     private int servingServer = -1;
     private int requestNumber = 0;
+    private JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF;
 
     public Client() {
         super();
@@ -35,12 +36,14 @@ public class Client extends ClientModel implements ClientInterface {
         this.servers[0] = new ServerModel("server A");
         this.servers[1] = new ServerModel("server B");
         this.communication = new Communication("client");
-//        try {
-//            setIpAddress(InetAddress.getByName(communication.getIpAddress()));
-//            setSocketNumber(communication.getPortNumber());
-//        } catch (UnknownHostException e) {
-//            e.printStackTrace();
-//        }
+
+    }
+
+    public void setServersInfoTF(JTextField server1IpAddressTF, JTextField server1PortNumberTF, JTextField server2IpAddressTF, JTextField server2PortNumberTF) {
+        this.server1IpAddressTF = server1IpAddressTF;
+        this.server1IpAddressTF = server1PortNumberTF;
+        this.server2IpAddressTF = server2IpAddressTF;
+        this.server2PortNumberTF = server2PortNumberTF;
     }
 
     @Override
@@ -102,11 +105,13 @@ public class Client extends ClientModel implements ClientInterface {
     public void sendMessage(Message message) {
         switch (servingServer) {
 
-            case 0: this.communication.sendMessage(Parsing.parseMsgToString(message), servers[0].getIpAddress(), servers[0].getSocketNumber());
+            case 0:
+                this.communication.sendMessage(Parsing.parseMsgToString(message), servers[0].getIpAddress(), servers[0].getSocketNumber());
                 break;
-            case 1 : this.communication.sendMessage(Parsing.parseMsgToString(message), servers[1].getIpAddress(), servers[1].getSocketNumber());
+            case 1:
+                this.communication.sendMessage(Parsing.parseMsgToString(message), servers[1].getIpAddress(), servers[1].getSocketNumber());
                 break;
-            default : {
+            default: {
                 this.communication.sendMessage(Parsing.parseMsgToString(message), servers[0].getIpAddress(), servers[0].getSocketNumber());
                 this.communication.sendMessage(Parsing.parseMsgToString(message), servers[1].getIpAddress(), servers[1].getSocketNumber());
             }
@@ -131,7 +136,7 @@ public class Client extends ClientModel implements ClientInterface {
             servers[0].setIpAddress(m.getIpAddress());
             servers[0].setSocketNumber(m.getSocketNumber());
         }
-
+        displayServersInfo();
     }
 
     public void serverReplied(Message message) {
@@ -155,4 +160,10 @@ public class Client extends ClientModel implements ClientInterface {
         return this.communication.getIpAddress();
     }
 
+    private void displayServersInfo() {
+        this.server1IpAddressTF.setText(servers[0].getIpAddress());
+        this.server1PortNumberTF.setText(String.valueOf(servers[0].getSocketNumber()));
+        this.server2IpAddressTF.setText(servers[1].getIpAddress());
+        this.server2PortNumberTF.setText(String.valueOf(servers[1].getSocketNumber()));
+    }
 }

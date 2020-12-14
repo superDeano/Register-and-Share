@@ -47,6 +47,7 @@ public class RssClient implements ActionListener {
 //        String ip = client.getClientIpAddress();
         actualClientIpAddressLabel.setText(client.getClientIpAddress());
         actualClientPortNumberLabel.setText(client.getClientPortNumber());
+        client.setServersInfoTF(server1IpAddressTF, server1PortNumberTF, server2IpAddressTF, server2PortNumberTF);
         messages = new ConcurrentLinkedQueue<>();
         startListening();
         takeAction();
@@ -480,7 +481,7 @@ public class RssClient implements ActionListener {
     }
 
     private void registerClient() {
-        if (server1IpAddressTF.getText().equals("") || server1PortNumberTF.getText().equals("")|| server2IpAddressTF.getText().equals("") || server2PortNumberTF.getText().equals("")) {
+        if (server1IpAddressTF.getText().equals("") || server1PortNumberTF.getText().equals("") || server2IpAddressTF.getText().equals("") || server2PortNumberTF.getText().equals("")) {
             JOptionPane.showMessageDialog(frame, "Servers information missing.\nNeed to enter server information", "Registering", JOptionPane.WARNING_MESSAGE);
         } else if (client.getName() == null || client.getName().equals("")) {
             JOptionPane.showMessageDialog(frame, "Name cannot be blank!", "Registering", JOptionPane.WARNING_MESSAGE);
@@ -492,7 +493,7 @@ public class RssClient implements ActionListener {
     }
 
     private void deregisterClient() {
-        if (server1IpAddressTF.getText().equals("") || server1PortNumberTF.getText().equals("") || server2IpAddressTF.getText().equals("") || server2PortNumberTF.getText().equals("") ) {
+        if (server1IpAddressTF.getText().equals("") || server1PortNumberTF.getText().equals("") || server2IpAddressTF.getText().equals("") || server2PortNumberTF.getText().equals("")) {
             JOptionPane.showMessageDialog(frame, "Server information missing.\nNeed to enter server information", "Deregistering", JOptionPane.WARNING_MESSAGE);
         } else if (client.getName().equals("") || client.getName() == null) {
             JOptionPane.showMessageDialog(frame, "Name cannot be blank!", "Deregistering", JOptionPane.WARNING_MESSAGE);
