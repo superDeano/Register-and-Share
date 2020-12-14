@@ -19,7 +19,7 @@ public class Client extends ClientModel implements ClientInterface {
     private final ServerModel[] servers = new ServerModel[2];
     private int servingServer = -1;
     private int requestNumber = 0;
-    private JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF;
+   // private JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF;
 
     public Client() {
         super();
@@ -39,12 +39,12 @@ public class Client extends ClientModel implements ClientInterface {
 
     }
 
-    public void setServersInfoTF(JTextField server1IpAddressTF, JTextField server1PortNumberTF, JTextField server2IpAddressTF, JTextField server2PortNumberTF) {
-        this.server1IpAddressTF = server1IpAddressTF;
-        this.server1IpAddressTF = server1PortNumberTF;
-        this.server2IpAddressTF = server2IpAddressTF;
-        this.server2PortNumberTF = server2PortNumberTF;
-    }
+//    public void setServersInfoTF(JTextField server1IpAddressTF, JTextField server1PortNumberTF, JTextField server2IpAddressTF, JTextField server2PortNumberTF) {
+//        RssClient.server1IpAddressTF = server1IpAddressTF;
+//        RssClient.server1IpAddressTF = server1PortNumberTF;
+//        this.server2IpAddressTF = server2IpAddressTF;
+//        this.server2PortNumberTF = server2PortNumberTF;
+//    }
 
     @Override
     public void registerToServer() {
@@ -161,9 +161,9 @@ public class Client extends ClientModel implements ClientInterface {
     }
 
     private void displayServersInfo() {
-        this.server1IpAddressTF.setText(servers[0].getIpAddress());
-        this.server1PortNumberTF.setText(String.valueOf(servers[0].getSocketNumber()));
-        this.server2IpAddressTF.setText(servers[1].getIpAddress());
-        this.server2PortNumberTF.setText(String.valueOf(servers[1].getSocketNumber()));
+        RssClient.server1IpAddressTF.setText(servers[0].getIpAddress());
+        RssClient.server1PortNumberTF.setText(String.valueOf(servers[0].getSocketNumber()));
+        RssClient.server2IpAddressTF.setText(servers[1].getIpAddress());
+        RssClient.server2PortNumberTF.setText(String.valueOf(servers[1].getSocketNumber()));
     }
 }

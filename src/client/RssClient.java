@@ -21,7 +21,11 @@ public class RssClient implements ActionListener {
     private static JPanel clientPanel, serverPanel, topicPanel, messagePannel, logsPanel;
     private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton, updateClientInfoButton, clearAllLogsButton;
     private static JLabel actualClientIpAddressLabel, actualClientPortNumberLabel;
-    private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientNameTF;
+    protected static JTextField server1IpAddressTF;
+    protected static JTextField server2IpAddressTF;
+    protected static JTextField server1PortNumberTF;
+    protected static JTextField server2PortNumberTF;
+    private static JTextField clientNameTF;
     private static JTextArea publishMessageTA, topicsSendingLabel;
     //    private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
     private static JCheckBox[] topicCheckBoxes;

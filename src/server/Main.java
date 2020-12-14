@@ -7,13 +7,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Main implements ActionListener {
-    private Server server;
+    private static Server server;
     private static JFrame frame;
     private static JPanel serverPanel, logsPanel;
     private static JButton updateClientPortNumberButton, clearAllLogsButton;
     private static JLabel actualServerIpAddressLabel;
     private static JComboBox<String> serverNameComboBox;
-    private static JTextField otherServerIpAddressTF, currentServerPortNumberTF, otherServerPortNumberTF;
+    protected static JTextField otherServerIpAddressTF;
+    private static JTextField currentServerPortNumberTF;
+    protected static JTextField otherServerPortNumberTF;
     private static DefaultListModel<String> logs;
     private static String[] serverNames = {"", "A", "B"};
     private static JTabbedPane tabbedPane;
@@ -146,6 +148,7 @@ public class Main implements ActionListener {
             case "Set Port":{
                 setCurrentServerPort();
             }
+            break;
             case "Save Server":
                 saveOtherServerInfo();
                 break;
@@ -165,7 +168,7 @@ public class Main implements ActionListener {
 
     private void startServer() {
         try {
-            this.server =
+            server =
                     new Server(serverNameComboBox.getSelectedItem().toString(), Integer.parseInt(currentServerPortNumberTF.getText()), logs);
            
             actualServerIpAddressLabel.setText(server.getIpAddress());
