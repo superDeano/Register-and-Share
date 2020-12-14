@@ -15,7 +15,7 @@ public class ServerStorage implements ServerStorageInterface {
     private final String currentServerName;
 
     public ServerStorage(String currentServerName) throws SQLException, ClassNotFoundException {
-        Class.forName("com.mysql.jdbc.Driver");
+//        Class.forName("com.mysql.jdbc.Driver");
         this.currentServerName = currentServerName;
         String url = "jdbc:mysql://register-mysql.mysql.database.azure.com:3306/register-server?useSSL=true";
         this.connection = DriverManager.getConnection(url, "supermysql", "dypqiC-nokroh-2xypnu");

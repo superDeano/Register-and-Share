@@ -25,6 +25,7 @@ public class Server extends ServerModel implements ServerInterface {
     private long startTime;
     private long currentTime;
     private ServerStorage dao;
+    private JTextField otherServerIpAddressTF, otherServerPortNumberTF;
     private DefaultListModel<String> logs;
 
     public Server(String connectionName, int portNumber, DefaultListModel<String> logs) {
@@ -52,6 +53,14 @@ public class Server extends ServerModel implements ServerInterface {
 //    }
 
 
+    public void setOtherServerIpAddressTF(JTextField otherServerIpAddressTF) {
+        otherServerIpAddressTF = otherServerIpAddressTF;
+    }
+
+    public void setOtherServerPortNumberTF(JTextField otherServerPortNumberTF) {
+        otherServerPortNumberTF = otherServerPortNumberTF;
+    }
+
     private void setUpServer() {
         try {
             this.dao = new ServerStorage(getName());
@@ -61,6 +70,7 @@ public class Server extends ServerModel implements ServerInterface {
             if (otherServer != null) {
                 otherServerIp = otherServer.getIpAddress();
                 otherServerPort = otherServer.getSocketNumber();
+                displayOtherServerInfo();
             }
             this.messageQueue = new ConcurrentLinkedQueue<>();
             this.logger = new Logger();
@@ -286,6 +296,12 @@ public class Server extends ServerModel implements ServerInterface {
         }
     }
 
+    public void setOtherServerInfo() {
+        this.otherServerIp = otherServerIpAddressTF.getText();
+        this.otherServerPort = Integer.parseInt(otherServerPortNumberTF.getText());
+        dao.updateOtherServerIpAddressAndPortNumber(otherServerIp, otherServerPort);
+    }
+
     @Override
     public void deRegister(Message message) {
 
@@ -481,12 +497,13 @@ public class Server extends ServerModel implements ServerInterface {
             otherServerPort = message.getSocketNumber();
             dao.updateOtherServerIpAddressAndPortNumber(message.getIpAddress(), message.getSocketNumber());
         }
+        displayOtherServerInfo();
     }
 
-    public boolean setCurrentServerPort (int port){
-        if (!this.isServing){
-            if (communication.portIsAvailable(port) && communication.portIsValid(port)){
-                if (communication.setPort(port)){
+    public boolean setCurrentServerPort(int port) {
+        if (!this.isServing) {
+            if (communication.portIsAvailable(port) && communication.portIsValid(port)) {
+                if (communication.setPort(port)) {
                     Message currentServerUpdatedInfo = new Message();
                     currentServerUpdatedInfo.setMsgType(UPDATE_SERVER);
                     currentServerUpdatedInfo.setIpAddress(communication.getIpAddress());
@@ -494,9 +511,18 @@ public class Server extends ServerModel implements ServerInterface {
                     String message = Parsing.parseMsgToString(currentServerUpdatedInfo);
                     communication.sendMessage(message, otherServerIp, otherServerPort);
                     return true;
-                }else return false;
+                } else return false;
             } else return false;
         } else return false;
+    }
+
+    private void displayOtherServerInfo() {
+        otherServerIpAddressTF.setText(otherServerIp);
+        otherServerPortNumberTF.setText(String.valueOf(otherServerPort));
+    }
+
+    public boolean checkPort(int port) {
+        return communication.portIsValid(port) && communication.portIsAvailable(port);
     }
 
 }
