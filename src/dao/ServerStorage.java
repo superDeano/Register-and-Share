@@ -40,10 +40,11 @@ public class ServerStorage implements ServerStorageInterface {
     @Override
     public void updateClientInfo(ClientModel client) {
         try {
-            preparedStatement = connection.prepareStatement("UPDATE clients c SET c.ipAddress = ?, c.portNumber = ? where c.name = ?;");
+            preparedStatement = connection.prepareStatement("UPDATE clients c SET c.ipAddress = ?, c.portNumber = ? where c.name = ? and c.serverName = ?;");
             preparedStatement.setString(1, client.getIpAddress().toString());
             preparedStatement.setString(2, String.valueOf(client.getSocketNumber()));
             preparedStatement.setString(3, client.getName());
+            preparedStatement.setString(4, currentServerName);
             preparedStatement.executeUpdate();
 
         } catch (SQLException throwables) {
@@ -68,8 +69,10 @@ public class ServerStorage implements ServerStorageInterface {
         List<ClientModel> clientList = new ArrayList<>();
 
         try {
-            statement = connection.createStatement();
-            resultSet = statement.executeQuery("select c.name, c.ipAddress, c.portNumber from clients c");
+            preparedStatement = connection.prepareStatement("select c.name, c.ipAddress, c.portNumber from clients c where c.serverName = ?");
+            preparedStatement.setString(1, currentServerName);
+            resultSet = preparedStatement.executeQuery();
+
             while (resultSet.next()) {
                 clientList.add(new ClientModel(resultSet.getString("name"), resultSet.getString("ipAddress"), resultSet.getInt("portNumber")));
             }
