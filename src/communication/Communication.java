@@ -76,7 +76,7 @@ public class Communication implements CommunicationInterface {
                 logger.log("received", m);
                 logs.addElement(m);
                 Message message = Parsing.parseStringToMsg(m);
-                checkIfMessageNeedsIpAndPortNumber(message, receivedDatagramPacket);
+                attachSenderIpAndPortNumberToMessage(message, receivedDatagramPacket);
                 messages.add(message);
                 receiveByte = new byte[byteSize];
             }
@@ -89,13 +89,13 @@ public class Communication implements CommunicationInterface {
 //        }
     }
 
-    private void checkIfMessageNeedsIpAndPortNumber(Message message, DatagramPacket datagramPacket) {
-        if (message.getIpAddress() == null || message.getIpAddress().equals("")) {
-            message.setIpAddress(datagramPacket.getAddress().getHostAddress());
-        }
-        if (message.getSocketNumber() == -1 || portIsValid(message.getSocketNumber())) {
-            message.setSocketNumber(datagramPacket.getPort());
-        }
+    private void attachSenderIpAndPortNumberToMessage(Message message, DatagramPacket datagramPacket) {
+      //  if (message.getIpAddress() == null || message.getIpAddress().equals("")) {
+            message.setSenderIpAddress(datagramPacket.getAddress().getHostAddress());
+      //  }
+      //  if (message.getSocketNumber() == -1 || portIsValid(message.getSocketNumber())) {
+            message.setSenderSocketNumber(datagramPacket.getPort());
+      //  }
     }
 
 
@@ -292,7 +292,9 @@ public class Communication implements CommunicationInterface {
     public boolean setPort(int port) {
         try {
             if (!portIsAvailable(port)) return false;
+            this.serverDatagramSocket.close();
             this.serverDatagramSocket = new DatagramSocket(port, InetAddress.getLocalHost());
+
         } catch (SocketException | UnknownHostException e) {
             e.printStackTrace();
             logger.log("Exception Caught in Communication Port Setter: " + e.toString());

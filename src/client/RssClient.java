@@ -51,7 +51,7 @@ public class RssClient implements ActionListener {
 //        String ip = client.getClientIpAddress();
         actualClientIpAddressLabel.setText(client.getClientIpAddress());
         actualClientPortNumberLabel.setText(client.getClientPortNumber());
-        client.setServersInfoTF(server1IpAddressTF, server1PortNumberTF, server2IpAddressTF, server2PortNumberTF);
+        //client.setServersInfoTF(server1IpAddressTF, server1PortNumberTF, server2IpAddressTF, server2PortNumberTF);
         messages = new ConcurrentLinkedQueue<>();
         startListening();
         takeAction();

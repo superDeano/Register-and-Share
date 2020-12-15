@@ -10,6 +10,8 @@ public class Message {
     String name;
     String ipAddress;
     int socketNumber;
+    String senderIpAddress;
+    int senderSocketNumber;
     String reason;
     List<String> subjectsList;
     String subject;
@@ -25,6 +27,22 @@ public class Message {
         this.subjectsList = new LinkedList<String>();
         this.subject = "";
         this.text = "";
+    }
+
+    public String getSenderIpAddress() {
+        return senderIpAddress;
+    }
+
+    public void setSenderIpAddress(String senderIpAddress) {
+        this.senderIpAddress = senderIpAddress;
+    }
+
+    public int getSenderSocketNumber() {
+        return senderSocketNumber;
+    }
+
+    public void setSenderSocketNumber(int senderSocketNumber) {
+        this.senderSocketNumber = senderSocketNumber;
     }
 
     public String getMsgType() {

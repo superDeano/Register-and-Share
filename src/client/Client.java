@@ -125,24 +125,29 @@ public class Client extends ClientModel implements ClientInterface {
     }
 
     public void switchServer() {
+        logger.log("updating serving Server index"," before: "+  servingServer);
         servingServer = (servingServer + 1) % 2;
+        logger.log("updating serving Server index"," after: "+  servingServer);
     }
 
     public void changeServer(Message m) {
         if (servingServer == 0) {
             servers[1].setIpAddress(m.getIpAddress());
             servers[1].setSocketNumber(m.getSocketNumber());
-        } else {
+        } else if (servingServer == 1) {
             servers[0].setIpAddress(m.getIpAddress());
             servers[0].setSocketNumber(m.getSocketNumber());
         }
+        switchServer();
         displayServersInfo();
     }
 
     public void serverReplied(Message message) {
         for (int i = 0; i < servers.length; i++) {
-            if (message.getIpAddress().equals(servers[i].getIpAddress()) && message.getSocketNumber() == servers[i].getSocketNumber()) {
+            if (message.getSenderIpAddress().equals(servers[i].getIpAddress()) && message.getSenderSocketNumber() == servers[i].getSocketNumber()) {
                 servingServer = i;
+                logger.log("server replied", "i is "+ i);
+
             }
         }
     }
