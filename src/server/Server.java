@@ -72,7 +72,7 @@ public class Server extends ServerModel implements ServerInterface {
                 if (this.messageQueue.isEmpty()) {
 
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -82,7 +82,7 @@ public class Server extends ServerModel implements ServerInterface {
                 }
                 if (isServing) {
                     currentTime = System.nanoTime();
-                    if ((currentTime - startTime) / 1E9 >= 120) {
+                    if ((currentTime - startTime) / 1E9 >= 300) {
                         logger.log("Server switching is starting");
                         stopServing();
                     }
