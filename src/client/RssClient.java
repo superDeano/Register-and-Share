@@ -319,7 +319,6 @@ public class RssClient implements ActionListener {
         }
     }
 
-
     private static void test() {
 
     }

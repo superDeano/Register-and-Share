@@ -403,7 +403,7 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void subjectsUpdated(int requestNumber, String name, List<String> subjectsList) {
-        if (!this.isServing) {
+        if(!this.isServing) {
             ClientModel client = getClientWithName(name);
             if (client != null) {
                 client.setSubjectsOfInterest(subjectsList);
@@ -423,9 +423,11 @@ public class Server extends ServerModel implements ServerInterface {
                     messagePublished.setName(message.getName());
                     messagePublished.setSubject(message.getSubject());
                     messagePublished.setText(message.getText());
-                    clients.stream().filter(c1 -> !c1.getName().equals(client.getName()) && c1.subscribedToSubject(message.getSubject())).forEach(c2 -> {
-                        sendMessage(message, c2.getIpAddress(), c2.getSocketNumber());
-                    });
+                    for (ClientModel c1 : clients) {
+                        if (!c1.getName().equals(client.getName()) && c1.subscribedToSubject(message.getSubject())) {
+                            sendMessage(messagePublished, c1.getIpAddress(), c1.getSocketNumber());
+                        }
+                    }
                 }
                 // Client not subscribed
                 else {

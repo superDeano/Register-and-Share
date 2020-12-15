@@ -61,6 +61,9 @@ public class Parsing {
             case SWITCH_SERVER:
                 parsedString = SWITCH_SERVER + ";";
                 break;
+            case MESSAGE:
+                parsedString = MESSAGE + ";" + msg.getName() + ";" + msg.getSubject() + ";" + msg.getText();
+                break;
             default:
                 parsedString = "";
                 break;
@@ -138,7 +141,14 @@ public class Parsing {
             parsedMsg.setIpAddress(array1[1]);
             parsedMsg.setSocketNumber(Integer.parseInt(array1[2]));
         }
-
+        else if (array1[0].equals(SUBJECTS_UPDATED) && array1.length == 3) {
+            parsedMsg.setName(array1[1]);
+            String initial = array1[2];
+            initial = initial.replace("[", "");
+            initial = initial.replace("]", "");
+            List<String> subjectList = new LinkedList<String>(Arrays.asList(initial.split(",")));
+            parsedMsg.setSubjectsList(subjectList);
+        }
 
         return parsedMsg;
     }
