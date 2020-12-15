@@ -132,12 +132,30 @@ public class ServerStorage implements ServerStorageInterface {
 
     @Override
     public void updateOtherServerIpAddressAndPortNumber(String ipAddress, int portNumber) {
+        if (getOtherServerInfo() == null) insertOtherServerIpAddressAndPortNumber(ipAddress, portNumber);
+        else {
+            try {
+                preparedStatement = connection.prepareStatement("UPDATE servers s set s.otherServerIpAddress = ?, s.otherServerPortNumber = ? where s.serverName = ?;");
+                preparedStatement.setString(1, ipAddress);
+                preparedStatement.setString(2, String.valueOf(portNumber));
+                preparedStatement.setString(3, currentServerName);
+                preparedStatement.executeUpdate();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+    }
+
+
+    @Override
+    public void insertOtherServerIpAddressAndPortNumber(String ipAddress, int portNumber) {
         try {
-            preparedStatement = connection.prepareStatement("UPDATE servers s set s.otherServerIpAddress = ?, s.otherServerPortNumber = ? where s.serverName = ?;");
-            preparedStatement.setString(1, ipAddress);
-            preparedStatement.setString(2, String.valueOf(portNumber));
-            preparedStatement.setString(3, currentServerName);
+            preparedStatement = connection.prepareStatement("INSERT INTO servers (serverName, otherServerIpAddress, otherServerPortNumber) VALUES (?, ?, ?)");
+            preparedStatement.setString(1, currentServerName);
+            preparedStatement.setString(2, ipAddress);
+            preparedStatement.setInt(3, portNumber);
             preparedStatement.executeUpdate();
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
