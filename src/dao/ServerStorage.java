@@ -31,7 +31,6 @@ public class ServerStorage implements ServerStorageInterface {
             preparedStatement.setInt(3, client.getSocketNumber());
             preparedStatement.setString(4, currentServerName);
             preparedStatement.executeUpdate();
-//        query.append(client.getName() + ", " + client.getIpAddress() + ", " + client.getSocketNumber() + ", " + currentServerName + ")");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -151,8 +150,6 @@ public class ServerStorage implements ServerStorageInterface {
             preparedStatement = connection.prepareStatement("SELECT s.otherServerIpAddress, s.otherServerPortNumber from servers s where s.serverName = ?;");
             preparedStatement.setString(1, currentServerName);
             resultSet = preparedStatement.executeQuery();
-//            statement = connection.createStatement();
-//            resultSet = statement.executeQuery("SELECT s.otherServerIpAddress, s.otherServerPortNumber from servers s where s.serverName = " + currentServerName + ";");
             if (!resultSet.next()) return null;
             otherServer.setSocketNumber(resultSet.getInt("otherServerPortNumber"));
             otherServer.setIpAddress(resultSet.getString("otherServerIpAddress"));

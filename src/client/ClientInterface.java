@@ -10,8 +10,6 @@ public interface ClientInterface {
 
     public void updateSubjectsOfInterest(List<String> subjectOfInterest);
 
-//    public void deregisterToSubjectOfInterest(List<String> subjectOfInterest);
-
     public void updateInformationToServer();
 
     public void publishMessage(String topic, String message);

@@ -35,8 +35,6 @@ public class Communication implements CommunicationInterface {
         }
         this.connectionName = connectionName;
         logger = new Logger();
-//        this.receiveByte = new byte[byteSize];
-//        this.receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
     }
 
     /**
@@ -55,8 +53,6 @@ public class Communication implements CommunicationInterface {
         }
         logger = new Logger();
         this.connectionName = connectionName;
-//        this.receiveByte = new byte[byteSize];
-//        this.receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
     }
 
     /**
@@ -90,12 +86,9 @@ public class Communication implements CommunicationInterface {
     }
 
     private void attachSenderIpAndPortNumberToMessage(Message message, DatagramPacket datagramPacket) {
-      //  if (message.getIpAddress() == null || message.getIpAddress().equals("")) {
+
             message.setSenderIpAddress(datagramPacket.getAddress().getHostAddress());
-      //  }
-      //  if (message.getSocketNumber() == -1 || portIsValid(message.getSocketNumber())) {
             message.setSenderSocketNumber(datagramPacket.getPort());
-      //  }
     }
 
 
@@ -107,7 +100,6 @@ public class Communication implements CommunicationInterface {
             try {
                 receivedDatagramPacket = new DatagramPacket(receiveByte, receiveByte.length);
                 serverDatagramSocket.receive(receivedDatagramPacket);
-//                receivedDatagramPacket.getAddress().getHostAddress()
                 String m = toStringBuilder(receiveByte).toString();
                 logger.log("received", m);
                 messages.addElement(m);
@@ -224,8 +216,6 @@ public class Communication implements CommunicationInterface {
      */
     @Override
     public String getIpAddress() {
-//        return serverDatagramSocket.getLocalSocketAddress().toString();
-
         return serverDatagramSocket.getLocalAddress() != null ? removeFirstCharInIpAddress(serverDatagramSocket.getLocalAddress().toString()) : "Get LocalAddress is Null";
     }
 
@@ -330,7 +320,6 @@ public class Communication implements CommunicationInterface {
                 try {
                     ss.close();
                 } catch (IOException e) {
-                    /* should not be thrown */
                 }
             }
         }

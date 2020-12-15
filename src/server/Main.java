@@ -21,7 +21,6 @@ public class Main implements ActionListener {
     private static JTabbedPane tabbedPane;
 
     public static void main(String[] args) {
-        // write your code here
         instantiateGraphicalComponents();
     }
 
@@ -145,7 +144,7 @@ public class Main implements ActionListener {
                 startServer();
             }
             break;
-            case "Set Port":{
+            case "Set Port": {
                 setCurrentServerPort();
             }
             break;
@@ -161,29 +160,39 @@ public class Main implements ActionListener {
         }
     }
 
-    private void saveOtherServerInfo(){
-        server.setOtherServerInfo();
-        logs.addElement("Other Server info saved!");
+    private void saveOtherServerInfo() {
+        if (server == null) {
+            JOptionPane.showMessageDialog(frame, "Start Server First", "Saving Other Server Info", JOptionPane.ERROR_MESSAGE);
+        } else {
+            server.setOtherServerInfo();
+            logs.addElement("Other Server info saved!");
+        }
     }
 
     private void startServer() {
-        try {
-            server =
-                    new Server(serverNameComboBox.getSelectedItem().toString(), Integer.parseInt(currentServerPortNumberTF.getText()), logs);
-           
-            actualServerIpAddressLabel.setText(server.getIpAddress());
-            server.setLogs(logs);
-            server.setOtherServerIpAddressTF(otherServerIpAddressTF);
-            server.setOtherServerPortNumberTF(otherServerPortNumberTF);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (currentServerPortNumberTF.getText().equals(""))
+            JOptionPane.showMessageDialog(frame, "Port Number Invalid", "Starting Server", JOptionPane.ERROR_MESSAGE);
+        else {
+            try {
+
+                server =
+                        new Server(serverNameComboBox.getSelectedItem().toString(), Integer.parseInt(currentServerPortNumberTF.getText()), logs);
+
+                actualServerIpAddressLabel.setText(server.getIpAddress());
+                server.setLogs(logs);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void setCurrentServerPort() {
+        int ogPort = server.getSocketNumber();
         boolean allChecks = this.server.setCurrentServerPort(Integer.parseInt(currentServerPortNumberTF.getText()));
-        if (!allChecks){
+        if (!allChecks) {
+            currentServerPortNumberTF.setText(String.valueOf(ogPort));
             JOptionPane.showMessageDialog(frame, "Either the server was serving, port was invalid or already used.\nPlease try again", "Error when setting the port", JOptionPane.ERROR_MESSAGE);
+
         }
     }
 
@@ -200,7 +209,7 @@ public class Main implements ActionListener {
         @Override
         public Component getListCellRendererComponent(JList list, Object value,
                                                       int index, boolean isSelected, boolean cellHasFocus) {
-            String text = HTML_1 + String.valueOf(width) + HTML_2 + value.toString()
+            String text = HTML_1 + width + HTML_2 + value.toString()
                     + HTML_3;
             return super.getListCellRendererComponent(list, text, index, isSelected,
                     cellHasFocus);
