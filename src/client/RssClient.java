@@ -14,16 +14,19 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static message.MsgType.*;
-//import java.awt.*;
+
 
 public class RssClient implements ActionListener {
     private static JFrame frame;
     private static JPanel clientPanel, serverPanel, topicPanel, messagePannel, logsPanel;
-    private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton, updateClientInfoButton, clearAllLogsButton;
+    private static JButton registerButton, deregisterButton, publishButton, updateClientPortNumberButton, clearAllLogsButton;
     private static JLabel actualClientIpAddressLabel, actualClientPortNumberLabel;
-    private static JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF, clientNameTF;
+    protected static JTextField server1IpAddressTF;
+    protected static JTextField server2IpAddressTF;
+    protected static JTextField server1PortNumberTF;
+    protected static JTextField server2PortNumberTF;
+    private static JTextField clientNameTF;
     private static JTextArea publishMessageTA, topicsSendingLabel;
-    //    private static JRadioButton subscribeRadioButton, unsubscribeRadioButton;
     private static JCheckBox[] topicCheckBoxes;
     private static JTabbedPane tabbedPane;
     private static JComboBox<String> topicsComboBox;
@@ -34,9 +37,6 @@ public class RssClient implements ActionListener {
     private static String[] topics = {"Education", "Politics", "Pop", "Technology", "Science", "Sports", "World"};
 
     public static void main(String[] args) {
-        // write your code here
-//        CliClient cliClient = new CliClient();
-//        cliClient.run();
         instantiateGraphicalComponents();
         startClient();
 
@@ -44,10 +44,8 @@ public class RssClient implements ActionListener {
 
     private static void startClient() {
         client = new Client();
-//        String ip = client.getClientIpAddress();
         actualClientIpAddressLabel.setText(client.getClientIpAddress());
         actualClientPortNumberLabel.setText(client.getClientPortNumber());
-        client.setServersInfoTF(server1IpAddressTF, server1PortNumberTF, server2IpAddressTF, server2PortNumberTF);
         messages = new ConcurrentLinkedQueue<>();
         startListening();
         takeAction();
@@ -66,7 +64,6 @@ public class RssClient implements ActionListener {
 
         //TextFields
         actualClientIpAddressLabel = new JLabel();
-//        clientPortNumberLabel = new JTextField();
         server1IpAddressTF = new JTextField(1);
         server1PortNumberTF = new JTextField(1);
         server2IpAddressTF = new JTextField(1);
@@ -124,8 +121,6 @@ public class RssClient implements ActionListener {
         updateClientPortNumberButton.addActionListener(new RssClient());
         clientPanel.add(updateClientPortNumberButton);
 
-
-//        updateClientInfoButton = new JButton("Save Number");
     }
 
     private static void setServerPanel() {
@@ -250,10 +245,6 @@ public class RssClient implements ActionListener {
         JList<String> jList = new JList<>(logs);
         MyCellRenderer cellRenderer = new MyCellRenderer(350);
         jList.setCellRenderer(cellRenderer);
-//        jList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-//        jList.setVisibleRowCount(-1);
-//
-//        jList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         JScrollPane scrollPane = new JScrollPane(jList);
         scrollPane.setBounds(1, 30, frame.getWidth() - 30, frame.getHeight() - 120);
         logsPanel.add(scrollPane);
@@ -328,7 +319,6 @@ public class RssClient implements ActionListener {
         }
     }
 
-
     private static void test() {
 
     }
@@ -397,12 +387,7 @@ public class RssClient implements ActionListener {
 
     private void setTopicMessage() {
         String message;
-//        if (subscribeRadioButton.isSelected()) {
         message = "New List: " + getSelectedTopicAsString();
-//        } else {
-        //Unsubscribe
-//            message = "UNSUBSCRIBE TO " + getSelectedTopicAsString();
-//        }
         topicsSendingLabel.setText(message);
     }
 
@@ -453,9 +438,7 @@ public class RssClient implements ActionListener {
         } else {
             List<String> selectedTopics = new ArrayList<>();
             Arrays.stream(topicCheckBoxes).filter(t -> t.isSelected()).forEach(t -> selectedTopics.add(t.getActionCommand()));
-//        if (subscribeRadioButton.isSelected())
             client.updateSubjectsOfInterest(selectedTopics);
-//        else client.deregisterToSubjectOfInterest(selectedTopics);
         }
     }
 
@@ -474,7 +457,6 @@ public class RssClient implements ActionListener {
         } else if (clientNameTF.getText().equals("")) {
             JOptionPane.showMessageDialog(frame, "Need to enter a proper name", "Client Name", JOptionPane.WARNING_MESSAGE);
         } else {
-//            client.setSocketNumber(Integer.parseInt(actualClientPortNumberLabel.getText()));
             client.setName(clientNameTF.getText());
             client.updateInformationToServer();
         }
@@ -488,7 +470,6 @@ public class RssClient implements ActionListener {
         } else {
             client.registerToServer();
             System.out.println("Button to register client pressed");
-//            logs.addElement("Button to register client pressed");
         }
     }
 
@@ -516,7 +497,7 @@ public class RssClient implements ActionListener {
         @Override
         public Component getListCellRendererComponent(JList list, Object value,
                                                       int index, boolean isSelected, boolean cellHasFocus) {
-            String text = HTML_1 + String.valueOf(width) + HTML_2 + value.toString()
+            String text = HTML_1 + (width) + HTML_2 + value.toString()
                     + HTML_3;
             return super.getListCellRendererComponent(list, text, index, isSelected,
                     cellHasFocus);

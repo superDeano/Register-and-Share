@@ -25,7 +25,6 @@ public class Server extends ServerModel implements ServerInterface {
     private long startTime;
     private long currentTime;
     private ServerStorage dao;
-    private JTextField otherServerIpAddressTF, otherServerPortNumberTF;
     private DefaultListModel<String> logs;
 
     public Server(String connectionName, int portNumber, DefaultListModel<String> logs) {
@@ -38,43 +37,20 @@ public class Server extends ServerModel implements ServerInterface {
         setUpServer();
     }
 
-//    public Server(String connectionName, String otherServerIp, int otherServerPort, boolean isServing) {
-//        super(connectionName);
-//        this.isServing = isServing;
-//        this.otherServerIp = otherServerIp;
-//        this.otherServerPort = otherServerPort;
-//
-//        this.communication = new Communication(connectionName);
-////        updateServerInfo();
-//        setUpServer();
-//        if (isServing) {
-//            startServing();
-//        }
-//    }
-
-
-    public void setOtherServerIpAddressTF(JTextField otherServerIpAddressTF) {
-        otherServerIpAddressTF = otherServerIpAddressTF;
-    }
-
-    public void setOtherServerPortNumberTF(JTextField otherServerPortNumberTF) {
-        otherServerPortNumberTF = otherServerPortNumberTF;
-    }
-
     private void setUpServer() {
         try {
             this.dao = new ServerStorage(getName());
-//            this.clients = new LinkedList<>();
             getClientListSaved();
             ServerModel otherServer = dao.getOtherServerInfo();
             if (otherServer != null) {
-                otherServerIp = otherServer.getIpAddress();
-                otherServerPort = otherServer.getSocketNumber();
+                this.otherServerIp = otherServer.getIpAddress();
+                this.otherServerPort = otherServer.getSocketNumber();
                 displayOtherServerInfo();
             }
             this.messageQueue = new ConcurrentLinkedQueue<>();
             this.logger = new Logger();
             if (this.getName().equals("A")) {
+                logger.log("name is A and serving is " + isServing);
                 startServing();
             }
             listen();
@@ -91,30 +67,25 @@ public class Server extends ServerModel implements ServerInterface {
     private void serveClients() {
 
         Runnable takeCareOfMessages = () -> {
-            logger.log("Server Serving", "Started Serving");
             while (true) {
 
                 if (this.messageQueue.isEmpty()) {
 
                     try {
-//                        logger.log("Server Serving", "Going to sleep");
                         Thread.sleep(10000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
                 } else {
-//                    for (String msg : messageQueue) {
-                    logger.log("Server Serving", "Sending Message");
                     Message message = messageQueue.poll();
-//                    Message message = Parsing.parseStringToMsg(msg);
                     handleMessage(message);
-//                    sendMessage(msg);
-
-//                    }
                 }
-                currentTime = System.nanoTime();
-                if ((currentTime - startTime) / 1000000000 == 300) {
-                    stopServing();
+                if (isServing) {
+                    currentTime = System.nanoTime();
+                    if ((currentTime - startTime) / 1E9 >= 120) {
+                        logger.log("Server switching is starting");
+                        stopServing();
+                    }
                 }
             }
         };
@@ -177,18 +148,16 @@ public class Server extends ServerModel implements ServerInterface {
         Thread listeningThread = new Thread() {
             public void run() {
                 logger.log("Started Listening");
-//                while (true) {
                 try {
                     communication.waitForMessage(messageQueue, logs);
-//                        messageQueue.put(message);
                     logger.log("Received message");
-//                        logs.addElement(message);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
 //            }
         };
+        listeningThread.setName("listeningThread");
         listeningThread.start();
     }
 
@@ -196,19 +165,20 @@ public class Server extends ServerModel implements ServerInterface {
     @Override
     public void startServing() {
 
-        logger.log(super.getName() + "started serving");
+        logger.log(super.getName() + " started serving");
+        logs.addElement(super.getName() + " started serving");
         startTime = System.nanoTime();
         isServing = true;
     }
 
     @Override
     public void stopServing() {
-        logger.log(super.getName() + "stopped serving");
-
+        logger.log(super.getName() + " stopped serving");
+        logs.addElement(super.getName() + " stopped serving");
         Message changeServer = new Message();
         changeServer.setMsgType(CHANGE_SERVER);
-        changeServer.setIpAddress(otherServerIp);
-        changeServer.setSocketNumber(otherServerPort);
+        changeServer.setIpAddress(this.otherServerIp);
+        changeServer.setSocketNumber(this.otherServerPort);
         String message = Parsing.parseMsgToString(changeServer);
 
         for (ClientModel clients : clients
@@ -217,14 +187,15 @@ public class Server extends ServerModel implements ServerInterface {
                     clients.getIpAddress(),
                     clients.getSocketNumber());
         }
-
-        Message switchServe = new Message();
-        changeServer.setMsgType(SWITCH_SERVER);
-        String switchMessage = Parsing.parseMsgToString(switchServe);
-        communication.sendMessage(switchMessage,
-                otherServerIp,
-                otherServerPort);
-
+        if (this.otherServerIp != null && this.otherServerPort != 0) {
+            Message switchServe = new Message();
+            switchServe.setMsgType(SWITCH_SERVER);
+            String switchMessage = Parsing.parseMsgToString(switchServe);
+            logger.log("Message to Switch", switchMessage);
+            communication.sendMessage(switchMessage,
+                    this.otherServerIp,
+                    this.otherServerPort);
+        }
         isServing = false;
     }
 
@@ -247,18 +218,19 @@ public class Server extends ServerModel implements ServerInterface {
                 String message = Parsing.parseMsgToString(clientAssert);
 
                 communication.sendMessage(message, ipAddress, socketNumber);
+                if (this.otherServerIp != null && this.otherServerPort != 0) {
+                    Message serverAssert = new Message();
+                    serverAssert.setMsgType(REGISTERED);
+                    serverAssert.setRequestNumber(requestNumber);
+                    serverAssert.setName(name);
+                    serverAssert.setIpAddress(ipAddress);
+                    serverAssert.setSocketNumber(socketNumber);
+                    String serverMsg = Parsing.parseMsgToString(serverAssert);
 
-                Message serverAssert = new Message();
-                serverAssert.setMsgType(REGISTERED);
-                serverAssert.setRequestNumber(requestNumber);
-                serverAssert.setName(name);
-                serverAssert.setIpAddress(ipAddress);
-                serverAssert.setSocketNumber(socketNumber);
-                String serverMsg = Parsing.parseMsgToString(serverAssert);
-
-                communication.sendMessage(serverMsg,
-                        otherServerIp,
-                        otherServerPort);
+                    communication.sendMessage(serverMsg,
+                            this.otherServerIp,
+                            this.otherServerPort);
+                }
             } else {
                 logger.log("ADDING USER", "Chosen name already exists!");
 
@@ -272,17 +244,19 @@ public class Server extends ServerModel implements ServerInterface {
                         ipAddress,
                         socketNumber);
 
-                Message serverAssert = new Message();
-                serverAssert.setMsgType(REGISTER_DENIED);
-                serverAssert.setRequestNumber(requestNumber);
-                serverAssert.setName(name);
-                serverAssert.setIpAddress(ipAddress);
-                serverAssert.setSocketNumber(socketNumber);
-                String serverMsg = Parsing.parseMsgToString(serverAssert);
+                if (this.otherServerIp != null && this.otherServerPort != 0) {
+                    Message serverAssert = new Message();
+                    serverAssert.setMsgType(REGISTER_DENIED);
+                    serverAssert.setRequestNumber(requestNumber);
+                    serverAssert.setName(name);
+                    serverAssert.setIpAddress(ipAddress);
+                    serverAssert.setSocketNumber(socketNumber);
+                    String serverMsg = Parsing.parseMsgToString(serverAssert);
 
-                communication.sendMessage(serverMsg,
-                        otherServerIp,
-                        otherServerPort);
+                    communication.sendMessage(serverMsg,
+                            this.otherServerIp,
+                            this.otherServerPort);
+                }
             }
         }
     }
@@ -297,9 +271,12 @@ public class Server extends ServerModel implements ServerInterface {
     }
 
     public void setOtherServerInfo() {
-        this.otherServerIp = otherServerIpAddressTF.getText();
-        this.otherServerPort = Integer.parseInt(otherServerPortNumberTF.getText());
-        dao.updateOtherServerIpAddressAndPortNumber(otherServerIp, otherServerPort);
+        logger.log("Saving other server ip address and port");
+        this.otherServerIp = Main.otherServerIpAddressTF.getText();
+        this.otherServerPort = Integer.parseInt(Main.otherServerPortNumberTF.getText());
+        if (this.otherServerIp == null) logger.log("Saving other server port", "Still null");
+        dao.updateOtherServerIpAddressAndPortNumber(this.otherServerIp, this.otherServerPort);
+        logger.log("other server ip & port", this.otherServerIp + ":" + this.otherServerPort);
     }
 
     @Override
@@ -310,14 +287,16 @@ public class Server extends ServerModel implements ServerInterface {
             logger.log("REMOVING USER", "User successfully deleted!");
 
             if (this.isServing) {
-                Message serverAssert = new Message();
-                serverAssert.setMsgType(DE_REGISTER.toString());
-                serverAssert.setName(message.getName());
-                String serverMessage = Parsing.parseMsgToString(serverAssert);
+                if (this.otherServerIp != null && this.otherServerPort != 0) {
+                    Message serverAssert = new Message();
+                    serverAssert.setMsgType(DE_REGISTER.toString());
+                    serverAssert.setName(message.getName());
+                    String serverMessage = Parsing.parseMsgToString(serverAssert);
 
-                communication.sendMessage(serverMessage,
-                        otherServerIp,
-                        otherServerPort);
+                    communication.sendMessage(serverMessage,
+                            this.otherServerIp,
+                            this.otherServerPort);
+                }
             }
         } else {
             logger.log("REMOVING USER", "User does not exist!");
@@ -347,7 +326,9 @@ public class Server extends ServerModel implements ServerInterface {
                 String message = Parsing.parseMsgToString(clientAssert);
 
                 communication.sendMessage(message, ipAddress, socketNumber);
-                communication.sendMessage(message, otherServerIp, otherServerPort);
+                if (this.otherServerIp != null && this.otherServerPort != 0) {
+                    communication.sendMessage(message, this.otherServerIp, this.otherServerPort);
+                }
 
             } else {
 
@@ -387,7 +368,7 @@ public class Server extends ServerModel implements ServerInterface {
                 else dao.updateClientListOfSubjects(message.getName(), listOfSubjects);
 
                 Message clientAssert = new Message();
-                clientAssert.setMsgType(SUBJECTS_UPDATED.toString());
+                clientAssert.setMsgType(SUBJECTS_UPDATED);
                 clientAssert.setRequestNumber(message.getRequestNumber());
                 clientAssert.setName(message.getName());
                 clientAssert.setSubjectsList(listOfSubjects);
@@ -397,12 +378,11 @@ public class Server extends ServerModel implements ServerInterface {
                         client.getIpAddress(),
                         client.getSocketNumber());
 
-                communication.sendMessage(messageS,
-                        otherServerIp,
-                        otherServerPort);
-
-//                }
-//            }
+                if (this.otherServerIp != null && this.otherServerPort != 0) {
+                    communication.sendMessage(messageS,
+                            this.otherServerIp,
+                            this.otherServerPort);
+                }
 
             } else {
                 logger.log("UPDATING SUBJECTS OF INTEREST", "User does not exist!");
@@ -415,15 +395,15 @@ public class Server extends ServerModel implements ServerInterface {
                 String denyMessage = Parsing.parseMsgToString(clientDeny);
 
                 communication.sendMessage(denyMessage,
-                        message.getIpAddress(),
-                        message.getSocketNumber());
+                        message.getSenderIpAddress(),
+                        message.getSenderSocketNumber());
             }
         }
     }
 
     @Override
     public void subjectsUpdated(int requestNumber, String name, List<String> subjectsList) {
-        if (!this.isServing) {
+        if(!this.isServing) {
             ClientModel client = getClientWithName(name);
             if (client != null) {
                 client.setSubjectsOfInterest(subjectsList);
@@ -443,9 +423,11 @@ public class Server extends ServerModel implements ServerInterface {
                     messagePublished.setName(message.getName());
                     messagePublished.setSubject(message.getSubject());
                     messagePublished.setText(message.getText());
-                    clients.stream().filter(c1 -> !c1.getName().equals(client.getName()) && c1.subscribedToSubject(message.getSubject())).forEach(c2 -> {
-                        sendMessage(message, c2.getIpAddress(), c2.getSocketNumber());
-                    });
+                    for (ClientModel c1 : clients) {
+                        if (!c1.getName().equals(client.getName()) && c1.subscribedToSubject(message.getSubject())) {
+                            sendMessage(messagePublished, c1.getIpAddress(), c1.getSocketNumber());
+                        }
+                    }
                 }
                 // Client not subscribed
                 else {
@@ -462,7 +444,7 @@ public class Server extends ServerModel implements ServerInterface {
                 publishDeniedMessage.setMsgType(PUBLISH_DENIED);
                 publishDeniedMessage.setRequestNumber(message.getRequestNumber());
                 publishDeniedMessage.setReason("User does not exist");
-                communication.sendMessage(Parsing.parseMsgToString(publishDeniedMessage), message.getIpAddress(), message.getSocketNumber());
+                communication.sendMessage(Parsing.parseMsgToString(publishDeniedMessage), message.getSenderIpAddress(), message.getSenderSocketNumber());
                 logger.log("PUBLISHING MESSAGE", "User does not exist!");
             }
         }
@@ -470,6 +452,7 @@ public class Server extends ServerModel implements ServerInterface {
 
     @Override
     public void switchServer() {
+        logger.log("Received messaged in switchServer () and will: " + (isServing ? " start" : " stop"));
         if (!this.isServing) {
             startServing();
             logger.log("Server Serving", "Server Started Serving");
@@ -493,8 +476,8 @@ public class Server extends ServerModel implements ServerInterface {
 
     private void updateOtherServerInfo(Message message) {
         if (this.isServing) {
-            otherServerIp = message.getIpAddress();
-            otherServerPort = message.getSocketNumber();
+            this.otherServerIp = message.getIpAddress();
+            this.otherServerPort = message.getSocketNumber();
             dao.updateOtherServerIpAddressAndPortNumber(message.getIpAddress(), message.getSocketNumber());
         }
         displayOtherServerInfo();
@@ -502,23 +485,37 @@ public class Server extends ServerModel implements ServerInterface {
 
     public boolean setCurrentServerPort(int port) {
         if (!this.isServing) {
-            if (communication.portIsAvailable(port) && communication.portIsValid(port)) {
+            Thread listeningThread = getThreadByName("listeningThread");
+            listeningThread.stop();
+            if (communication.portIsAvailable(port)) {
                 if (communication.setPort(port)) {
-                    Message currentServerUpdatedInfo = new Message();
-                    currentServerUpdatedInfo.setMsgType(UPDATE_SERVER);
-                    currentServerUpdatedInfo.setIpAddress(communication.getIpAddress());
-                    currentServerUpdatedInfo.setSocketNumber(communication.getPortNumber());
-                    String message = Parsing.parseMsgToString(currentServerUpdatedInfo);
-                    communication.sendMessage(message, otherServerIp, otherServerPort);
+                    if (this.otherServerIp != null && this.otherServerPort != 0) {
+                        Message currentServerUpdatedInfo = new Message();
+                        currentServerUpdatedInfo.setMsgType(UPDATE_SERVER);
+                        currentServerUpdatedInfo.setIpAddress(communication.getIpAddress());
+                        currentServerUpdatedInfo.setSocketNumber(communication.getPortNumber());
+                        String message = Parsing.parseMsgToString(currentServerUpdatedInfo);
+                        communication.sendMessage(message, this.otherServerIp, this.otherServerPort);
+                    }
+                    listen();
                     return true;
-                } else return false;
-            } else return false;
-        } else return false;
+                }
+            }
+            listen();
+        }
+         return false;
+
+    }
+    public Thread getThreadByName(String threadName) {
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            if (t.getName().equals(threadName)) return t;
+        }
+        return null;
     }
 
     private void displayOtherServerInfo() {
-        otherServerIpAddressTF.setText(otherServerIp);
-        otherServerPortNumberTF.setText(String.valueOf(otherServerPort));
+        Main.otherServerIpAddressTF.setText(this.otherServerIp);
+        Main.otherServerPortNumberTF.setText(String.valueOf(this.otherServerPort));
     }
 
     public boolean checkPort(int port) {

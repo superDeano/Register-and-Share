@@ -19,7 +19,6 @@ public class Client extends ClientModel implements ClientInterface {
     private final ServerModel[] servers = new ServerModel[2];
     private int servingServer = -1;
     private int requestNumber = 0;
-    private JTextField server1IpAddressTF, server2IpAddressTF, server1PortNumberTF, server2PortNumberTF;
 
     public Client() {
         super();
@@ -39,17 +38,12 @@ public class Client extends ClientModel implements ClientInterface {
 
     }
 
-    public void setServersInfoTF(JTextField server1IpAddressTF, JTextField server1PortNumberTF, JTextField server2IpAddressTF, JTextField server2PortNumberTF) {
-        this.server1IpAddressTF = server1IpAddressTF;
-        this.server1IpAddressTF = server1PortNumberTF;
-        this.server2IpAddressTF = server2IpAddressTF;
-        this.server2PortNumberTF = server2PortNumberTF;
-    }
+
 
     @Override
     public void registerToServer() {
         Message message = new Message();
-        message.setMsgType(MsgType.REGISTER.toString());
+        message.setMsgType(MsgType.REGISTER);
         message.setRequestNumber(requestNumber++);
         message.setName(getName());
         message.setIpAddress(communication.getIpAddress());
@@ -60,7 +54,7 @@ public class Client extends ClientModel implements ClientInterface {
     @Override
     public void deregisterToServer() {
         Message message = new Message();
-        message.setMsgType(MsgType.DE_REGISTER.toString());
+        message.setMsgType(MsgType.DE_REGISTER);
         message.setName(getName());
         message.setRequestNumber(requestNumber++);
         sendMessage(message);
@@ -69,7 +63,7 @@ public class Client extends ClientModel implements ClientInterface {
     @Override
     public void updateSubjectsOfInterest(List<String> subjectOfInterest) {
         Message message = new Message();
-        message.setMsgType(MsgType.SUBJECTS.toString());
+        message.setMsgType(MsgType.SUBJECTS);
         message.setSubjectsList(subjectOfInterest);
         message.setRequestNumber(requestNumber++);
         message.setName(getName());
@@ -79,7 +73,7 @@ public class Client extends ClientModel implements ClientInterface {
     @Override
     public void updateInformationToServer() {
         Message message = new Message();
-        message.setMsgType(MsgType.UPDATE.toString());
+        message.setMsgType(MsgType.UPDATE);
         message.setName(getName());
         message.setRequestNumber(requestNumber++);
         message.setIpAddress(communication.getIpAddress());
@@ -95,10 +89,8 @@ public class Client extends ClientModel implements ClientInterface {
         messageT.setName(getName());
         messageT.setRequestNumber(requestNumber++);
         messageT.setSubject(topic);
-        messageT.setMsgType(MsgType.PUBLISH.toString());
+        messageT.setMsgType(MsgType.PUBLISH);
         messageT.setText(message);
-//        logger.log("Server 1 ip", servers[0].getIpAddress());
-//        logger.log("server 1 pn", String.valueOf(servers[0].getSocketNumber()));
         sendMessage(messageT);
     }
 
@@ -125,24 +117,29 @@ public class Client extends ClientModel implements ClientInterface {
     }
 
     public void switchServer() {
+        logger.log("updating serving Server index"," before: "+  servingServer);
         servingServer = (servingServer + 1) % 2;
+        logger.log("updating serving Server index"," after: "+  servingServer);
     }
 
     public void changeServer(Message m) {
         if (servingServer == 0) {
             servers[1].setIpAddress(m.getIpAddress());
             servers[1].setSocketNumber(m.getSocketNumber());
-        } else {
+        } else if (servingServer == 1) {
             servers[0].setIpAddress(m.getIpAddress());
             servers[0].setSocketNumber(m.getSocketNumber());
         }
+        switchServer();
         displayServersInfo();
     }
 
     public void serverReplied(Message message) {
         for (int i = 0; i < servers.length; i++) {
-            if (message.getIpAddress().equals(servers[i].getIpAddress()) && message.getSocketNumber() == servers[i].getSocketNumber()) {
+            if (message.getSenderIpAddress().equals(servers[i].getIpAddress()) && message.getSenderSocketNumber() == servers[i].getSocketNumber()) {
                 servingServer = i;
+                logger.log("server replied", "i is "+ i);
+
             }
         }
     }
@@ -161,9 +158,9 @@ public class Client extends ClientModel implements ClientInterface {
     }
 
     private void displayServersInfo() {
-        this.server1IpAddressTF.setText(servers[0].getIpAddress());
-        this.server1PortNumberTF.setText(String.valueOf(servers[0].getSocketNumber()));
-        this.server2IpAddressTF.setText(servers[1].getIpAddress());
-        this.server2PortNumberTF.setText(String.valueOf(servers[1].getSocketNumber()));
+        RssClient.server1IpAddressTF.setText(servers[0].getIpAddress());
+        RssClient.server1PortNumberTF.setText(String.valueOf(servers[0].getSocketNumber()));
+        RssClient.server2IpAddressTF.setText(servers[1].getIpAddress());
+        RssClient.server2PortNumberTF.setText(String.valueOf(servers[1].getSocketNumber()));
     }
 }

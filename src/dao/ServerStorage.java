@@ -31,7 +31,6 @@ public class ServerStorage implements ServerStorageInterface {
             preparedStatement.setInt(3, client.getSocketNumber());
             preparedStatement.setString(4, currentServerName);
             preparedStatement.executeUpdate();
-//        query.append(client.getName() + ", " + client.getIpAddress() + ", " + client.getSocketNumber() + ", " + currentServerName + ")");
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -122,7 +121,7 @@ public class ServerStorage implements ServerStorageInterface {
     @Override
     public void deleteClientListOfSubjects(String clientName) {
         try {
-            preparedStatement = connection.prepareStatement("DELETE FROM `client-subjects` where (clientName = ? and serverName = ?) ");
+            preparedStatement = connection.prepareStatement("DELETE FROM `client-subjects` where clientName = ? and serverName = ? ");
             preparedStatement.setString(1, clientName);
             preparedStatement.setString(2, currentServerName);
             preparedStatement.executeUpdate();
@@ -133,12 +132,30 @@ public class ServerStorage implements ServerStorageInterface {
 
     @Override
     public void updateOtherServerIpAddressAndPortNumber(String ipAddress, int portNumber) {
+        if (getOtherServerInfo() == null) insertOtherServerIpAddressAndPortNumber(ipAddress, portNumber);
+        else {
+            try {
+                preparedStatement = connection.prepareStatement("UPDATE servers s set s.otherServerIpAddress = ?, s.otherServerPortNumber = ? where s.serverName = ?;");
+                preparedStatement.setString(1, ipAddress);
+                preparedStatement.setString(2, String.valueOf(portNumber));
+                preparedStatement.setString(3, currentServerName);
+                preparedStatement.executeUpdate();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+    }
+
+
+    @Override
+    public void insertOtherServerIpAddressAndPortNumber(String ipAddress, int portNumber) {
         try {
-            preparedStatement = connection.prepareStatement("UPDATE servers s set s.otherServerIpAddress = ?, s.otherServerPortNumber = ? where s.serverName = ?;");
-            preparedStatement.setString(1, ipAddress);
-            preparedStatement.setString(2, String.valueOf(portNumber));
-            preparedStatement.setString(3, currentServerName);
+            preparedStatement = connection.prepareStatement("INSERT INTO servers (serverName, otherServerIpAddress, otherServerPortNumber) VALUES (?, ?, ?)");
+            preparedStatement.setString(1, currentServerName);
+            preparedStatement.setString(2, ipAddress);
+            preparedStatement.setInt(3, portNumber);
             preparedStatement.executeUpdate();
+
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -151,8 +168,6 @@ public class ServerStorage implements ServerStorageInterface {
             preparedStatement = connection.prepareStatement("SELECT s.otherServerIpAddress, s.otherServerPortNumber from servers s where s.serverName = ?;");
             preparedStatement.setString(1, currentServerName);
             resultSet = preparedStatement.executeQuery();
-//            statement = connection.createStatement();
-//            resultSet = statement.executeQuery("SELECT s.otherServerIpAddress, s.otherServerPortNumber from servers s where s.serverName = " + currentServerName + ";");
             if (!resultSet.next()) return null;
             otherServer.setSocketNumber(resultSet.getInt("otherServerPortNumber"));
             otherServer.setIpAddress(resultSet.getString("otherServerIpAddress"));

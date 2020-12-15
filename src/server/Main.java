@@ -7,19 +7,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Main implements ActionListener {
-    private Server server;
+    private static Server server;
     private static JFrame frame;
     private static JPanel serverPanel, logsPanel;
     private static JButton updateClientPortNumberButton, clearAllLogsButton;
     private static JLabel actualServerIpAddressLabel;
     private static JComboBox<String> serverNameComboBox;
-    private static JTextField otherServerIpAddressTF, currentServerPortNumberTF, otherServerPortNumberTF;
+    protected static JTextField otherServerIpAddressTF;
+    private static JTextField currentServerPortNumberTF;
+    protected static JTextField otherServerPortNumberTF;
     private static DefaultListModel<String> logs;
     private static String[] serverNames = {"", "A", "B"};
     private static JTabbedPane tabbedPane;
 
     public static void main(String[] args) {
-        // write your code here
         instantiateGraphicalComponents();
     }
 
@@ -143,9 +144,10 @@ public class Main implements ActionListener {
                 startServer();
             }
             break;
-            case "Set Port":{
+            case "Set Port": {
                 setCurrentServerPort();
             }
+            break;
             case "Save Server":
                 saveOtherServerInfo();
                 break;
@@ -158,29 +160,39 @@ public class Main implements ActionListener {
         }
     }
 
-    private void saveOtherServerInfo(){
-        server.setOtherServerInfo();
-        logs.addElement("Other Server info saved!");
+    private void saveOtherServerInfo() {
+        if (server == null) {
+            JOptionPane.showMessageDialog(frame, "Start Server First", "Saving Other Server Info", JOptionPane.ERROR_MESSAGE);
+        } else {
+            server.setOtherServerInfo();
+            logs.addElement("Other Server info saved!");
+        }
     }
 
     private void startServer() {
-        try {
-            this.server =
-                    new Server(serverNameComboBox.getSelectedItem().toString(), Integer.parseInt(currentServerPortNumberTF.getText()), logs);
-           
-            actualServerIpAddressLabel.setText(server.getIpAddress());
-            server.setLogs(logs);
-            server.setOtherServerIpAddressTF(otherServerIpAddressTF);
-            server.setOtherServerPortNumberTF(otherServerPortNumberTF);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (currentServerPortNumberTF.getText().equals(""))
+            JOptionPane.showMessageDialog(frame, "Port Number Invalid", "Starting Server", JOptionPane.ERROR_MESSAGE);
+        else {
+            try {
+
+                server =
+                        new Server(serverNameComboBox.getSelectedItem().toString(), Integer.parseInt(currentServerPortNumberTF.getText()), logs);
+
+                actualServerIpAddressLabel.setText(server.getIpAddress());
+                server.setLogs(logs);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private void setCurrentServerPort() {
+        int ogPort = server.getSocketNumber();
         boolean allChecks = this.server.setCurrentServerPort(Integer.parseInt(currentServerPortNumberTF.getText()));
-        if (!allChecks){
+        if (!allChecks) {
+            currentServerPortNumberTF.setText(String.valueOf(ogPort));
             JOptionPane.showMessageDialog(frame, "Either the server was serving, port was invalid or already used.\nPlease try again", "Error when setting the port", JOptionPane.ERROR_MESSAGE);
+
         }
     }
 
@@ -197,7 +209,7 @@ public class Main implements ActionListener {
         @Override
         public Component getListCellRendererComponent(JList list, Object value,
                                                       int index, boolean isSelected, boolean cellHasFocus) {
-            String text = HTML_1 + String.valueOf(width) + HTML_2 + value.toString()
+            String text = HTML_1 + width + HTML_2 + value.toString()
                     + HTML_3;
             return super.getListCellRendererComponent(list, text, index, isSelected,
                     cellHasFocus);
