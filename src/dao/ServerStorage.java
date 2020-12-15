@@ -121,7 +121,7 @@ public class ServerStorage implements ServerStorageInterface {
     @Override
     public void deleteClientListOfSubjects(String clientName) {
         try {
-            preparedStatement = connection.prepareStatement("DELETE FROM `client-subjects` where (clientName = ? and serverName = ?) ");
+            preparedStatement = connection.prepareStatement("DELETE FROM `client-subjects` where clientName = ? and serverName = ? ");
             preparedStatement.setString(1, clientName);
             preparedStatement.setString(2, currentServerName);
             preparedStatement.executeUpdate();
